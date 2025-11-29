@@ -6,6 +6,15 @@
 > queue, spawn01, spawn02, north, south, east, west, northEast, northWest, southEast, southWest 
 > 
 
+
+> [!WARNING]
+> **This branch is currently under active development**
+>
+> ⚠️ Features may be incomplete or unstable.  
+> ❌ This branch is **unstable** and should not be used on the main/production server.  
+> ✅ Use it only for testing or development purposes.
+
+
 ---
 ⚙️ Requirements
 ---
