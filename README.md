@@ -19,7 +19,8 @@ Players can move seamlessly between sectors, chat globally, and have their data 
 - No code, classes, or implementation from OpenSectors, OpenSourceSectors, or OpenSectors original were used; all modifications are based solely on PocketSectors concepts.  
 
 Basically: this is a **learning/testing framework**, done for fun. Not meant for serious production servers.
-
+>
+## Note: The project is being rewritten from scratch on its own foundation and will no longer be a fork.
 
 
 
