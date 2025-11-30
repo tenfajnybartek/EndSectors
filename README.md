@@ -1,180 +1,70 @@
 # EndSectors
 
-**EndSectors** — advanced Minecraft sector framework for **Paper 1.24.1** with **Mongo & Redis** 🗄️  
+**EndSectors** — experimental Minecraft sector framework for **Paper 1.24.1** with **MongoDB & Redis** 🗄️
 
-One large Minecraft world, divided into multiple sectors on a single Spigot/Paper server, 
-fully synchronized across all players. 
-Provides seamless border teleportation, global chat, real-time player data sync, 
-and an advanced queue system, making large map management effortless
+One large Minecraft world, divided into multiple sectors on a single Paper server,  
+with automatic player synchronization, seamless border teleportation, and global chat.
 
-🗺️ Example Map
-
-> Here’s a visual representation of how sectors are divided in a single world:
-- 🔗 EndSectors Map [Click](https://oski646.github.io/sectors-generator)
+> ⚠️ WARNING: This project is **4fun** and **not suitable for production**.  
+> Do not take it seriously – it is mainly developed for testing and experimentation.
 
 ---
 
-> [!WARNING]
-> **This branch is currently under active development**
->
-> ⚠️ Features may be incomplete or unstable.  
-> ❌ This branch is **unstable** and should **not** be used on a main/production server.  
-> ✅ Use it only for testing or development purposes.
->
-> 💡 Don’t expect miracles – this is just a beta, a lightweight framework for now.  
-> It will be expanded and improved over time.
->
-> **💥 Sector configuration warning 💥**
->
-> ⚠️ In this beta, sector coordinates in YAML may cause players to teleport **slightly before the border**.  
-> 🛑 Correct setup (matching the frontend `sectors` array) should be:
->   - Spawn sectors: **-250 / 250**  
->   - Other sectors: **251 / 751** (or **-751 / -251** for negative axes)  
-> 🚨 Using the old YAML coordinates (e.g., `250 / -250`) may cause borders to behave weirdly.  
-> 🛠️ Will be fixed in **Beta 1.1**.
+## 🔹 Inspirations
+
+The project is based on **PocketSectors** (Nukkit), rewritten in Java for Paper:  
+- 🔗 [PocketSectors repo](https://github.com/ProjectCode-PL/PocketSectors/blob/master/nukkit/src/main/java/pl/projectcode/pocketsectors/nukkit/command/SectorCommand.java)
+
+Some ideas are inspired by other public projects (just inspiration, **no code copying**):  
+- 🔗 [OpenSectors](https://github.com/fajzu1/OpenSectors/tree/main/spigot/src/main/java/io/github/fajzu/sectors/bukkit)
 
 ---
 
+## ⚙️ Requirements
 
-🔹 Default Setup
-
-- Default setup includes **11 sectors**: 
-- Each sector comes with its **assigned world** and **address**, fully configurable via YAML.
-
----
-
-⚙️ Requirements
-
-- PaperMC 1.24.1 
-- Redis
+- PaperMC 1.24.1  
+- Redis  
 - MongoDB  
 
 ---
 
- ✨ Features
+## ✨ Features
 
-- 🚪 **Smooth teleportation**  
-  Players can seamlessly move between sectors when crossing borders, with no lag or delay. The system handles sector transitions automatically, making the world feel continuous.
-
-- 🔄 **Real-time player data synchronization**  
-  All player data is synced across sectors in real-time, including potions, enderchest contents, gamemode, fly status, inventory, and more. Nothing is lost when switching sectors.
-
-- 🧭 **Shared and synced sector information**  
-  Sector-wide information is shared and synchronized across all sectors. Admins can rely on consistent world data and stats at any time.
-
-- 💬 **Global player chat**  
-  Players can chat globally, with messages synchronized across all sectors. No matter which sector they are in, everyone stays connected.
-
-- 🧩 **Synced player information**  
-  Each player keeps their personal data consistent across all sectors. This includes inventory, stats, positions, and custom attributes.
-
-- 🎯 **Advanced sector queue system**  
-  When connecting to the server, the framework intelligently decides which sector to send the player to:  
-  - **Last sector (`lastSector`)** – if the player has a recorded last sector, they will return there.  
-  - **Random sector** – if no last sector exists, the player is sent to a random sector to balance load.
-
-- ⚡ **Plug-and-play**  
-  Simply configure your servers in the YAML file and everything works out of the box. No additional setup is required; teleportation, syncing, and queues are handled automatically.
+- 🚪 **Smooth teleportation** between sectors on border crossing  
+- 🔄 **Real-time player data synchronization** (inventory, enderchest, gamemode, fly status, etc.)  
+- 💬 **Global chat** synchronized across all sectors  
+- 🎯 **Advanced sector queue system** – players go to their last sector or a random one for load balancing  
+- ⚡ **Plug-and-play** – configure YAML and teleportation/sync works out of the box
 
 ---
 
- 🛠️ Quick Start
+## 🛠️ Quick Start
 
-- > Install **Paper 1.24.1** server  
-- > Configure **MongoDB** and **Redis** connection in `config.yml`  
-- >  Define your sectors in the YAML configuration  
-- >  Start the server and watch **EndSectors** handle teleportation, syncing, and queues automatically  
+1. Install **Paper 1.24.1**  
+2. Configure **MongoDB** and **Redis** connection in `config.yml`  
+3. Define your sectors in YAML  
+4. Start the server and watch **EndSectors** handle teleportation, syncing, and queues automatically
 
 ---
 
-📦 Default YAML Example
+## 🗺️ Example Map
 
-```yaml
-sectors:
-  queue:
-    x1: -50
-    z1: -50
-    x2: 50
-    z2: 50
-    type: "QUEUE"
-    world: world
+- 🔗 [EndSectors Map](https://oski646.github.io/sectors-generator)
 
-  spawn01:
-    x1: -250
-    z1: -250
-    x2: 250
-    z2: 250
-    type: "SPAWN"
-    world: world
+---
 
-  spawn02:
-    x1: -250
-    z1: -250
-    x2: 250
-    z2: 250
-    type: "SPAWN"
-    world: world
+## ⚠️ Warnings
 
-  north:
-    x1: 251
-    z1: -250
-    x2: 751
-    z2: 250
-    type: "SECTOR"
-    world: world
+- YAML sector coordinates may cause slight teleporting **before the border**  
+- Correct setup (matching frontend `sectors` array):  
+  - Spawn sectors: `-250 / 250`  
+  - Other sectors: `251 / 751` (or `-751 / -251` for negative axes)  
+- Using old YAML (`250 / -250`) may produce weird border behavior  
 
-  south:
-    x1: -751
-    z1: -250
-    x2: -251
-    z2: 250
-    type: "SECTOR"
-    world: world
+---
 
-  east:
-    x1: -250
-    z1: 251
-    x2: 250
-    z2: 751
-    type: "SECTOR"
-    world: world
+## 📌 TODO
 
-  west:
-    x1: -250
-    z1: -751
-    x2: 250
-    z2: -251
-    type: "SECTOR"
-    world: world
-
-  northEast:
-    x1: 251
-    z1: 251
-    x2: 751
-    z2: 751
-    type: "SECTOR"
-    world: world
-
-  northWest:
-    x1: -751
-    z1: 251
-    x2: -251
-    z2: 751
-    type: "SECTOR"
-    world: world
-
-  southEast:
-    x1: 251
-    z1: -751
-    x2: 751
-    z2: -251
-    type: "SECTOR"
-    world: world
-  southWest:
-    x1: -751
-    z1: -751
-    x2: -251
-    z2: -251
-    type: "SECTOR"
-    world: world
-
+- Expand queue system  
+- Sync optimization and bug fixes  
+- Add new 4fun features
