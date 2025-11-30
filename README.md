@@ -84,6 +84,9 @@ Basically: this is a **learning/testing framework**, done for fun. Not meant for
 
 ## 📌 TODO
 
-- Expand/improve the queue system  
-- Sync optimization and bug fixes  
-- Add more 4fun features
+- Expand and improve the queue system (handling larger player counts more efficiently)  
+- Optimize sync and fix potential bugs (especially when multiple players interact with sectors simultaneously)  
+- Add more fun/optional features  
+
+> ⚠️ Note: Some synchronization issues may occur with many players at once. These are known and will be fixed in future updates.
+
