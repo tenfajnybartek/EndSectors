@@ -33,9 +33,9 @@ Basically: this is a **learning/testing framework**, done for fun. Not meant for
   - 🔗 [PocketSectors repo](https://github.com/ProjectCode-PL/PocketSectors/blob/master/nukkit/src/main/java/pl/projectcode/pocketsectors/nukkit/command/SectorCommand.java)
 
 - Other public projects (concept inspiration, no code copying):  
-  - 🔗 [OpenSectors](https://github.com/fajzu1/OpenSectors/tree/main/spigot/src/main/java/io/github/fajzu/sectors/bukkit)  
-  - 🔗 [OpenSectors original](https://github.com/SocketByte/OpenSectors)  
-  - 🔗 [OpenSourceSectors](https://github.com/Inder00/OpenSourceSectors/tree/main/Spigot)
+  - 🔗 [OpenSectors](https://github.com/fajzu1/OpenSectors/tree/main/spigot/src/main/java/io/github/fajzu/sectors/bukkit)   briefly looked at for ideas on approach
+  - 🔗 [OpenSectors original](https://github.com/SocketByte/OpenSectors)  briefly looked at for ideas on approach
+  - 🔗 [OpenSourceSectors](https://github.com/Inder00/OpenSourceSectors/tree/main/Spigot) briefly looked at for ideas on approach
 
 
 ---
