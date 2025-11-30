@@ -10,7 +10,7 @@ and an advanced queue system, making large map management effortless
 🗺️ Example Map
 
 Here’s a visual representation of how sectors are divided in a single world:
-![EndSectors Map](https://oski646.github.io/sectors-generator/)
+![EndSectors Map]([https://oski646.github.io/sectors-generator/](https://oski646.github.io/sectors-generator/))
 
 ---
 
