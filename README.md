@@ -2,6 +2,18 @@
 
 **EndSectors** — advanced Minecraft sector framework for **Paper 1.24.1** with **Mongo & Redis** 🗄️  
 
+One large Minecraft world, divided into multiple sectors on a single Spigot/Paper server, 
+fully synchronized across all players. 
+Provides seamless border teleportation, global chat, real-time player data sync, 
+and an advanced queue system, making large map management effortless
+
+🗺️ Example Map
+
+Here’s a visual representation of how sectors are divided in a single world:
+![EndSectors Map](https://oski646.github.io/sectors-generator/)
+
+---
+
 > [!WARNING]
 > **This branch is currently under active development**
 >
