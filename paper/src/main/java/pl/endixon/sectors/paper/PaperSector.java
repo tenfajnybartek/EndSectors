@@ -34,7 +34,7 @@ import pl.endixon.sectors.common.redis.RedisPacketListener;
 import pl.endixon.sectors.common.redis.RedisManager;
 import pl.endixon.sectors.paper.command.ChannelCommand;
 import pl.endixon.sectors.paper.config.ConfigLoader;
-import pl.endixon.sectors.paper.listener.other.PortalListener;
+
 import pl.endixon.sectors.paper.listener.player.*;
 import pl.endixon.sectors.paper.command.SectorCommand;
 import pl.endixon.sectors.paper.listener.other.MoveListener;
