@@ -22,8 +22,9 @@ Players can move seamlessly between sectors, chat globally, and have their data 
 
 ## ⚙️ Requirements
 
-- PaperMC 1.24.1
-- Redis (for sector synchronization)
+- Minimum Minecraft version: 1.20
+- Tested on PaperMC 1.24.1
+- Redis
 - MongoDB
 
 ---
