@@ -1,0 +1,87 @@
+sectors:
+  queue:
+    x1: -50
+    z1: -50
+    x2: 50
+    z2: 50
+    type: "QUEUE"
+    world: world
+
+  spawn01:
+    x1: -250
+    z1: -250
+    x2: 250
+    z2: 250
+    type: "SPAWN"
+    world: world
+
+  spawn02:
+    x1: -250
+    z1: -250
+    x2: 250
+    z2: 250
+    type: "SPAWN"
+    world: world
+
+  north:
+    x1: 251
+    z1: -250
+    x2: 751
+    z2: 250
+    type: "SECTOR"
+    world: world
+
+  south:
+    x1: -751
+    z1: -250
+    x2: -251
+    z2: 250
+    type: "SECTOR"
+    world: world
+
+  east:
+    x1: -250
+    z1: 251
+    x2: 250
+    z2: 751
+    type: "SECTOR"
+    world: world
+
+  west:
+    x1: -250
+    z1: -751
+    x2: 250
+    z2: -251
+    type: "SECTOR"
+    world: world
+
+  northEast:
+    x1: 251
+    z1: 251
+    x2: 751
+    z2: 751
+    type: "SECTOR"
+    world: world
+
+  northWest:
+    x1: -751
+    z1: 251
+    x2: -251
+    z2: 751
+    type: "SECTOR"
+    world: world
+
+  southEast:
+    x1: 251
+    z1: -751
+    x2: 751
+    z2: -251
+    type: "SECTOR"
+    world: world
+  southWest:
+    x1: -751
+    z1: -751
+    x2: -251
+    z2: -251
+    type: "SECTOR"
+    world: world

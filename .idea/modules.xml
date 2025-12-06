@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/common/EndSectors.common.main.iml" filepath="$PROJECT_DIR$/.idea/modules/common/EndSectors.common.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/common/EndSectors.common.test.iml" filepath="$PROJECT_DIR$/.idea/modules/common/EndSectors.common.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/paper/EndSectors.paper.main.iml" filepath="$PROJECT_DIR$/.idea/modules/paper/EndSectors.paper.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/paper/EndSectors.paper.test.iml" filepath="$PROJECT_DIR$/.idea/modules/paper/EndSectors.paper.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/proxy/EndSectors.proxy.main.iml" filepath="$PROJECT_DIR$/.idea/modules/proxy/EndSectors.proxy.main.iml" />
+    </modules>
+  </component>
+</project>

@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Maven: org.spigotmc:spigot-api:1.21.4-R0.1-SNAPSHOT" type="java-imported" external-system-id="Maven">
+    <properties groupId="org.spigotmc" artifactId="spigot-api" version="1.21.4-R0.1-20250325.160956-56" baseVersion="1.21.4-R0.1-SNAPSHOT" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/spigotmc/spigot-api/1.21.4-R0.1-SNAPSHOT/spigot-api-1.21.4-R0.1-20250325.160956-56.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/spigotmc/spigot-api/1.21.4-R0.1-SNAPSHOT/spigot-api-1.21.4-R0.1-20250325.160956-56-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/spigotmc/spigot-api/1.21.4-R0.1-SNAPSHOT/spigot-api-1.21.4-R0.1-20250325.160956-56-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

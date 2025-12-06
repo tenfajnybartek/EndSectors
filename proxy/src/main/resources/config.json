@@ -1,0 +1,117 @@
+{
+  "SPAWN": {
+    "spawn01": {
+      "corner1X": -250,
+      "corner1Z": -250,
+      "corner2X": 250,
+      "corner2Z": 250,
+      "world": "world"
+    },
+    "spawn02": {
+      "corner1X": -250,
+      "corner1Z": -250,
+      "corner2X": 250,
+      "corner2Z": 250,
+      "world": "world"
+    }
+  },
+  "QUEUE": {
+    "queue": {
+      "corner1X": -50,
+      "corner1Z": -50,
+      "corner2X": 50,
+      "corner2Z": 50,
+      "world": "world"
+    }
+  },
+  "SECTOR": {
+    "north": {
+      "corner1X": 251,
+      "corner1Z": -250,
+      "corner2X": 751,
+      "corner2Z": 250,
+      "world": "world"
+    },
+    "south": {
+      "corner1X": -751,
+      "corner1Z": -250,
+      "corner2X": -251,
+      "corner2Z": 250,
+      "world": "world"
+    },
+    "east": {
+      "corner1X": -250,
+      "corner1Z": 251,
+      "corner2X": 250,
+      "corner2Z": 751,
+      "world": "world"
+    },
+    "west": {
+      "corner1X": -250,
+      "corner1Z": -751,
+      "corner2X": 250,
+      "corner2Z": -251,
+      "world": "world"
+    },
+    "northEast": {
+      "corner1X": 251,
+      "corner1Z": 251,
+      "corner2X": 751,
+      "corner2Z": 751,
+      "world": "world"
+    },
+    "northWest": {
+      "corner1X": -751,
+      "corner1Z": 251,
+      "corner2X": -251,
+      "corner2Z": 751,
+      "world": "world"
+    },
+    "southEast": {
+      "corner1X": 251,
+      "corner1Z": -751,
+      "corner2X": 751,
+      "corner2Z": -251,
+      "world": "world"
+    },
+    "southWest": {
+      "corner1X": -751,
+      "corner1Z": -751,
+      "corner2X": -251,
+      "corner2Z": -251,
+      "world": "world"
+    }
+  },
+  "NETHER": {
+    "nether01": {
+      "corner1X": -128,
+      "corner1Z": -128,
+      "corner2X": 128,
+      "corner2Z": 128,
+      "world": "world_nether"
+    },
+    "nether02": {
+      "corner1X": 129,
+      "corner1Z": -128,
+      "corner2X": 384,
+      "corner2Z": 128,
+      "world": "world_nether"
+    }
+  },
+  "END": {
+    "end01": {
+      "corner1X": -100,
+      "corner1Z": -100,
+      "corner2X": 100,
+      "corner2Z": 100,
+      "world": "world_end"
+    },
+    "end02": {
+      "corner1X": 101,
+      "corner1Z": -100,
+      "corner2X": 300,
+      "corner2Z": 100,
+      "world": "world_end"
+    }
+  }
+}

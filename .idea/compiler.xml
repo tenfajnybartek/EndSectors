@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.30/f195ee86e6c896ea47a1d39defbe20eb59cd149d/lombok-1.18.30.jar" />
+        </processorPath>
+        <module name="EndSectors.common.main" />
+        <module name="EndSectors.paper.main" />
+        <module name="EndSectors.proxy.main" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel target="17" />
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="EndSectors.paper" options="-Xlint:none" />
+      <module name="EndSectors.paper.main" options="-Xlint:none" />
+      <module name="EndSectors.paper.test" options="-Xlint:none" />
+      <module name="EndSectors.proxy" options="-Xlint:none" />
+      <module name="EndSectors.proxy.main" options="-Xlint:none" />
+      <module name="EndSectors.proxy.test" options="-Xlint:none" />
+      <module name="PocketSectors.paper" options="-Xlint:none" />
+      <module name="PocketSectors.paper.main" options="-Xlint:none" />
+      <module name="PocketSectors.paper.test" options="-Xlint:none" />
+    </option>
+  </component>
+</project>

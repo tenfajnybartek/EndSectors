@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="Maven: org.redisson:redisson:3.52.0" type="java-imported" external-system-id="Maven">
+    <properties groupId="org.redisson" artifactId="redisson" version="3.52.0" baseVersion="3.52.0" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/redisson/redisson/3.52.0/redisson-3.52.0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/redisson/redisson/3.52.0/redisson-3.52.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/redisson/redisson/3.52.0/redisson-3.52.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
