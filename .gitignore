@@ -1,0 +1,10 @@
+.idea/
+*.iml
+*.iws
+out/
+.gradle/
+build/
+build-logic/
+# Systemowe
+.DS_Store
+Thumbs.db
