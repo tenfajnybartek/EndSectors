@@ -1,39 +1,59 @@
+package pl.endixon.sectors.proxy.listener;
+
+import com.google.inject.Inject;
+import com.velocitypowered.api.event.Subscribe;
+import com.velocitypowered.api.event.player.ServerConnectedEvent;
+import com.velocitypowered.api.proxy.Player;
+import org.bson.Document;
+import pl.endixon.sectors.common.redis.MongoExecutor;
+import pl.endixon.sectors.common.redis.MongoManager;
+import pl.endixon.sectors.proxy.VelocitySectorPlugin;
+import pl.endixon.sectors.proxy.manager.TeleportationManager;
+import pl.endixon.sectors.proxy.queue.Queue;
+import pl.endixon.sectors.proxy.queue.QueueManager;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class LastSectorConnectListener {
+
+    private static final int MAX_RETRIES = 10;
+    private static final long BASE_DELAY_MS = 500;
 
     private final VelocitySectorPlugin plugin;
     private final MongoManager mongo;
     private final TeleportationManager teleportManager;
+    private final QueueManager queueService;
 
     @Inject
     public LastSectorConnectListener(VelocitySectorPlugin plugin, TeleportationManager teleportManager) {
         this.plugin = plugin;
         this.mongo = plugin.getMongoManager();
         this.teleportManager = teleportManager;
+        this.queueService = plugin.getQueueManager();
     }
 
+    @Subscribe
     public void onServerConnected(ServerConnectedEvent event) {
         Player player = event.getPlayer();
         String connectedServer = event.getServer().getServerInfo().getName();
 
         if (!connectedServer.equalsIgnoreCase("queue")) return;
 
-        QueueManager queueService = plugin.getQueueManager();
         queueService.findQueueByPlayer(player).ifPresent(queue -> queue.removePlayer(player));
-        pollForUser(player, queueService);
+        pollForUser(player, 0);
     }
-
+    
     private void pollForUser(Player player, QueueManager queueService) {
         plugin.getProxy().getScheduler().buildTask(plugin, () -> {
             CompletableFuture.supplyAsync(() ->
-                    mongo.getUsersCollection()
-                            .find(new Document("Name", player.getUsername()))
-                            .first(),
+                    mongo.getUsersCollection().find(new Document("Name", player.getUsername())) .first(),
                     MongoExecutor.EXECUTOR
             ).thenAccept(doc -> {
                 if (doc == null) return; 
                 String lastSector = doc.getString("sectorName");
                 if (lastSector == null) return;
-
                 Queue queue = queueService.getMap().computeIfAbsent(lastSector, Queue::new);
                 queue.addPlayer(player);
             });
