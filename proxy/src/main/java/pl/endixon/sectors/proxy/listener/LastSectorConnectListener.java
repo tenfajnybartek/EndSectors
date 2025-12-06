@@ -40,7 +40,7 @@ public class LastSectorConnectListener {
         if (!connectedServer.equalsIgnoreCase("queue")) return;
 
         queueService.findQueueByPlayer(player).ifPresent(queue -> queue.removePlayer(player));
-        pollForUser(player, 0);
+        pollForUser(player);
     }
     
     private void pollForUser(Player player, QueueManager queueService) {
