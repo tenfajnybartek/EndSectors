@@ -31,9 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * Nowy builder przedmiotów, inna nazwa i układ
- */
+
 public class StackBuilder {
 
     private final ItemStack stack;
