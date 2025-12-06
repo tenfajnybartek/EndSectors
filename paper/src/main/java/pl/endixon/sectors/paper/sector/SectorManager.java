@@ -117,8 +117,6 @@ public class SectorManager {
     }
 
 
-
-
     public Sector getCurrentSector() {
         return this.getSector(currentSectorName);
     }
@@ -135,8 +133,5 @@ public class SectorManager {
         return this.getOnlinePlayers().contains(playerName);
     }
 
-    public Optional<Player> getOnlinePlayer(String playerName) {
-        return Optional.ofNullable(Bukkit.getPlayerExact(playerName));
-    }
 }
 

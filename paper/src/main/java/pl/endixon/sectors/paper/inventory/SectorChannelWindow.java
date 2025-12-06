@@ -72,7 +72,7 @@ public class SectorChannelWindow {
 
         if (sector.isOnline()) {
             lore.add("&7Online: &a" + sector.getPlayerCount());
-            lore.add("&7TPS: &a" + sector.getTPSColored());
+            lore.add("&7TPS: " + sector.getTPSColored());
             lore.add("&7Ostatnia aktualizacja: &a" + sector.getLastInfoPacket());
         } else {
             lore.add("&cSektor jest offline");

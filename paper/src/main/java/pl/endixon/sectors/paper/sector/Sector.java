@@ -23,6 +23,8 @@ package pl.endixon.sectors.paper.sector;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -88,17 +90,17 @@ public class Sector {
         return this.isOnline() ? tps : 0;
     }
 
-    public String getTPSColored() {
+    public Component getTPSColored() {
         double currentTps = getTPS();
-        ChatColor color = ChatColor.RED;
-
+        TextColor color = TextColor.color(0xFF0000);
         if (currentTps >= 19.0) {
-            color = ChatColor.GREEN;
+            color = TextColor.color(0x00FF00);
         } else if (currentTps >= 16.0) {
-            color = ChatColor.YELLOW;
+            color = TextColor.color(0xFFFF00);
         }
 
-        return color + String.format(Locale.US, "%.2f", Math.min(currentTps, 20.0));
+        String tpsFormatted = String.format(Locale.US, "%.2f", Math.min(currentTps, 20.0));
+        return Component.text(tpsFormatted, color);
     }
 
     public void setTPS(float tps) {
