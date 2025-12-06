@@ -144,7 +144,6 @@ public class VelocitySectorPlugin {
         for (Map.Entry<String, Map<String, Object>> entry : sectors.entrySet()) {
             String sectorName = entry.getKey();
             Map<String, Object> data = entry.getValue();
-
             try {
                 int pos1X = ((Number) data.get("pos1X")).intValue();
                 int pos1Z = ((Number) data.get("pos1Z")).intValue();
