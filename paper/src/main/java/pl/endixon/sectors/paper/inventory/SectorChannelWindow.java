@@ -19,6 +19,7 @@
 
 package pl.endixon.sectors.paper.inventory;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import pl.endixon.sectors.common.sector.SectorType;
@@ -98,7 +99,7 @@ public class SectorChannelWindow {
         }
 
         if (userData == null) {
-            player.kickPlayer(ChatUtil.fixColors(Configuration.playerDataNotFoundMessage));
+            player.kick(Component.text(ChatUtil.fixColors(Configuration.playerDataNotFoundMessage)));
             return;
         }
 
