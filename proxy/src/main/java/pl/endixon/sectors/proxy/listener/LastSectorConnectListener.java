@@ -41,20 +41,25 @@ public class LastSectorConnectListener {
         pollForUser(player);
     }
 
-    private void pollForUser(Player player) {
-        plugin.getProxy().getScheduler().buildTask(plugin, () -> {
-            CompletableFuture.supplyAsync(() ->
-                    mongo.getUsersCollection().find(new Document("Name", player.getUsername())).first(),
-                    MongoExecutor.EXECUTOR
-            ).thenAccept(doc -> {
-                if (doc == null) return;
+private void pollForUser(Player player) {
+    plugin.getProxy().getScheduler().buildTask(plugin, () ->
+        CompletableFuture.supplyAsync(
+            () -> mongo.getUsersCollection().find(new Document("Name", player.getUsername())).first(),
+            MongoExecutor.EXECUTOR
+        ).thenAccept(doc -> {
+            if (doc == null) {
+                plugin.getLogger().warn("Nie znaleziono dokumentu dla gracza " + player.getUsername());
+                return;
+            }
 
-                String lastSector = doc.getString("sectorName");
-                if (lastSector == null) return;
+            String lastSector = doc.getString("sectorName");
+            if (lastSector == null) {
+                plugin.getLogger().warn("Dokument gracza " + player.getUsername() + " nie ma pola sectorName");
+                return;
+            }
 
-                Queue queue = queueService.getMap().computeIfAbsent(lastSector, Queue::new);
-                queue.addPlayer(player);
-            });
-        }).delay(1500, TimeUnit.MILLISECONDS).schedule();
-    }
+            queueService.getMap().computeIfAbsent(lastSector, Queue::new).addPlayer(player);
+        })
+    ).delay(1500, TimeUnit.MILLISECONDS).schedule();
+}
 }
