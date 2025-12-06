@@ -5,6 +5,8 @@
 EndSectors allows you to split a single large Minecraft world into multiple **sectors** on one Paper server.  
 Players can move seamlessly between sectors, chat globally, and have their data synced in real-time.
 
+Check out an **interactive sector map example**: [Sectors Generator](https://oski646.github.io/sectors-generator/)
+
 > [!WARNING]
 > This project is **experimental** and **not intended for production use**.  
 > It serves as a learning and testing framework for sector-based world mechanics.
@@ -60,6 +62,7 @@ Players can move seamlessly between sectors, chat globally, and have their data 
 
 ## 📌 TODO
 
-- Improve queue system for handling larger player counts
-- Optimize synchronization and fix potential bugs with multiple players interacting simultaneously
+- General improvements to sector functionality and stability
+- Enhance communication and synchronization between sectors
+- Optimize performance for larger player counts
 - Add optional experimental features
