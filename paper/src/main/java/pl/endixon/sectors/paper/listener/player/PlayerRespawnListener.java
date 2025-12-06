@@ -21,6 +21,7 @@
 package pl.endixon.sectors.paper.listener.player;
 
 import lombok.AllArgsConstructor;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -42,14 +43,20 @@ public class PlayerRespawnListener implements Listener {
 
     @EventHandler
     void onPlayerDeath(PlayerDeathEvent event) {
-        event.setDeathMessage(null);
+        event.deathMessage(Component.text(""));
+
         Sector queue = paperSector.getSectorManager().getCurrentSector();
         if (queue.getType() == SectorType.QUEUE)
             return;
-        if (event.getEntity() == null) return;
+
         final Player victim = event.getEntity();
-        this.paperSector.getServer().getScheduler().scheduleSyncDelayedTask(this.paperSector, () -> victim.spigot().respawn(), 2L);
+        paperSector.getServer().getScheduler().scheduleSyncDelayedTask(
+                paperSector,
+                () -> victim.spigot().respawn(),
+                2L
+        );
     }
+
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
@@ -60,7 +67,7 @@ public class PlayerRespawnListener implements Listener {
         Sector currentSector = PaperSector.getInstance().getSectorManager().getCurrentSector();
         UserManager.getUser(player.getName()).thenAccept(user -> {
             if (user == null) {
-                player.kickPlayer("Brak danych gracza!");
+                player.kick(Component.text("Brak danych gracza!"));
                 return;
             }
             event.setRespawnLocation(new Location(player.getWorld(), 0.5, 70, 0.5));
