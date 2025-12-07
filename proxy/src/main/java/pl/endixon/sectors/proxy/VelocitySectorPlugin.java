@@ -160,8 +160,6 @@ public class VelocitySectorPlugin {
                 Corner corner2 = new Corner(pos2X, pos2Z);
 
                 sectorManager.addSectorData(new SectorData(sectorName, corner1, corner2, world, sectorType));
-
-                // TU: log bez world
                 loadedSectors.add(sectorName + " (" + sectorType + ")");
 
             } catch (Exception e) {
