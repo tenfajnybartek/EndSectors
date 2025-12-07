@@ -24,6 +24,8 @@ import lombok.AllArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,6 +33,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import pl.endixon.sectors.common.packet.PacketChannel;
 
+import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.common.util.ChatUtil;
 import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.sector.Sector;
@@ -51,11 +54,13 @@ public class PlayerLocallyJoinListener implements Listener {
         event.joinMessage(Component.empty());
         player.setCollidable(false);
 
+
         UserManager.getUser(player.getName()).thenAccept(user -> {
             if (user == null) {
                 UserMongo newUser = new UserMongo(player);
                 newUser.insert().thenRun(() -> {
-                    newUser.handleQueueSector(player);
+                    Logger.info("Inserted new player into Mongo and cache: " + player.getName());
+                    Bukkit.getScheduler().runTask(paperSector, newUser::applyPlayerData);
                 });
                 user = newUser;
             }
@@ -76,8 +81,7 @@ public class PlayerLocallyJoinListener implements Listener {
                     finalUser.setFirstJoin(false);
                     finalUser.updatePlayerData(player, current);
 
-                    player.teleportAsync(
-                            paperSector.getSectorManager().randomLocation(current)
+                    player.teleportAsync(paperSector.getSectorManager().randomLocation(current)
                     ).thenAccept(success -> {
                         if (success) {
                             sendSectorTitle(player, current);
@@ -92,7 +96,8 @@ public class PlayerLocallyJoinListener implements Listener {
     }
 
 
-        private void sendSectorTitle(Player player, Sector sector) {
+
+    private void sendSectorTitle(Player player, Sector sector) {
         player.showTitle(Title.title(
                 Component.text(ChatUtil.fixColors("")),
                 Component.text(ChatUtil.fixColors("&cPołączono się na sektor " + sector.getName())),

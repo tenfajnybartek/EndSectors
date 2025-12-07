@@ -348,6 +348,7 @@ public class UserMongo {
         return def;
     }
 
+
     public void handleQueueSector(Player player) {
         Location targetLocation = new Location(player.getWorld(), 0, 70, 0);
         player.teleportAsync(targetLocation).thenAccept(success -> {
@@ -374,6 +375,8 @@ public class UserMongo {
             if (success) loadPlayerData(player);
         });
     }
+
+
 
     private void handleDefaultSector(Player player) {
         teleportPlayerToStoredLocation(player);

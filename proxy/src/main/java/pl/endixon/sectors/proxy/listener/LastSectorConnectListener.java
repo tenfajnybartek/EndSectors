@@ -57,6 +57,6 @@
             scheduler.schedule(() -> {
                 PacketUserCheck packet = new PacketUserCheck(username);
                 plugin.getRedisManager().publish(PacketChannel.PROXY_TO_PAPER, packet);
-            }, 200, TimeUnit.MILLISECONDS);
+            }, 500, TimeUnit.MILLISECONDS);
         }
     }
