@@ -29,6 +29,7 @@ import pl.endixon.sectors.common.packet.PacketChannel;
 import pl.endixon.sectors.common.packet.object.PacketConfigurationRequest;
 import pl.endixon.sectors.common.packet.object.PacketSectorConnected;
 import pl.endixon.sectors.common.packet.object.PacketSectorDisconnected;
+
 import pl.endixon.sectors.common.redis.MongoManager;
 import pl.endixon.sectors.common.redis.RedisPacketListener;
 import pl.endixon.sectors.common.redis.RedisManager;
@@ -70,6 +71,7 @@ public class PaperSector extends JavaPlugin {
         this.initCommands();
         this.redisManager.publish(PacketChannel.PROXY, new PacketConfigurationRequest());
         this.scheduleTasks();
+
         Logger.info("Włączono EndSectors!");
     }
 
@@ -141,11 +143,15 @@ public class PaperSector extends JavaPlugin {
                 new PacketSectorInfoPacketListener(this.sectorManager)
         }).forEach(listener -> this.redisManager.subscribe(PacketChannel.SECTORS, listener));
 
+
+        Stream.of(new RedisPacketListener<?>[]{
+                new PacketUserCheckListener(this)
+        }).forEach(listener -> this.redisManager.subscribe(PacketChannel.PROXY_TO_PAPER, listener));
+
         Stream.of(new RedisPacketListener<?>[]{
                 new PacketSectorConnectedPacketListener(sectorManager),
                 new PacketSectorDisconnectedPacketListener(sectorManager)
         }).forEach(listener -> this.redisManager.subscribe(PacketChannel.GLOBAL, listener));
-
         Logger.info("Zainicjalizowano managery");
     }
 

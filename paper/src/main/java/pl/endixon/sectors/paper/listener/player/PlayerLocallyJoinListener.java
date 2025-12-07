@@ -29,6 +29,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import pl.endixon.sectors.common.packet.PacketChannel;
+
 import pl.endixon.sectors.common.util.ChatUtil;
 import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.sector.Sector;
@@ -52,13 +54,14 @@ public class PlayerLocallyJoinListener implements Listener {
         UserManager.getUser(player.getName()).thenAccept(user -> {
             if (user == null) {
                 UserMongo newUser = new UserMongo(player);
-                UserManager.getUsers().put(player.getName().toLowerCase(), newUser);
-                newUser.insert().thenRun(() ->
-                        Logger.info(() -> "Inserted new player into Mongo and cache: " + player.getName()));
+                newUser.insert().thenRun(() -> {
+                    Logger.info("Inserted new player into Mongo and cache: " + player.getName());
+                });
                 user = newUser;
             }
 
             UserMongo finalUser = user;
+
             Bukkit.getScheduler().runTask(paperSector, finalUser::applyPlayerData);
 
             Bukkit.getScheduler().runTask(paperSector, () -> {
@@ -72,21 +75,24 @@ public class PlayerLocallyJoinListener implements Listener {
                 if (finalUser.isFirstJoin()) {
                     finalUser.setFirstJoin(false);
                     finalUser.updatePlayerData(player, current);
-                    player.teleportAsync(paperSector.getSectorManager().randomLocation(current))
-                            .thenAccept(success -> {
-                                if (success) {
-                                    sendSectorTitle(player, current);
-                                } else {
-                                    Logger.info(() -> "Failed to teleport player " + player.getName());
-                                }
-                            });
+
+                    player.teleportAsync(
+                            paperSector.getSectorManager().randomLocation(current)
+                    ).thenAccept(success -> {
+                        if (success) {
+                            sendSectorTitle(player, current);
+                        } else {
+                            Logger.info(() ->
+                                    "Failed to teleport player " + player.getName());
+                        }
+                    });
                 }
             });
         });
     }
 
 
-    private void sendSectorTitle(Player player, Sector sector) {
+        private void sendSectorTitle(Player player, Sector sector) {
         player.showTitle(Title.title(
                 Component.text(ChatUtil.fixColors("")),
                 Component.text(ChatUtil.fixColors("&cPołączono się na sektor " + sector.getName())),

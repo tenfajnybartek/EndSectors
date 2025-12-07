@@ -27,5 +27,7 @@ public interface PacketChannel {
     String SPAWN = "spawn";
     String QUEUE = "queue";
     String END = "end";
+    String PROXY_TO_PAPER = "PROXY_TO_PAPER";
+    String PAPER_TO_PROXY = "PAPER_TO_PROXY";
 }
 

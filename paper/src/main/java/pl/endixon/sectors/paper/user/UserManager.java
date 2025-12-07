@@ -23,6 +23,9 @@ public class UserManager {
         return users.computeIfAbsent(player.getName().toLowerCase(), k -> new UserMongo(player));
     }
 
+
+
+
     public static CompletableFuture<UserMongo> getUser(@NonNull String name) {
         String key = name.toLowerCase();
         UserMongo cached = users.get(key);
@@ -35,9 +38,6 @@ public class UserManager {
                 Document doc = collection.find(Filters.eq("Name", name)).first();
 
                 if (doc == null) {
-                    if (cached == null) {
-                        Logger.info("[UserMongo] Nie znaleziono danych w Mongo dla gracza: " + name);
-                    }
                     return cached;
                 }
 

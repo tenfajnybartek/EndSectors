@@ -29,6 +29,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import lombok.Getter;
+import pl.endixon.sectors.common.cache.UserFlagCache;
 import pl.endixon.sectors.common.packet.PacketChannel;
 import pl.endixon.sectors.common.redis.MongoManager;
 import pl.endixon.sectors.common.redis.RedisPacketListener;
@@ -44,6 +45,7 @@ import pl.endixon.sectors.proxy.queue.QueueManager;
 
 import pl.endixon.sectors.proxy.queue.runnable.QueueRunnable;
 import pl.endixon.sectors.proxy.redis.listener.*;
+
 import pl.endixon.sectors.proxy.util.Logger;
 
 import java.nio.file.Files;
@@ -51,6 +53,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 @Plugin(id = "endsectors-proxy", name = "EndSectorsProxy", version = "1.0")
 
@@ -189,6 +192,11 @@ public class VelocitySectorPlugin {
         }).forEach(this.redisManager::subscribe);
 
 
+        Stream.of(new RedisPacketListener<?>[]{
+                new PacketUserCheckProxyListener(this)
+        }).forEach(listener -> this.redisManager.subscribe(PacketChannel.PAPER_TO_PROXY, listener));
+
+
         Arrays.stream(new RedisPacketListener<?>[] {
                 new TeleportToSectorListener(this.sectorManager,teleportationManager)
         }).forEach(listener -> this.redisManager.subscribe(PacketChannel.PROXY, listener));
@@ -203,7 +211,7 @@ public class VelocitySectorPlugin {
     }
 
     private void initListeners() {
-        server.getEventManager().register(this, new LastSectorConnectListener(this, teleportationManager));
+        server.getEventManager().register(this, new LastSectorConnectListener(this));
 
         server.getEventManager().register(this, new Object() {
             @Subscribe
@@ -214,6 +222,7 @@ public class VelocitySectorPlugin {
             @Subscribe
             public void onPlayerDisconnect(DisconnectEvent event) {
                 redisManager.removeOnlinePlayer(event.getPlayer().getUsername());
+
             }
         });
     }

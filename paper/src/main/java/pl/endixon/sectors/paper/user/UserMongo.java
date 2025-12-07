@@ -50,13 +50,13 @@ public class UserMongo {
 
     public UserMongo(@NonNull Player player) {
         this.collection = PaperSector.getInstance().getMongoManager().getUsersCollection();
-        updateFromPlayer(player);
         Sector current = PaperSector.getInstance().getSectorManager().getCurrentSector();
         this.sectorName = (current != null && current.getType() != SectorType.QUEUE) ? current.getName() : "null";
         this.firstJoin = true;
         this.lastSectorTransfer = 0L;
         this.lastTransferTimestamp = 0L;
         this.teleportingToSector = false;
+        updateFromPlayer(player);
     }
 
     public UserMongo(@NonNull Document doc) {
@@ -148,15 +148,23 @@ public class UserMongo {
 
 
     public CompletableFuture<Void> insert() {
-        return CompletableFuture.runAsync(() -> collection.insertOne(toDocument()), MongoExecutor.EXECUTOR);
+        return CompletableFuture.runAsync(() -> {
+                    collection.insertOne(toDocument());
+                    UserManager.getUsers().put(name.toLowerCase(), this);
+                }, MongoExecutor.EXECUTOR)
+                .exceptionally(ex -> {
+                    Logger.info(() -> "Failed to insert player " + name + ": " + ex.getMessage());
+                    return null;
+                });
     }
 
 
     public void updatePlayerData(@NonNull Player player, Sector sector) {
-        this.sectorName = sector.getName();
+        Sector current = PaperSector.getInstance().getSectorManager().getCurrentSector();
+        this.sectorName = (current != null && current.getType() != SectorType.QUEUE) ? current.getName() : "null";
+
         updateFromPlayer(player);
         UserManager.getUsers().put(name.toLowerCase(), this);
-
         CompletableFuture.runAsync(() ->
                         collection.updateOne(Filters.eq("Name", name), new Document("$set", toDocument())),
                 MongoExecutor.EXECUTOR

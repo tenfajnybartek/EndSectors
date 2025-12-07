@@ -17,70 +17,51 @@
  *
  */
 
-
 package pl.endixon.sectors.proxy.listener;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.ServerConnectedEvent;
 import com.velocitypowered.api.proxy.Player;
-import org.bson.Document;
-import pl.endixon.sectors.common.redis.MongoExecutor;
-import pl.endixon.sectors.common.redis.MongoManager;
+import pl.endixon.sectors.common.cache.UserFlagCache;
+import pl.endixon.sectors.common.packet.PacketChannel;
+import pl.endixon.sectors.common.packet.object.PacketUserCheck;
 import pl.endixon.sectors.proxy.VelocitySectorPlugin;
-import pl.endixon.sectors.proxy.manager.TeleportationManager;
-import pl.endixon.sectors.proxy.queue.Queue;
 import pl.endixon.sectors.proxy.queue.QueueManager;
 
-
 import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 
 public class LastSectorConnectListener {
 
     private final VelocitySectorPlugin plugin;
-    private final MongoManager mongo;
-    private final TeleportationManager teleportManager;
+
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
 
     @Inject
-    public LastSectorConnectListener(VelocitySectorPlugin plugin, TeleportationManager teleportManager) {
+    public LastSectorConnectListener(VelocitySectorPlugin plugin) {
         this.plugin = plugin;
-        this.mongo = plugin.getMongoManager();
-        this.teleportManager = teleportManager;
     }
 
     @Subscribe
     public void onServerConnected(ServerConnectedEvent event) {
         Player player = event.getPlayer();
         String connectedServer = event.getServer().getServerInfo().getName();
-
         if (!connectedServer.equalsIgnoreCase("queue")) return;
         QueueManager queueService = plugin.getQueueManager();
         queueService.findQueueByPlayer(player).ifPresent(queue -> queue.removePlayer(player));
-        pollForUser(player, queueService);
+        pollForUser(player);
     }
 
-    private void pollForUser(Player player, QueueManager queueService) {
-        CompletableFuture.runAsync(() -> {
-            Document doc = mongo.getUsersCollection()
-                    .find(new Document("Name", player.getUsername()))
-                    .first();
-
-            if (doc == null) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ignored) {
-                }
-                pollForUser(player, queueService);
-                return;
-            }
-
-            String lastSector = doc.getString("sectorName");
-            if (lastSector == null) return;
-
-            Queue queue = queueService.getMap().computeIfAbsent(lastSector, Queue::new);
-            queue.addPlayer(player);
-
-        }, MongoExecutor.EXECUTOR);
+    private void pollForUser(Player player) {
+        String username = player.getUsername();
+        scheduler.schedule(() -> {
+            PacketUserCheck packet = new PacketUserCheck(username);
+            plugin.getRedisManager().publish(PacketChannel.PROXY_TO_PAPER, packet);
+        }, 1, TimeUnit.SECONDS);
     }
 }
