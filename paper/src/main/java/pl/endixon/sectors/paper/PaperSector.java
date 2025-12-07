@@ -143,7 +143,6 @@ public class PaperSector extends JavaPlugin {
                 new PacketSectorInfoPacketListener(this.sectorManager)
         }).forEach(listener -> this.redisManager.subscribe(PacketChannel.SECTORS, listener));
 
-
         Stream.of(new RedisPacketListener<?>[]{
                 new PacketUserCheckListener(this)
         }).forEach(listener -> this.redisManager.subscribe(PacketChannel.PROXY_TO_PAPER, listener));

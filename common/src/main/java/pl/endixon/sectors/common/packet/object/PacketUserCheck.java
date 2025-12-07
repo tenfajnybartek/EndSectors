@@ -18,12 +18,6 @@ public class PacketUserCheck extends Packet {
         this.lastSector = null;
     }
 
-    public PacketUserCheck(String username, Boolean exists) {
-        this.username = username;
-        this.exists = exists;
-        this.lastSector = null;
-    }
-
 
     @JsonCreator
     public PacketUserCheck(

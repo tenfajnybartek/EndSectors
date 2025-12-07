@@ -30,4 +30,3 @@ public interface PacketChannel {
     String PROXY_TO_PAPER = "PROXY_TO_PAPER";
     String PAPER_TO_PROXY = "PAPER_TO_PROXY";
 }
-

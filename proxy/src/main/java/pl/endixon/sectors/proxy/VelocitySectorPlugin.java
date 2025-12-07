@@ -193,8 +193,7 @@ public class VelocitySectorPlugin {
         Stream.of(new RedisPacketListener<?>[]{
                 new PacketUserCheckProxyListener(this)
         }).forEach(listener -> this.redisManager.subscribe(PacketChannel.PAPER_TO_PROXY, listener));
-
-
+        
         Arrays.stream(new RedisPacketListener<?>[] {
                 new TeleportToSectorListener(this.sectorManager,teleportationManager)
         }).forEach(listener -> this.redisManager.subscribe(PacketChannel.PROXY, listener));
@@ -220,7 +219,6 @@ public class VelocitySectorPlugin {
             @Subscribe
             public void onPlayerDisconnect(DisconnectEvent event) {
                 redisManager.removeOnlinePlayer(event.getPlayer().getUsername());
-
             }
         });
     }

@@ -38,7 +38,6 @@ public class PacketUserCheckProxyListener extends RedisPacketListener<PacketUser
         addPlayerToQueue(username, cachedSector);
     }
 
-
     private void addPlayerToQueue(String username, String sector) {
         QueueManager queueManager = plugin.getQueueManager();
         Queue queue = queueManager.getMap().computeIfAbsent(sector, Queue::new);

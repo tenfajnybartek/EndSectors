@@ -24,15 +24,8 @@ public class PacketUserCheckListener extends RedisPacketListener<PacketUserCheck
 
         UserMongo cached = UserManager.getUsers().get(username.toLowerCase());
         if (cached != null) {
-            PacketUserCheck response = new PacketUserCheck(
-                    username,
-                    true,
-                    cached.getSectorName()
-            );
-
-            paperSector.getRedisManager()
-                    .publish(PacketChannel.PAPER_TO_PROXY, response);
-
+            PacketUserCheck response = new PacketUserCheck(username, true, cached.getSectorName());
+            paperSector.getRedisManager().publish(PacketChannel.PAPER_TO_PROXY, response);
             return;
         }
 
@@ -44,10 +37,8 @@ public class PacketUserCheckListener extends RedisPacketListener<PacketUserCheck
 
             boolean exists = doc != null;
             String sector = exists ? doc.getString("sectorName") : null;
-
             PacketUserCheck response = new PacketUserCheck(username, exists, sector);
-            paperSector.getRedisManager()
-                    .publish(PacketChannel.PAPER_TO_PROXY, response);
+            paperSector.getRedisManager().publish(PacketChannel.PAPER_TO_PROXY, response);
         });
     }
 }
