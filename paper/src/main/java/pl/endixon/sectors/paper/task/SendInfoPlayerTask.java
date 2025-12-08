@@ -32,9 +32,6 @@ public class SendInfoPlayerTask extends BukkitRunnable {
             UserMongo user = UserManager.getUsers().get(player.getName().toLowerCase());
             if (user == null) continue;
 
-            System.out.println("[SendInfoPlayerTask] Wysyłam pakiet gracza: " + user.getName() +
-                    ", sektor: " + user.getSectorName());
-
             paperSector.getRedisManager().publish(
                     PacketChannel.SECTORS,
                     new PacketPlayerInfoRequest(user)
