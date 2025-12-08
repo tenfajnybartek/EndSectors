@@ -43,9 +43,11 @@ import pl.endixon.sectors.paper.redis.listener.*;
 import pl.endixon.sectors.paper.sector.transfer.SectorTeleportService;
 import pl.endixon.sectors.paper.sector.SectorManager;
 import pl.endixon.sectors.paper.task.SectorWorldBorderTask;
+import pl.endixon.sectors.paper.task.SendInfoPlayerTask;
 import pl.endixon.sectors.paper.task.SendSectorInfoTask;
 import pl.endixon.sectors.paper.task.SpawnScoreboardTask;
 import pl.endixon.sectors.paper.user.UserManager;
+import pl.endixon.sectors.paper.user.UserMongo;
 import pl.endixon.sectors.paper.util.Logger;
 import java.util.List;
 import java.util.stream.Stream;
@@ -179,6 +181,8 @@ public class PaperSector extends JavaPlugin {
     private void scheduleTasks() {
         new SectorWorldBorderTask(sectorManager).runTaskTimer(this, 65L, 65L);
         new SpawnScoreboardTask(sectorManager).runTaskTimer(this, 20L, 20L);
+        new SendInfoPlayerTask(this).runTaskTimer(this, 12000L, 12000L);
+
     }
 }
 

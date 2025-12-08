@@ -26,23 +26,61 @@ public class PacketPlayerInfoRequest extends Packet {
     private final String playerEnderChestData;
     private final String playerEffectsData;
 
+    public PacketPlayerInfoRequest(UserMongo user) {
+        this(
+                user.getName(),
+                user.getSectorName(),
+                user.isFirstJoin(),
+                user.getLastSectorTransfer(),
+                user.getLastTransferTimestamp(),
+                user.isTeleportingToSector(),
+                user.getFoodLevel(),
+                user.getExperience(),
+                user.getExperienceLevel(),
+                user.getFireTicks(),
+                user.isAllowFlight(),
+                user.isFlying(),
+                user.getPlayerGameMode(),
+                user.getPlayerInventoryData(),
+                user.getPlayerEnderChestData(),
+                user.getPlayerEffectsData()
+        );
+    }
+
     @JsonCreator
-    public PacketPlayerInfoRequest(@JsonProperty("user") UserMongo user) {
-        this.name = user.getName();
-        this.sectorName = user.getSectorName();
-        this.firstJoin = user.isFirstJoin();
-        this.lastSectorTransfer = user.getLastSectorTransfer();
-        this.lastTransferTimestamp = user.getLastTransferTimestamp();
-        this.teleportingToSector = user.isTeleportingToSector();
-        this.foodLevel = user.getFoodLevel();
-        this.experience = user.getExperience();
-        this.experienceLevel = user.getExperienceLevel();
-        this.fireTicks = user.getFireTicks();
-        this.allowFlight = user.isAllowFlight();
-        this.flying = user.isFlying();
-        this.playerGameMode = user.getPlayerGameMode();
-        this.playerInventoryData = user.getPlayerInventoryData();
-        this.playerEnderChestData = user.getPlayerEnderChestData();
-        this.playerEffectsData = user.getPlayerEffectsData();
+    public PacketPlayerInfoRequest(
+            @JsonProperty("name") String name,
+            @JsonProperty("sectorName") String sectorName,
+            @JsonProperty("firstJoin") boolean firstJoin,
+            @JsonProperty("lastSectorTransfer") long lastSectorTransfer,
+            @JsonProperty("lastTransferTimestamp") long lastTransferTimestamp,
+            @JsonProperty("teleportingToSector") boolean teleportingToSector,
+            @JsonProperty("foodLevel") int foodLevel,
+            @JsonProperty("experience") int experience,
+            @JsonProperty("experienceLevel") int experienceLevel,
+            @JsonProperty("fireTicks") int fireTicks,
+            @JsonProperty("allowFlight") boolean allowFlight,
+            @JsonProperty("flying") boolean flying,
+            @JsonProperty("playerGameMode") String playerGameMode,
+            @JsonProperty("playerInventoryData") String playerInventoryData,
+            @JsonProperty("playerEnderChestData") String playerEnderChestData,
+            @JsonProperty("playerEffectsData") String playerEffectsData
+    ) {
+        this.name = name;
+        this.sectorName = sectorName;
+        this.firstJoin = firstJoin;
+        this.lastSectorTransfer = lastSectorTransfer;
+        this.lastTransferTimestamp = lastTransferTimestamp;
+        this.teleportingToSector = teleportingToSector;
+        this.foodLevel = foodLevel;
+        this.experience = experience;
+        this.experienceLevel = experienceLevel;
+        this.fireTicks = fireTicks;
+        this.allowFlight = allowFlight;
+        this.flying = flying;
+        this.playerGameMode = playerGameMode;
+        this.playerInventoryData = playerInventoryData;
+        this.playerEnderChestData = playerEnderChestData;
+        this.playerEffectsData = playerEffectsData;
     }
 }
