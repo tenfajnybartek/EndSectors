@@ -15,6 +15,7 @@ import org.bukkit.util.Vector;
 import pl.endixon.sectors.common.redis.MongoExecutor;
 import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.paper.PaperSector;
+import pl.endixon.sectors.paper.redis.packet.PacketPlayerInfoRequest;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.util.Logger;
 import pl.endixon.sectors.paper.util.PlayerDataSerializer;
@@ -274,6 +275,9 @@ public class UserMongo {
         loadPlayerFireTicks(player);
         loadPlayerFlight(player);
     }
+
+
+
 
 
     private void loadPlayerFoodLevel(@NonNull Player player) {

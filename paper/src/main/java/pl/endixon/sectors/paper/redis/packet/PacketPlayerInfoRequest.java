@@ -21,8 +21,6 @@ public class PacketPlayerInfoRequest extends Packet {
     private final int fireTicks;
     private final boolean allowFlight;
     private final boolean flying;
-    private final double x, y, z;
-    private final float yaw, pitch;
     private final String playerGameMode;
     private final String playerInventoryData;
     private final String playerEnderChestData;
@@ -42,11 +40,6 @@ public class PacketPlayerInfoRequest extends Packet {
         this.fireTicks = user.getFireTicks();
         this.allowFlight = user.isAllowFlight();
         this.flying = user.isFlying();
-        this.x = user.getX();
-        this.y = user.getY();
-        this.z = user.getZ();
-        this.yaw = user.getYaw();
-        this.pitch = user.getPitch();
         this.playerGameMode = user.getPlayerGameMode();
         this.playerInventoryData = user.getPlayerInventoryData();
         this.playerEnderChestData = user.getPlayerEnderChestData();
