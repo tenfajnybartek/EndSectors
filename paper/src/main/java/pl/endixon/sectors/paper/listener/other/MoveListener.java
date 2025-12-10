@@ -48,15 +48,12 @@ public class MoveListener implements Listener {
                 from.getBlockY() == to.getBlockY() &&
                 from.getBlockZ() == to.getBlockZ()) return;
 
-        UserManager.getUser(player.getName()).thenAccept(userMongo -> {
+        UserMongo userMongo = UserManager.getUser(player);
             if (userMongo == null) return;
-
-            Bukkit.getScheduler().runTask(paperSector, () -> {
 
                 SectorManager sectorManager = paperSector.getSectorManager();
                 Sector currentSector = sectorManager.getCurrentSector();
                 if (currentSector == null) return;
-
 
                 Sector sector = sectorManager.getSector(to);
                 if (sector == null) return;
@@ -94,7 +91,16 @@ public class MoveListener implements Listener {
                     }
 
                     if (System.currentTimeMillis() - userMongo.getLastTransferTimestamp() < 5000L) {
-                        player.sendMessage(Component.text("Nie możesz połączyć się z tym sektorem teraz! Odczekaj kilka sekund i spróbuj ponownie.").color(NamedTextColor.RED));
+                        long remaining = 5000L - (System.currentTimeMillis() - userMongo.getLastTransferTimestamp());
+                        player.showTitle(Title.title(
+                                Component.text(ChatUtil.fixColors("&cNie możesz połączyć się z tym sektorem teraz!")).color(NamedTextColor.RED),
+                                Component.text(ChatUtil.fixColors("&7Odczekaj " + (remaining / 1000 + 1) + " sekund i spróbuj ponownie")).color(NamedTextColor.GRAY),
+                                Title.Times.times(
+                                        java.time.Duration.ofMillis(500),
+                                        java.time.Duration.ofMillis(2000),
+                                        java.time.Duration.ofMillis(500)
+                                )
+                        ));
                         return;
                     }
 
@@ -110,7 +116,7 @@ public class MoveListener implements Listener {
                     } else {
                         Bukkit.getScheduler().runTaskLater(paperSector,
                                 () -> paperSector.getSectorTeleportService().teleportToSector(player, userMongo, spawnToTeleport, false),
-                                3L);
+                                1L);
                     }
                     return;
                 }
@@ -151,7 +157,5 @@ public class MoveListener implements Listener {
                                 1L);
                     }
                 }
-            });
-        });
     }
 }

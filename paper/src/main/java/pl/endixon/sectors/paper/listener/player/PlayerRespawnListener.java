@@ -22,6 +22,7 @@ package pl.endixon.sectors.paper.listener.player;
 
 import lombok.AllArgsConstructor;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -57,23 +58,22 @@ public class PlayerRespawnListener implements Listener {
         );
     }
 
-
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
-        Sector queue = paperSector.getSectorManager().getCurrentSector();
-        if (queue.getType() == SectorType.QUEUE) return;
-
         Player player = event.getPlayer();
-        Sector currentSector = PaperSector.getInstance().getSectorManager().getCurrentSector();
+        event.setRespawnLocation(new Location(player.getWorld(), 0.5, 70, 0.5));
         UserManager.getUser(player.getName()).thenAccept(user -> {
             if (user == null) {
                 player.kick(Component.text("Brak danych gracza!"));
                 return;
             }
-            event.setRespawnLocation(new Location(player.getWorld(), 0.5, 70, 0.5));
+            Sector currentSector = PaperSector.getInstance().getSectorManager().getCurrentSector();
             user.updatePlayerData(player, currentSector);
         });
     }
+
+
+
 
 }
 

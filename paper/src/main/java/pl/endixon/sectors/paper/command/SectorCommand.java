@@ -70,9 +70,9 @@ public class SectorCommand implements CommandExecutor {
             }
 
             case "show": {
-                if (!(sender instanceof Player player)) return true; // tylko dla graczy
+                if (!(sender instanceof Player player)) return true;
 
-                new SectorShowWindow(player, sm).open(); // GUI pokazujące wszystkie sektory
+                new SectorShowWindow(player, sm).open();
                 break;
             }
 

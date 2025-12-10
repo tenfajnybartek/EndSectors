@@ -1,6 +1,7 @@
 rootProject.name = "EndSectors"
 
 include("common")
+include("Tools")
 include("paper")
 include("proxy")
 

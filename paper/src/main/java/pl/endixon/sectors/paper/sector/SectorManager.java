@@ -61,6 +61,8 @@ public class SectorManager {
         return this.sectors.get(sectorName);
     }
 
+
+
     public Sector getSector(Location location) {
         for (Sector sector : sectors.values()) {
             if (sector.isInSector(location)) {
@@ -86,17 +88,20 @@ public class SectorManager {
     public Location randomLocation(Sector sector) {
         World world = Bukkit.getWorld(sector.getWorldName());
         if (world == null) return null;
+
         double safeMargin = 10;
         double minX = Math.min(sector.getFirstCorner().getPosX(), sector.getSecondCorner().getPosX()) + safeMargin;
         double maxX = Math.max(sector.getFirstCorner().getPosX(), sector.getSecondCorner().getPosX()) - safeMargin;
         double minZ = Math.min(sector.getFirstCorner().getPosZ(), sector.getSecondCorner().getPosZ()) + safeMargin;
         double maxZ = Math.max(sector.getFirstCorner().getPosZ(), sector.getSecondCorner().getPosZ()) - safeMargin;
-
         double x = minX + Math.random() * (maxX - minX);
         double z = minZ + Math.random() * (maxZ - minZ);
-        int y = world.getHighestBlockYAt((int) x, (int) z);
+        int y = world.getHighestBlockYAt((int) x, (int) z) + 5;
+        Bukkit.getLogger().info("RandomLocation -> x: " + x + ", y: " + y + ", z: " + z);
+
         return new Location(world, x, y, z);
     }
+
 
     public Sector getBalancedRandomSpawnSector() {
         List<Sector> onlineSpawns = sectors.values().stream()
