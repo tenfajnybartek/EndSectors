@@ -9,14 +9,17 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+
 import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.common.util.ChatUtil;
 import pl.endixon.sectors.paper.event.sector.SectorChangeEvent;
+
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.sector.SectorManager;
 import pl.endixon.sectors.paper.user.UserManager;
 import pl.endixon.sectors.paper.user.UserMongo;
 import pl.endixon.sectors.tools.Main;
+
 import pl.endixon.sectors.tools.utils.Messages;
 
 import java.util.List;

@@ -26,6 +26,7 @@ import com.comphenix.protocol.ProtocolManager;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -40,11 +41,13 @@ import pl.endixon.sectors.common.redis.RedisManager;
 import pl.endixon.sectors.paper.command.ChannelCommand;
 import pl.endixon.sectors.paper.config.ConfigLoader;
 
+import pl.endixon.sectors.paper.event.sector.PaperSectorReadyEvent;
 import pl.endixon.sectors.paper.listener.player.*;
 import pl.endixon.sectors.paper.command.SectorCommand;
 import pl.endixon.sectors.paper.listener.other.MoveListener;
 import pl.endixon.sectors.paper.redis.listener.*;
 import pl.endixon.sectors.paper.sector.ProtocolLibWorldBorderTask;
+import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.sector.transfer.SectorTeleportService;
 import pl.endixon.sectors.paper.sector.SectorManager;
 import pl.endixon.sectors.paper.task.BorderActionBarTask;
@@ -70,22 +73,21 @@ public class PaperSector extends JavaPlugin {
     private MongoManager mongoManager;
     private boolean inited = false;
     private final SectorTeleportService sectorTeleportService = new SectorTeleportService(this);
+    private final SendSectorInfoTask sectorInfoTask = new SendSectorInfoTask(this);
 
     @Override
     public void onEnable() {
         instance = this;
         protocolManager = ProtocolLibrary.getProtocolManager();
         this.initManager();
+
+        this.redisManager.publish(PacketChannel.PROXY, new PacketConfigurationRequest());
         this.initListeners();
         this.initCommands();
-        this.redisManager.publish(PacketChannel.PROXY, new PacketConfigurationRequest());
         this.scheduleTasks();
-
         Logger.info("Włączono EndSectors!");
-
-
-
     }
+
 
 
     @Override
@@ -105,24 +107,32 @@ public class PaperSector extends JavaPlugin {
 
 
     public void init() {
-        if (sectorManager.getCurrentSector() == null) {
-            Logger.info("Aktualny sektor jest NULL, prawdopodobnie sektor o nazwie " + sectorManager.getCurrentSectorName() + " nie został dodany do Configu w pluginie Proxy!");
+        Sector currentSector = sectorManager.getCurrentSector();
+        String currentSectorName = sectorManager.getCurrentSectorName();
+
+        if (currentSector == null) {
+            Logger.info("Aktualny sektor jest NULL! Upewnij się, że sektor '" + currentSectorName + "' jest dodany w configu proxy!");
             Bukkit.shutdown();
             return;
         }
+
         Logger.info("Załadowano " + sectorManager.getSectors().size() + " sektorów!");
-        Logger.info("Aktualny sektor " + sectorManager.getCurrentSector().getName());
+        Logger.info("Aktualny sektor: " + currentSector.getName());
+
         if (!inited) {
             inited = true;
             Bukkit.getScheduler().runTaskTimerAsynchronously(
                     this,
-                    () -> new SendSectorInfoTask(this).run(),
+                    sectorInfoTask,
                     0L,
                     20L * 10
             );
         }
+
         redisManager.publish(PacketChannel.GLOBAL, new PacketSectorConnected());
+
     }
+
 
 
     private void initManager() {

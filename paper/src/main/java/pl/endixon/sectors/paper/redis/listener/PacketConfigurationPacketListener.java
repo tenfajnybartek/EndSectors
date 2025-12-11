@@ -26,6 +26,8 @@ import pl.endixon.sectors.common.redis.RedisPacketListener;
 import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.util.Logger;
 
+import java.awt.print.Paper;
+
 public class PacketConfigurationPacketListener extends RedisPacketListener<PacketConfiguration> {
 
     private final PaperSector PaperSector;
@@ -40,7 +42,8 @@ public class PacketConfigurationPacketListener extends RedisPacketListener<Packe
     public void handle(PacketConfiguration packet) {
         Logger.info("Otrzymano pakiet konfiguracji od serwera proxy!");
         this.PaperSector.getSectorManager().loadSectorsData(packet.getSectorsData());
-        Bukkit.getScheduler().runTask(PaperSector, PaperSector::init);
+        PaperSector.init();
+
     }
 
 }

@@ -161,8 +161,7 @@ public class UserMongo {
 
 
     public void updatePlayerData(@NonNull Player player, Sector sector) {
-        Sector current = PaperSector.getInstance().getSectorManager().getCurrentSector();
-        this.sectorName = (current != null && current.getType() != SectorType.QUEUE) ? current.getName() : "null";
+        this.sectorName = (sector != null && sector.getType() != SectorType.QUEUE) ? sector.getName() : "null";
 
         updateFromPlayer(player);
         UserManager.getUsers().put(name.toLowerCase(), this);
