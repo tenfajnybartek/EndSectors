@@ -23,8 +23,6 @@ package pl.endixon.sectors.paper.sector;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -52,6 +50,9 @@ public class Sector {
     private double tps;
     private int playerCount = 0;
     private int maxPlayers = 0;
+
+
+
 
 
     public String getName() {

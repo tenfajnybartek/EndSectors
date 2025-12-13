@@ -94,8 +94,11 @@ public class RandomTPCommand implements CommandExecutor {
                     player.sendTitle(
                             ChatUtil.fixColors(Messages.SPAWN_TITLE.get()),
                             ChatUtil.fixColors("&cTeleport anulowany – ruszyłeś się!"),
-                            5, 40, 10
+                            5,
+                            40,
+                            10
                     );
+
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 0.8f);
                     cancel();
                     return;

@@ -9,6 +9,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import pl.endixon.sectors.common.sector.SectorType;
+import pl.endixon.sectors.common.util.ChatUtil;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.sector.SectorManager;
 import pl.endixon.sectors.paper.user.UserManager;
@@ -87,8 +88,14 @@ public class SpawnCommand implements CommandExecutor {
 
 
                 if (!player.getLocation().getBlock().equals(startLocation.getBlock())) {
-                    player.sendTitle(Messages.SPAWN_TITLE.get(),
-                            "&cTeleport anulowany – ruszyłeś się!", 5, 40, 10);
+                    player.sendTitle(
+                            ChatUtil.fixColors(Messages.SPAWN_TITLE.get()),
+                            ChatUtil.fixColors("&cTeleport anulowany – ruszyłeś się!"),
+                            5,
+                            40,
+                            10
+                    );
+
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 0.8f);
                     cancel();
                     return;

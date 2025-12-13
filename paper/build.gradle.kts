@@ -8,6 +8,7 @@ plugins {
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.mikeprimm.com/")
 }
 
 java {
@@ -27,6 +28,7 @@ dependencies {
     implementation("org.mongodb:mongo-java-driver:3.12.14")
     compileOnly("com.mojang:authlib:1.5.21")
     compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
+
 }
 
 tasks.named<ShadowJar>("shadowJar") {

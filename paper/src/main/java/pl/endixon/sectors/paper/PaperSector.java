@@ -26,10 +26,10 @@ import com.comphenix.protocol.ProtocolManager;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+
 import pl.endixon.sectors.common.packet.PacketChannel;
 import pl.endixon.sectors.common.packet.object.PacketConfigurationRequest;
 import pl.endixon.sectors.common.packet.object.PacketSectorConnected;
@@ -41,7 +41,6 @@ import pl.endixon.sectors.common.redis.RedisManager;
 import pl.endixon.sectors.paper.command.ChannelCommand;
 import pl.endixon.sectors.paper.config.ConfigLoader;
 
-import pl.endixon.sectors.paper.event.sector.PaperSectorReadyEvent;
 import pl.endixon.sectors.paper.listener.player.*;
 import pl.endixon.sectors.paper.command.SectorCommand;
 import pl.endixon.sectors.paper.listener.other.MoveListener;
@@ -50,13 +49,10 @@ import pl.endixon.sectors.paper.sector.ProtocolLibWorldBorderTask;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.sector.transfer.SectorTeleportService;
 import pl.endixon.sectors.paper.sector.SectorManager;
-import pl.endixon.sectors.paper.task.BorderActionBarTask;
-import pl.endixon.sectors.paper.task.SendInfoPlayerTask;
-import pl.endixon.sectors.paper.task.SendSectorInfoTask;
-import pl.endixon.sectors.paper.task.SpawnScoreboardTask;
+import pl.endixon.sectors.paper.task.*;
 import pl.endixon.sectors.paper.user.UserManager;
-import pl.endixon.sectors.paper.user.UserMongo;
 import pl.endixon.sectors.paper.util.Logger;
+
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -75,18 +71,22 @@ public class PaperSector extends JavaPlugin {
     private final SectorTeleportService sectorTeleportService = new SectorTeleportService(this);
     private final SendSectorInfoTask sectorInfoTask = new SendSectorInfoTask(this);
 
+
     @Override
     public void onEnable() {
         instance = this;
-        protocolManager = ProtocolLibrary.getProtocolManager();
-        this.initManager();
 
+        protocolManager = ProtocolLibrary.getProtocolManager();
+
+        this.initManager();
         this.redisManager.publish(PacketChannel.PROXY, new PacketConfigurationRequest());
         this.initListeners();
         this.initCommands();
         this.scheduleTasks();
+
         Logger.info("Włączono EndSectors!");
     }
+
 
 
 
@@ -149,6 +149,7 @@ public class PaperSector extends JavaPlugin {
                 new PacketConfigurationPacketListener(this),
         }).forEach(redisManager::subscribe);
 
+
         Stream.of(new RedisPacketListener<?>[]{
                 new PacketSpawnTeleportListener(sectorManager, this),
         }).forEach(listener -> this.redisManager.subscribe(PacketChannel.SPAWN, listener));
@@ -203,7 +204,6 @@ public class PaperSector extends JavaPlugin {
         new SpawnScoreboardTask(sectorManager).runTaskTimer(this, 20L, 20L);
         new SendInfoPlayerTask(this).runTaskTimer(this, 12000L, 12000L);
         new BorderActionBarTask(this).runTaskTimer(this, 5L, 5L);
-
 
     }
     public static PaperSector getInstance() {
