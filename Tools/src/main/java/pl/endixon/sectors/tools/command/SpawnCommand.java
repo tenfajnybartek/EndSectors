@@ -29,6 +29,7 @@ public class SpawnCommand implements CommandExecutor {
         this.sectorManager = sectorManager;
     }
 
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
@@ -38,30 +39,19 @@ public class SpawnCommand implements CommandExecutor {
         }
 
         Sector currentSector = sectorManager.getCurrentSector();
-
         if (currentSector != null && currentSector.getType() == SectorType.SPAWN) {
-            player.sendTitle(
-                    Messages.SPAWN_TITLE.get(),
-                    Messages.SPAWN_ALREADY.get(),
-                    10, 40, 10
-            );
+            player.sendTitle(Messages.SPAWN_TITLE.get(), Messages.SPAWN_ALREADY.get(), 10, 40, 10);
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
             return true;
         }
 
-
         Sector spawnSector = sectorManager.getSectors().stream()
-                .filter(s -> s.getType().name().equalsIgnoreCase("SPAWN"))
-                .filter(Sector::isOnline)
+                .filter(s -> s.getType() == SectorType.SPAWN && s.isOnline())
                 .findFirst()
                 .orElse(null);
 
         if (spawnSector == null) {
-            player.sendTitle(
-                    Messages.SPAWN_TITLE.get(),
-                    Messages.SPAWN_OFFLINE.get(),
-                    10, 40, 10
-            );
+            player.sendTitle(Messages.SPAWN_TITLE.get(), Messages.SPAWN_OFFLINE.get(), 10, 40, 10);
             return true;
         }
 
@@ -69,16 +59,11 @@ public class SpawnCommand implements CommandExecutor {
         spawnLoc.setWorld(Bukkit.getWorld(spawnSector.getWorldName()));
 
         UserRedis user = UserManager.getUser(player).orElse(null);
+        if (user == null) return true;
         user.setLastTransferTimestamp(System.currentTimeMillis());
 
-        player.sendTitle(
-                Messages.SPAWN_TITLE.get(),
-                Messages.SPAWN_START.get(),
-                0, 9999, 0
-        );
-
+        player.sendTitle(Messages.SPAWN_TITLE.get(), Messages.SPAWN_START.get(), 0, 9999, 0);
         final Location startLocation = player.getLocation().clone();
-
 
         new BukkitRunnable() {
             int countdown = COUNTDOWN_TIME;
@@ -86,27 +71,24 @@ public class SpawnCommand implements CommandExecutor {
             @Override
             public void run() {
 
+                if (!player.isOnline()) {
+                    cancel();
+                    return;
+                }
 
                 if (!player.getLocation().getBlock().equals(startLocation.getBlock())) {
                     player.sendTitle(
                             ChatUtil.fixColors(Messages.SPAWN_TITLE.get()),
                             ChatUtil.fixColors("&cTeleport anulowany – ruszyłeś się!"),
-                            5,
-                            40,
-                            10
+                            5, 40, 10
                     );
-
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 0.8f);
                     cancel();
                     return;
                 }
 
                 if (!spawnSector.isOnline()) {
-                    player.sendTitle(
-                            Messages.SPAWN_TITLE.get(),
-                            Messages.SPAWN_CANCEL.get(),
-                            10, 40, 10
-                    );
+                    player.sendTitle(Messages.SPAWN_TITLE.get(), Messages.SPAWN_CANCEL.get(), 10, 40, 10);
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 0.8f);
                     cancel();
                     return;
@@ -123,14 +105,9 @@ public class SpawnCommand implements CommandExecutor {
                 }
 
                 player.teleport(spawnLoc);
-                user.updateFromPlayer(player, spawnSector);
+                user.updateAndSave(player, spawnSector);
 
-
-                player.sendTitle(
-                        Messages.SPAWN_TITLE.get(),
-                        Messages.SPAWN_TELEPORTED.get(),
-                        5, 40, 10
-                );
+                player.sendTitle(Messages.SPAWN_TITLE.get(), Messages.SPAWN_TELEPORTED.get(), 5, 40, 10);
                 player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
 
                 cancel();

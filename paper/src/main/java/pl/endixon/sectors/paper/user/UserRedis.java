@@ -3,24 +3,20 @@ package pl.endixon.sectors.paper.user;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import pl.endixon.sectors.common.sector.SectorType;
-import pl.endixon.sectors.common.util.ChatUtil;
 import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.util.Logger;
 import pl.endixon.sectors.paper.util.PlayerDataSerializer;
-
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
 @Getter
 @Setter
 public class UserRedis {
@@ -122,7 +118,7 @@ public class UserRedis {
 
     public void updateAndSave(@NonNull Player player, @NonNull Sector currentSector) {
         updateFromPlayer(player, currentSector);
-        saveAsync();
+        saveSync();
     }
 
     public Map<String, String> toRedisMap() {
@@ -147,14 +143,17 @@ public class UserRedis {
         map.put("flying", String.valueOf(flying));
         return map;
     }
-
-    public void saveAsync() {
-        CompletableFuture.runAsync(() -> RedisUserCache.save(this))
-                .exceptionally(ex -> {
-                    Logger.info(() -> "Failed to save user " + name + " to Redis: " + ex.getMessage());
-                    return null;
-                });
+    public void saveSync() {
+        CompletableFuture.runAsync(() -> {
+            try {
+                RedisUserCache.save(this);
+            } catch (Exception ex) {
+                Logger.info(() -> "Failed to save user " + name + " to Redis: " + ex.getMessage());
+            }
+        });
     }
+
+
 
     public Player getPlayer() {
         return Bukkit.getPlayer(name);
@@ -167,58 +166,58 @@ public class UserRedis {
 
     public void setLastSectorTransfer(boolean redirecting) {
         this.lastSectorTransfer = redirecting ? System.currentTimeMillis() : 0L;
-        saveAsync();
+        saveSync();
     }
 
     public void applyPlayerData() {
         Player player = getPlayer();
         if (player == null) return;
+        Bukkit.getScheduler().runTask(PaperSector.getInstance(), () -> {
+            Sector current = PaperSector.getInstance().getSectorManager().getCurrentSector();
+            if (current == null) return;
 
-        Sector current = PaperSector.getInstance().getSectorManager().getCurrentSector();
-        if (current == null) return;
+            Location defaultLoc = new Location(player.getWorld(), 0, 70, 0);
 
-        Location defaultLoc = new Location(player.getWorld(), 0, 70, 0);
-
-        switch (current.getType()) {
-            case QUEUE -> {
-                if (player.teleport(defaultLoc)) {
-                    player.setGameMode(GameMode.ADVENTURE);
-                    Bukkit.getOnlinePlayers().forEach(online -> {
-                        if (!online.equals(player)) online.hidePlayer(PaperSector.getInstance(), player);
-                        if (!online.equals(player)) player.hidePlayer(PaperSector.getInstance(), online);
-                    });
+            switch (current.getType()) {
+                case QUEUE -> {
+                    if (player.teleport(defaultLoc)) {
+                        player.setGameMode(GameMode.ADVENTURE);
+                        Bukkit.getOnlinePlayers().forEach(online -> {
+                            if (!online.equals(player)) online.hidePlayer(PaperSector.getInstance(), player);
+                            if (!online.equals(player)) player.hidePlayer(PaperSector.getInstance(), online);
+                        });
+                    }
                 }
-            }
-            case NETHER, SPAWN -> {
-                if (player.teleport(defaultLoc)) {
+                case NETHER, SPAWN -> {
+                    if (player.teleport(defaultLoc)) {
+                        loadPlayerData(player);
+                    }
+                }
+                default -> {
+                    teleportPlayerToStoredLocation(player);
                     loadPlayerData(player);
                 }
             }
-            default -> {
-                teleportPlayerToStoredLocation(player);
-                loadPlayerData(player);
-            }
-        }
+        });
     }
 
     private void loadPlayerData(@NonNull Player player) {
-        player.setGameMode(GameMode.valueOf(playerGameMode));
-        player.setFoodLevel(foodLevel);
-        player.setTotalExperience(experience);
-        player.setLevel(experienceLevel);
-        player.setFireTicks(fireTicks);
-        player.setAllowFlight(allowFlight);
-        player.setFlying(flying);
+            player.setGameMode(GameMode.valueOf(playerGameMode));
+            player.setFoodLevel(foodLevel);
+            player.setTotalExperience(experience);
+            player.setLevel(experienceLevel);
+            player.setFireTicks(fireTicks);
+            player.setAllowFlight(allowFlight);
+            player.setFlying(flying);
 
-        if (!playerInventoryData.isEmpty())
-            player.getInventory().setContents(PlayerDataSerializer.deserializeItemStacksFromBase64(playerInventoryData));
+            if (!playerInventoryData.isEmpty())
+                player.getInventory().setContents(PlayerDataSerializer.deserializeItemStacksFromBase64(playerInventoryData));
 
-        if (!playerEnderChestData.isEmpty())
-            player.getEnderChest().setContents(PlayerDataSerializer.deserializeItemStacksFromBase64(playerEnderChestData));
+            if (!playerEnderChestData.isEmpty())
+                player.getEnderChest().setContents(PlayerDataSerializer.deserializeItemStacksFromBase64(playerEnderChestData));
 
-        player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
-        player.addPotionEffects(PlayerDataSerializer.deserializeEffects(playerEffectsData));
-
+            player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
+            player.addPotionEffects(PlayerDataSerializer.deserializeEffects(playerEffectsData));
     }
 
     private void teleportPlayerToStoredLocation(@NonNull Player player) {

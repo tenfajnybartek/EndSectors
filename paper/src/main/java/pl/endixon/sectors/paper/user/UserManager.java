@@ -28,11 +28,6 @@ public class UserManager {
         );
     }
 
-    public static UserRedis getOrCreate(@NonNull Player player) {
-        return getUser(player).orElseGet(() -> new UserRedis(player));
-    }
-
-
     public static CompletableFuture<UserRedis> getOrCreateAsync(@NonNull String name) {
         return getUserAsync(name).thenApply(optional -> optional.orElseGet(() -> new UserRedis(name)));
     }

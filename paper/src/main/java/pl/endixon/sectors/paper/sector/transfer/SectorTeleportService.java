@@ -27,12 +27,9 @@ public class SectorTeleportService {
         long startTime = System.currentTimeMillis();
 
         SectorManager sectorManager = plugin.getSectorManager();
+        Sector current = sectorManager.getCurrentSector();
 
-        boolean blockSpawnTransfer = Optional.ofNullable(sectorManager.getCurrentSector())
-                .map(current -> current.getType() == SectorType.SPAWN)
-                .orElse(false) && sector.getType() == SectorType.SPAWN;
-
-        if (blockSpawnTransfer && !forceTransfer) {
+        if (!forceTransfer && current != null && current.getType() == SectorType.SPAWN && sector.getType() == SectorType.SPAWN) {
             Logger.info(() -> String.format("[Transfer] Blocked spawn-to-spawn transfer for %s", player.getName()));
             return;
         }
@@ -53,19 +50,16 @@ public class SectorTeleportService {
                 player.leaveVehicle();
             }
 
-            CompletableFuture.runAsync(() -> {
-                Logger.info(() -> String.format("[Transfer] Updating player data for %s", player.getName()));
+            Logger.info(() -> String.format("[Transfer] Updating player data for %s", player.getName()));
                 user.updateAndSave(player, sector);
 
-                Logger.info(() -> String.format("[Transfer] Sending teleport packet for %s", player.getName()));
-                PacketRequestTeleportSector packet = new PacketRequestTeleportSector(player.getName(), sector.getName());
-                PaperSector.getInstance().getRedisService().publish(PacketChannel.PACKET_TELEPORT_TO_SECTOR, packet);
+            Logger.info(() -> String.format("[Transfer] Sending teleport packet for %s", player.getName()));
+            PacketRequestTeleportSector packet = new PacketRequestTeleportSector(player.getName(), sector.getName());
+            PaperSector.getInstance().getRedisService().publish(PacketChannel.PACKET_TELEPORT_TO_SECTOR, packet);
 
-            }).thenRun(() -> {
-                long duration = System.currentTimeMillis() - startTime;
-                Bukkit.getScheduler().runTask(plugin,
-                        () -> Logger.info(() -> String.format("[Transfer] Teleport process finished for %s (ms: %d)", player.getName(), duration)));
-            });
+            long duration = System.currentTimeMillis() - startTime;
+            Logger.info(() -> String.format("[Transfer] Teleport process finished for %s (ms: %d)", player.getName(), duration));
         });
     }
+
 }

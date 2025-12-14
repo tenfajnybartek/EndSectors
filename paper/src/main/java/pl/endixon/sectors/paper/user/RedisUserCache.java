@@ -34,13 +34,6 @@ public final class RedisUserCache {
         }, () -> String.format("[RedisUserCache] Failed to load user '%s'", name));
     }
 
-    public static void DeleteUser(String name) {
-        runSafely(() -> {
-            PaperSector.getInstance()
-                    .getRedisService()
-                    .del(getKey(name));
-        }, () -> String.format("[RedisUserCache] Failed to delete user '%s'", name));
-    }
 
     private static void runSafely(Runnable action, Supplier<String> error) {
         try {

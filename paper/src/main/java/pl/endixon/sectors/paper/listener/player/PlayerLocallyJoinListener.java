@@ -49,7 +49,9 @@ public class PlayerLocallyJoinListener implements Listener {
         event.joinMessage(Component.empty());
         player.setCollidable(false);
 
-        UserRedis user = UserManager.getOrCreate(player);
+        UserRedis user = UserManager.getUser(player)
+                .orElseGet(() -> new UserRedis(player)); 
+
         Sector currentSector = paperSector.getSectorManager().getCurrentSector();
 
         Bukkit.getScheduler().runTask(paperSector, () -> {

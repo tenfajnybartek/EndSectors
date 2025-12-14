@@ -43,6 +43,7 @@ public class RandomTPCommand implements CommandExecutor {
         }
 
         UserRedis user = UserManager.getUser(player).orElse(null);
+        if (user == null) return true;
 
         List<Sector> sectors = sectorManager.getSectors().stream()
                 .filter(Sector::isOnline)
@@ -53,17 +54,13 @@ public class RandomTPCommand implements CommandExecutor {
                 .toList();
 
         if (sectors.isEmpty()) {
-            player.sendTitle(
-                    Messages.RANDOM_TITLE.get(),
-                    Messages.RANDOM_NO_SECTORS.get(),
-                    10, 40, 10
-            );
+            player.sendTitle(Messages.RANDOM_TITLE.get(), Messages.RANDOM_NO_SECTORS.get(), 10, 40, 10);
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 0.8f);
             return true;
         }
 
         Sector sector = sectors.get(ThreadLocalRandom.current().nextInt(sectors.size()));
-        var loc = sectorManager.randomLocation(sector);
+        Location loc = sectorManager.randomLocation(sector);
 
         if (!sector.isOnline() || loc == null) {
             player.sendTitle(
@@ -71,17 +68,14 @@ public class RandomTPCommand implements CommandExecutor {
                     loc == null ? Messages.RANDOM_LOC_FAIL.get() : Messages.RANDOM_SECTOR_OFFLINE.get(),
                     10, 40, 10
             );
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 0.8f);
             return true;
         }
 
         user.setLastTransferTimestamp(System.currentTimeMillis());
 
-        player.sendTitle(
-                Messages.RANDOM_TITLE.get(),
-                Messages.RANDOM_START.get(),
-                0, 9999, 0
-        );
-        final Location startLocation = player.getLocation().clone();
+        player.sendTitle(Messages.RANDOM_TITLE.get(), Messages.RANDOM_START.get(), 0, 9999, 0);
+        Location startLocation = player.getLocation().clone();
 
         new BukkitRunnable() {
             int countdown = COUNTDOWN_TIME;
@@ -89,27 +83,24 @@ public class RandomTPCommand implements CommandExecutor {
             @Override
             public void run() {
 
+                if (!player.isOnline()) {
+                    cancel();
+                    return;
+                }
 
                 if (!player.getLocation().getBlock().equals(startLocation.getBlock())) {
                     player.sendTitle(
                             ChatUtil.fixColors(Messages.SPAWN_TITLE.get()),
                             ChatUtil.fixColors("&cTeleport anulowany – ruszyłeś się!"),
-                            5,
-                            40,
-                            10
+                            5, 40, 10
                     );
-
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 0.8f);
                     cancel();
                     return;
                 }
 
                 if (!sector.isOnline()) {
-                    player.sendTitle(
-                            Messages.RANDOM_TITLE.get(),
-                            Messages.RANDOM_CANCEL.get(),
-                            10, 40, 10
-                    );
+                    player.sendTitle(Messages.RANDOM_TITLE.get(), Messages.RANDOM_CANCEL.get(), 10, 40, 10);
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 0.8f);
                     cancel();
                     return;
@@ -118,15 +109,13 @@ public class RandomTPCommand implements CommandExecutor {
                 if (countdown > 0) {
                     player.sendTitle(
                             Messages.RANDOM_TITLE.get(),
-                            Messages.RANDOM_COUNTDOWN.format(
-                                    "sector", sector.getName(),
-                                    "time", String.valueOf(countdown)
-                            ),
+                            Messages.RANDOM_COUNTDOWN.format("sector", sector.getName(), "time", String.valueOf(countdown)),
                             0, 20, 0
                     );
                     countdown--;
                     return;
                 }
+
 
                 SectorChangeEvent event = new SectorChangeEvent(player, sector);
                 Bukkit.getPluginManager().callEvent(event);
@@ -134,7 +123,7 @@ public class RandomTPCommand implements CommandExecutor {
                 if (!event.isCancelled()) {
                     player.teleport(loc);
                     user.setLastSectorTransfer(true);
-                    user.updateFromPlayer(player, sector);
+                    user.updateAndSave(player,sector);
 
                     Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> {
                         Vector v = player.getLocation().getDirection().normalize().multiply(0.8);
