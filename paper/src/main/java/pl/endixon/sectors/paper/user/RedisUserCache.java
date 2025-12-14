@@ -19,58 +19,34 @@ public final class RedisUserCache {
 
     public static void save(UserRedis user) {
         runSafely(() -> {
-            long start = System.currentTimeMillis();
-
             PaperSector.getInstance()
                     .getRedisService()
                     .hset(getKey(user.getName()), user.toRedisMap());
-
-            long duration = System.currentTimeMillis() - start;
-
-        }, () -> "[RedisUserCache] Failed to save user '" + user.getName() + "'");
+        }, () -> String.format("[RedisUserCache] Failed to save user '%s'", user.getName()));
     }
 
     public static Optional<Map<String, String>> load(String name) {
         return supplySafely(() -> {
-            long start = System.currentTimeMillis();
-
             Map<String, String> data = PaperSector.getInstance()
                     .getRedisService()
                     .hgetAll(getKey(name));
-
-            long duration = System.currentTimeMillis() - start;
-
-            if (data == null || data.isEmpty()) {
-                Logger.info(() ->
-                        "[RedisUserCache] No Redis data found for user '" + name + "' (" + duration + "ms)"
-                );
-                return null;
-            }
-
-            return data;
-        }, () -> "[RedisUserCache] Failed to load user '" + name + "'");
+            return data != null && !data.isEmpty() ? data : null;
+        }, () -> String.format("[RedisUserCache] Failed to load user '%s'", name));
     }
 
     public static void delete(String name) {
         runSafely(() -> {
-            long start = System.currentTimeMillis();
-
             PaperSector.getInstance()
                     .getRedisService()
                     .del(getKey(name));
-
-            long duration = System.currentTimeMillis() - start;
-            Logger.info(() ->
-                    "[RedisUserCache] Deleted user '" + name + "' from Redis in " + duration + "ms"
-            );
-        }, () -> "[RedisUserCache] Failed to delete user '" + name + "'");
+        }, () -> String.format("[RedisUserCache] Failed to delete user '%s'", name));
     }
 
     private static void runSafely(Runnable action, Supplier<String> error) {
         try {
             action.run();
         } catch (Exception e) {
-            Logger.info(error.get() + " (" + e.getClass().getSimpleName() + "): " + e.getMessage());
+            Logger.info(String.format("%s (%s): %s", error.get(), e.getClass().getSimpleName(), e.getMessage()));
         }
     }
 
@@ -78,7 +54,7 @@ public final class RedisUserCache {
         try {
             return Optional.ofNullable(action.get());
         } catch (Exception e) {
-            Logger.info(error.get() + " (" + e.getClass().getSimpleName() + "): " + e.getMessage());
+            Logger.info(String.format("%s (%s): %s", error.get(), e.getClass().getSimpleName(), e.getMessage()));
             return Optional.empty();
         }
     }
