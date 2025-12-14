@@ -46,46 +46,35 @@
         }
 
 
-        //itemStackArrayToBase64
-        @lombok.SneakyThrows
         public static String serializeItemStacksToBase64(final ItemStack[] items) {
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                 BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream)) {
 
-            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            final BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-            dataOutput.writeInt(items.length);
-            for (ItemStack item : items) {
-                dataOutput.writeObject(item);
+                dataOutput.writeInt(items.length);
+                for (ItemStack item : items) dataOutput.writeObject(item);
+                dataOutput.flush();
+                return Base64.getEncoder().encodeToString(outputStream.toByteArray());
+            } catch (Exception e) {
+                Logger.info("Failed to serialize ItemStacks: " + e.getMessage());
+                return "";
             }
-            dataOutput.close();
-            return Base64.getEncoder().encodeToString(outputStream.toByteArray());
-
         }
 
         @lombok.SneakyThrows
         public static ItemStack[] deserializeItemStacksFromBase64(final String data) {
-            if (data == null || data.isEmpty()) {
-                return new ItemStack[0];
-            }
+            if (data == null || data.isEmpty()) return new ItemStack[0];
 
-            byte[] decoded;
-            try {
-                decoded = Base64.getDecoder().decode(data);
-            } catch (IllegalArgumentException ex) {
-                Logger.info("Failed to decode Base64: " + data + " (" + ex.getMessage() + ")");
-                return new ItemStack[0];
-            }
-
-            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(decoded);
+            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(data));
                  BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)) {
 
                 ItemStack[] items = new ItemStack[dataInput.readInt()];
-                for (int i = 0; i < items.length; ++i) {
+                for (int i = 0; i < items.length; i++) {
                     items[i] = (ItemStack) dataInput.readObject();
                 }
                 return items;
 
             } catch (Exception e) {
-                Logger.info("Failed to read ItemStacks from Base64: " + e.getMessage());
+                Logger.info("Failed to deserialize ItemStacks: " + e.getMessage());
                 return new ItemStack[0];
             }
         }
@@ -109,33 +98,32 @@
             return Base64.getEncoder().encodeToString(json.getBytes());
         }
 
-
         public static List<PotionEffect> deserializeEffects(String base64Data) {
-            if (base64Data == null || base64Data.isEmpty()) {
-                return new ArrayList<>();
-            }
+            if (base64Data == null || base64Data.isEmpty()) return List.of();
 
-            String jsonData = new String(Base64.getDecoder().decode(base64Data));
-            Gson gson = new Gson();
-            Type listType = new TypeToken<List<Map<String, Object>>>() {
-            }.getType();
-            List<Map<String, Object>> effectList = gson.fromJson(jsonData, listType);
+            try {
+                String jsonData = new String(Base64.getDecoder().decode(base64Data));
+                Gson gson = new Gson();
+                Type listType = new TypeToken<List<Map<String, Object>>>() {
+                }.getType();
+                List<Map<String, Object>> effectList = gson.fromJson(jsonData, listType);
 
-            if (effectList == null) {
-                return new ArrayList<>();
-            }
+                if (effectList == null) return List.of();
 
-            List<PotionEffect> effects = new ArrayList<>();
-            for (Map<String, Object> effectMap : effectList) {
-                String typeName = (String) effectMap.get("type");
-                int amplifier = ((Double) effectMap.get("amplifier")).intValue();
-                int duration = ((Double) effectMap.get("duration")).intValue();
-                PotionEffectType type = PotionEffectType.getByName(typeName);
-                if (type != null) {
-                    effects.add(new PotionEffect(type, duration, amplifier));
+                List<PotionEffect> effects = new ArrayList<>(effectList.size());
+                for (Map<String, Object> map : effectList) {
+                    String typeName = (String) map.get("type");
+                    int amplifier = ((Double) map.get("amplifier")).intValue();
+                    int duration = ((Double) map.get("duration")).intValue();
+                    PotionEffectType type = PotionEffectType.getByName(typeName);
+                    if (type != null) effects.add(new PotionEffect(type, duration, amplifier));
                 }
+                return effects;
+
+            } catch (Exception e) {
+                Logger.info("Failed to deserialize potion effects: " + e.getMessage());
+                return List.of();
             }
-            return effects;
         }
     }
 

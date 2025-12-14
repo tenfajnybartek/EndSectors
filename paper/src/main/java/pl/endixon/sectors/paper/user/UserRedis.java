@@ -44,7 +44,6 @@ public class UserRedis {
     private String playerEnderChestData;
     private String playerEffectsData;
 
-    // Prywatny konstruktor bazowy z domyślnymi wartościami
     private UserRedis() {
         this.sectorName = "null";
         this.firstJoin = true;
@@ -161,95 +160,45 @@ public class UserRedis {
         return Bukkit.getPlayer(name);
     }
 
-    public void applyPlayerData() {
-        Player player = getPlayer();
-        if (player == null) return;
-        Sector current = PaperSector.getInstance().getSectorManager().getCurrentSector();
-        if (current == null) return;
 
-        switch (current.getType()) {
-            case QUEUE -> handleQueueSector(player);
-            case NETHER -> handleNetherSector(player);
-            case SPAWN -> handleSpawnSector(player);
-            default -> handleDefaultSector(player);
-        }
-    }
+
+
+
 
     public void setLastSectorTransfer(boolean redirecting) {
         this.lastSectorTransfer = redirecting ? System.currentTimeMillis() : 0L;
         saveAsync();
     }
 
-
-
-    public UserRedis handleFirstJoin(Sector currentSector) {
-        if (!this.isFirstJoin()) return this;
-
-        if (currentSector.getType() == SectorType.QUEUE
-                || currentSector.getType() == SectorType.NETHER
-                || currentSector.getType() == SectorType.END) {
-            return this;
-        }
-
-        this.setFirstJoin(false);
-        this.updateFromPlayer(this.getPlayer(), currentSector);
-
-        boolean success = this.getPlayer().teleport(
-                PaperSector.getInstance().getSectorManager().randomLocation(currentSector)
-        );
-
-        if (success) {
-            this.sendSectorTitle(currentSector);
-        } else {
-            Logger.info(() -> "Failed to teleport player " + this.getPlayer().getName());
-        }
-
-        return this;
-    }
-
-
-
-    public void sendSectorTitle(Sector sector) {
+    public void applyPlayerData() {
         Player player = getPlayer();
         if (player == null) return;
 
-        player.showTitle(Title.title(
-                Component.text(ChatUtil.fixColors("")),
-                Component.text(ChatUtil.fixColors("&cPołączono się na sektor " + sector.getName())),
-                Title.Times.times(
-                        Duration.ofMillis(500),
-                        Duration.ofMillis(2000),
-                        Duration.ofMillis(500)
-                )
-        ));
-    }
+        Sector current = PaperSector.getInstance().getSectorManager().getCurrentSector();
+        if (current == null) return;
 
+        Location defaultLoc = new Location(player.getWorld(), 0, 70, 0);
 
-
-    private void handleQueueSector(Player player) {
-        Location loc = new Location(player.getWorld(), 0, 70, 0);
-        if (player.teleport(loc)) {
-            player.setGameMode(GameMode.ADVENTURE);
-            Bukkit.getOnlinePlayers().forEach(online -> {
-                if (!online.equals(player)) online.hidePlayer(PaperSector.getInstance(), player);
-                if (!online.equals(player)) player.hidePlayer(PaperSector.getInstance(), online);
-            });
+        switch (current.getType()) {
+            case QUEUE -> {
+                if (player.teleport(defaultLoc)) {
+                    player.setGameMode(GameMode.ADVENTURE);
+                    Bukkit.getOnlinePlayers().forEach(online -> {
+                        if (!online.equals(player)) online.hidePlayer(PaperSector.getInstance(), player);
+                        if (!online.equals(player)) player.hidePlayer(PaperSector.getInstance(), online);
+                    });
+                }
+            }
+            case NETHER, SPAWN -> {
+                if (player.teleport(defaultLoc)) {
+                    loadPlayerData(player);
+                }
+            }
+            default -> {
+                teleportPlayerToStoredLocation(player);
+                loadPlayerData(player);
+            }
         }
-    }
-
-    private void handleNetherSector(Player player) {
-        Location loc = new Location(player.getWorld(), 0, 70, 0);
-        if (player.teleport(loc)) loadPlayerData(player);
-    }
-
-    private void handleSpawnSector(Player player) {
-        Location loc = new Location(player.getWorld(), 0, 70, 0);
-        if (player.teleport(loc)) loadPlayerData(player);
-    }
-
-    private void handleDefaultSector(Player player) {
-        teleportPlayerToStoredLocation(player);
-        loadPlayerData(player);
     }
 
     private void loadPlayerData(@NonNull Player player) {
@@ -268,7 +217,8 @@ public class UserRedis {
             player.getEnderChest().setContents(PlayerDataSerializer.deserializeItemStacksFromBase64(playerEnderChestData));
 
         player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
-        PlayerDataSerializer.deserializeEffects(playerEffectsData).forEach(player::addPotionEffect);
+        player.addPotionEffects(PlayerDataSerializer.deserializeEffects(playerEffectsData));
+
     }
 
     private void teleportPlayerToStoredLocation(@NonNull Player player) {

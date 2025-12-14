@@ -39,7 +39,7 @@ public class PlayerQuitListener implements Listener {
 
         Sector currentSector = PaperSector.getInstance().getSectorManager().getCurrentSector();
         if (currentSector == null || currentSector.getType() == SectorType.QUEUE) return;
-        if (System.currentTimeMillis() - user.getLastSectorTransfer() < 3000L) return;
+        if (System.currentTimeMillis() - user.getLastSectorTransfer() < 5000L) return;
 
         user.updateAndSave(player, currentSector);
     }

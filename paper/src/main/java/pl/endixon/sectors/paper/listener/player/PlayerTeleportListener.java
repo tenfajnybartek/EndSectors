@@ -21,6 +21,10 @@ import java.time.Duration;
 public class PlayerTeleportListener implements Listener {
 
     private final PaperSector paperSector;
+    private static final long TRANSFER_DELAY = 5000L;
+    private static final double KNOCK_BORDER_FORCE = 1.35;
+
+
 
     public PlayerTeleportListener(PaperSector paperSector) {
         this.paperSector = paperSector;
@@ -60,11 +64,11 @@ public class PlayerTeleportListener implements Listener {
                                 Duration.ofMillis(500)
                         )
                 ));
-                currentSector.knockBorder(player, 1.5);
+                currentSector.knockBorder(player, KNOCK_BORDER_FORCE);
                 return;
             }
 
-            if (System.currentTimeMillis() - user.getLastSectorTransfer() < 3000L) return;
+            if (System.currentTimeMillis() - user.getLastSectorTransfer() < TRANSFER_DELAY) return;
             user.setLastSectorTransfer(true);
             paperSector.getSectorTeleportService().teleportToSector(player, user, targetSector, false);
     }

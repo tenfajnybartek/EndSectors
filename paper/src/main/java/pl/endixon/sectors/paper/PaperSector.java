@@ -30,6 +30,7 @@ import pl.endixon.sectors.common.packet.object.*;
 import pl.endixon.sectors.common.redis.RedisManager;
 import pl.endixon.sectors.paper.command.ChannelCommand;
 import pl.endixon.sectors.paper.config.ConfigLoader;
+import pl.endixon.sectors.paper.listener.other.PortalListener;
 import pl.endixon.sectors.paper.listener.player.*;
 import pl.endixon.sectors.paper.command.SectorCommand;
 import pl.endixon.sectors.paper.listener.other.MoveListener;
@@ -144,6 +145,7 @@ public class PaperSector extends JavaPlugin {
                 new PlayerSectorInteractListener(sectorManager, this),
                 new PlayerLocallyJoinListener(this),
                 new PortalListener(this),
+                new PlayerTeleportListener(this),
                 new InventoryInternactListener(),
                 new PlayerChatListener(this),
                 new MoveListener(this)

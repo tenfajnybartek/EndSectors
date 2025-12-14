@@ -25,146 +25,142 @@ import pl.endixon.sectors.paper.util.Configuration;
 public class MoveListener implements Listener {
 
     private final PaperSector paperSector;
+    private static final long TRANSFER_DELAY = 5000L;
+    private static final double KNOCK_BORDER_FORCE = 1.35;
 
     @EventHandler
-    public void onTeleport(final PlayerTeleportEvent event) {
-        Sector current = paperSector.getSectorManager().getCurrentSector();
-        if (current != null && (current.getType() == SectorType.QUEUE || current.getType() == SectorType.NETHER)) return;
-        handlePlayerMove(event.getPlayer(), event.getFrom(), event.getTo(), true);
-    }
+    public void onTeleport(PlayerTeleportEvent event) {
+        Player player = event.getPlayer();
+        if (event.isCancelled()) return;
 
-    @EventHandler
-    public void onMove(final PlayerMoveEvent event) {
-        Sector current = paperSector.getSectorManager().getCurrentSector();
-        if (current != null && (current.getType() == SectorType.QUEUE || current.getType() == SectorType.NETHER)) return;
-        handlePlayerMove(event.getPlayer(), event.getFrom(), event.getTo(), false);
-    }
-
-    private void handlePlayerMove(Player player, Location from, Location to, boolean teleport) {
-
-        if (from.getBlockX() == to.getBlockX() &&
-                from.getBlockY() == to.getBlockY() &&
-                from.getBlockZ() == to.getBlockZ()) return;
+        SectorManager sectorManager = paperSector.getSectorManager();
+        Sector current = sectorManager.getCurrentSector();
+        if (current == null || current.getType() == SectorType.QUEUE || current.getType() == SectorType.NETHER) return;
 
         UserRedis userRedis = UserManager.getUser(player).orElse(null);
-            if (userRedis == null) return;
+        if (userRedis == null) return;
 
-                SectorManager sectorManager = paperSector.getSectorManager();
-                Sector currentSector = sectorManager.getCurrentSector();
-                if (currentSector == null) return;
+        Sector sector = sectorManager.getSector(event.getTo());
+        if (sector == null) return;
 
-                Sector sector = sectorManager.getSector(to);
-                if (sector == null) return;
-
-                if (sector.getType() == SectorType.SPAWN) {
-                    Sector spawnToTeleport;
-                    try {
-                        spawnToTeleport = sectorManager.getBalancedRandomSpawnSector();
-                    } catch (IllegalStateException e) {
-                        player.showTitle(Title.title(
-                                Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_TITLE)),
-                                Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_SUBTITLE)),
-                                Title.Times.times(
-                                        java.time.Duration.ofMillis(500),
-                                        java.time.Duration.ofMillis(2000),
-                                        java.time.Duration.ofMillis(500)
-                                )
-                        ));
-                        currentSector.knockBorder(player, 1.0);
-                        return;
-                    }
-
-                    if (!spawnToTeleport.isOnline()) {
-                        player.showTitle(Title.title(
-                                Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_TITLE)),
-                                Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_SUBTITLE)),
-                                Title.Times.times(
-                                        java.time.Duration.ofMillis(500),
-                                        java.time.Duration.ofMillis(2000),
-                                        java.time.Duration.ofMillis(500)
-                                )
-                        ));
-                        currentSector.knockBorder(player, 1.5);
-                        return;
-                    }
-
-                    if (System.currentTimeMillis() - userRedis.getLastTransferTimestamp() < 3000L) {
-                        long remaining = 3000L - (System.currentTimeMillis() - userRedis.getLastTransferTimestamp());
-                        player.showTitle(Title.title(
-                                Component.text(ChatUtil.fixColors("&cNie możesz połączyć się z tym sektorem teraz!")).color(NamedTextColor.RED),
-                                Component.text(ChatUtil.fixColors("&7Odczekaj " + (remaining / 1000 + 1) + " sekund i spróbuj ponownie")).color(NamedTextColor.GRAY),
-                                Title.Times.times(
-                                        java.time.Duration.ofMillis(500),
-                                        java.time.Duration.ofMillis(2000),
-                                        java.time.Duration.ofMillis(500)
-                                )
-                        ));
-                        currentSector.knockBorder(player, 1.0);
-                        return;
-                    }
-
-                    if (System.currentTimeMillis() - userRedis.getLastSectorTransfer() < 3000L) return;
-
-                    userRedis.setLastSectorTransfer(true);
-                    SectorChangeEvent ev = new SectorChangeEvent(player, spawnToTeleport);
-                    Bukkit.getPluginManager().callEvent(ev);
-                    if (ev.isCancelled()) return;
-
-                    if (!teleport) {
-                        paperSector.getSectorTeleportService().teleportToSector(player, userRedis, spawnToTeleport, false);
-                    } else {
-                        Bukkit.getScheduler().runTaskLater(paperSector,
-                                () -> paperSector.getSectorTeleportService().teleportToSector(player, userRedis, spawnToTeleport, false),
-                                0L);
-                    }
-                    return;
-                }
-
-                if (!currentSector.equals(sector) && !(currentSector.getType() == SectorType.SPAWN && sector.getType() == SectorType.SPAWN)) {
-
-                    if (!sector.isOnline()) {
-                        player.showTitle(Title.title(
-                                Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_TITLE)),
-                                Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_SUBTITLE)),
-                                Title.Times.times(
-                                        java.time.Duration.ofMillis(500),
-                                        java.time.Duration.ofMillis(2000),
-                                        java.time.Duration.ofMillis(500)
-                                )
-                        ));
-                        currentSector.knockBorder(player, 1.0);
-                        return;
-                    }
-
-                    if (System.currentTimeMillis() - userRedis.getLastTransferTimestamp() < 3000L) {
-                        long remaining = 3000L - (System.currentTimeMillis() - userRedis.getLastTransferTimestamp());
-                        player.showTitle(Title.title(
-                                Component.text(ChatUtil.fixColors("&cNie możesz połączyć się z tym sektorem teraz!")).color(NamedTextColor.RED),
-                                Component.text(ChatUtil.fixColors("&7Odczekaj " + (remaining / 1000 + 1) + " sekund i spróbuj ponownie")).color(NamedTextColor.GRAY),
-                                Title.Times.times(
-                                        java.time.Duration.ofMillis(500),
-                                        java.time.Duration.ofMillis(2000),
-                                        java.time.Duration.ofMillis(500)
-                                )
-                        ));
-                        currentSector.knockBorder(player, 1.0);
-                        return;
-                    }
-
-                    if (System.currentTimeMillis() - userRedis.getLastSectorTransfer() < 5000L) return;
-
-                    userRedis.setLastSectorTransfer(true);
-                    SectorChangeEvent ev = new SectorChangeEvent(player, sector);
-                    Bukkit.getPluginManager().callEvent(ev);
-                    if (ev.isCancelled()) return;
-
-                    if (!teleport) {
-                        paperSector.getSectorTeleportService().teleportToSector(player, userRedis, sector, false);
-                    } else {
-                        Bukkit.getScheduler().runTaskLater(paperSector,
-                                () -> paperSector.getSectorTeleportService().teleportToSector(player, userRedis, sector, false),
-                                0L);
-                    }
-                }
+        Bukkit.getScheduler().runTask(paperSector, () -> processSectorTransfer(player, userRedis, current, sector));
     }
+
+    @EventHandler
+    public void onMove(PlayerMoveEvent event) {
+        SectorManager sectorManager = paperSector.getSectorManager();
+        Player player = event.getPlayer();
+
+        Sector current = sectorManager.getCurrentSector();
+        if (current == null || current.getType() == SectorType.QUEUE || current.getType() == SectorType.NETHER) return;
+
+        if (event.getFrom().getBlockX() == event.getTo().getBlockX() &&
+                event.getFrom().getBlockY() == event.getTo().getBlockY() &&
+                event.getFrom().getBlockZ() == event.getTo().getBlockZ()) return;
+
+        UserRedis userRedis = UserManager.getUser(player).orElse(null);
+        if (userRedis == null) return;
+
+        Sector sector = sectorManager.getSector(event.getTo());
+        if (sector == null) return;
+
+        processSectorTransfer(player, userRedis, current, sector);
+    }
+
+    private void processSectorTransfer(Player player, UserRedis userRedis, Sector currentSector, Sector sector) {
+        if (sector.getType() == SectorType.SPAWN) {
+            processSpawnSectorTransfer(player, userRedis, currentSector);
+            return;
+        }
+
+        if (!currentSector.equals(sector) &&
+                !(currentSector.getType() == SectorType.SPAWN && sector.getType() == SectorType.SPAWN)) {
+
+            if (!sector.isOnline()) {
+                player.showTitle(Title.title(
+                        Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_TITLE)),
+                        Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_SUBTITLE)),
+                        Title.Times.times(java.time.Duration.ofMillis(500),
+                                java.time.Duration.ofMillis(2000),
+                                java.time.Duration.ofMillis(500))
+                ));
+                currentSector.knockBorder(player, KNOCK_BORDER_FORCE);
+                return;
+            }
+
+            if (System.currentTimeMillis() - userRedis.getLastTransferTimestamp() < TRANSFER_DELAY) {
+                long remaining = TRANSFER_DELAY - (System.currentTimeMillis() - userRedis.getLastTransferTimestamp());
+                player.showTitle(Title.title(
+                        Component.text(ChatUtil.fixColors("&cSektor chwilowo niedostępny!")).color(NamedTextColor.RED),
+                        Component.text(ChatUtil.fixColors("&7Odczekaj " + (remaining / 1000 + 1) + "s")).color(NamedTextColor.GRAY),
+                        Title.Times.times(java.time.Duration.ofMillis(500),
+                                java.time.Duration.ofMillis(2000),
+                                java.time.Duration.ofMillis(500))
+                ));
+                currentSector.knockBorder(player, KNOCK_BORDER_FORCE);
+                return;
+            }
+
+            if (System.currentTimeMillis() - userRedis.getLastSectorTransfer() < TRANSFER_DELAY) return;
+
+            userRedis.setLastSectorTransfer(true);
+            SectorChangeEvent ev = new SectorChangeEvent(player, sector);
+            Bukkit.getPluginManager().callEvent(ev);
+            if (ev.isCancelled()) return;
+
+            paperSector.getSectorTeleportService().teleportToSector(player, userRedis, sector, false);
+        }
+    }
+
+    private void processSpawnSectorTransfer(Player player, UserRedis userRedis, Sector currentSector) {
+        Sector spawnToTeleport;
+        try {
+            spawnToTeleport = paperSector.getSectorManager().getBalancedRandomSpawnSector();
+        } catch (IllegalStateException e) {
+            player.showTitle(Title.title(
+                    Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_TITLE)),
+                    Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_SUBTITLE)),
+                    Title.Times.times(java.time.Duration.ofMillis(500),
+                            java.time.Duration.ofMillis(2000),
+                            java.time.Duration.ofMillis(500))
+            ));
+            currentSector.knockBorder(player, KNOCK_BORDER_FORCE);
+            return;
+        }
+
+        if (!spawnToTeleport.isOnline()) {
+            player.showTitle(Title.title(
+                    Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_TITLE)),
+                    Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_SUBTITLE)),
+                    Title.Times.times(java.time.Duration.ofMillis(500),
+                            java.time.Duration.ofMillis(2000),
+                            java.time.Duration.ofMillis(500))
+            ));
+            currentSector.knockBorder(player, KNOCK_BORDER_FORCE);
+            return;
+        }
+
+        if (System.currentTimeMillis() - userRedis.getLastTransferTimestamp() < TRANSFER_DELAY) {
+            long remaining = TRANSFER_DELAY - (System.currentTimeMillis() - userRedis.getLastTransferTimestamp());
+            player.showTitle(Title.title(
+                    Component.text(ChatUtil.fixColors("&cSektor chwilowo niedostępny!")).color(NamedTextColor.RED),
+                    Component.text(ChatUtil.fixColors("&7Odczekaj " + (remaining / 1000 + 1) + "s")).color(NamedTextColor.GRAY),
+                    Title.Times.times(java.time.Duration.ofMillis(500),
+                            java.time.Duration.ofMillis(2000),
+                            java.time.Duration.ofMillis(500))
+            ));
+            currentSector.knockBorder(player, KNOCK_BORDER_FORCE);
+            return;
+        }
+
+        if (System.currentTimeMillis() - userRedis.getLastSectorTransfer() < TRANSFER_DELAY) return;
+
+        userRedis.setLastSectorTransfer(true);
+        SectorChangeEvent ev = new SectorChangeEvent(player, spawnToTeleport);
+        Bukkit.getPluginManager().callEvent(ev);
+        if (ev.isCancelled()) return;
+
+        paperSector.getSectorTeleportService().teleportToSector(player, userRedis, spawnToTeleport, false);
+    }
+
 }

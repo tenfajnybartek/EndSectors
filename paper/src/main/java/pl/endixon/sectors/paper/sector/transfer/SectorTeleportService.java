@@ -24,6 +24,8 @@ public class SectorTeleportService {
     }
 
     public void teleportToSector(Player player, UserRedis user, Sector sector, boolean forceTransfer) {
+        long startTime = System.currentTimeMillis();
+
         SectorManager sectorManager = plugin.getSectorManager();
 
         boolean blockSpawnTransfer = Optional.ofNullable(sectorManager.getCurrentSector())
@@ -31,38 +33,38 @@ public class SectorTeleportService {
                 .orElse(false) && sector.getType() == SectorType.SPAWN;
 
         if (blockSpawnTransfer && !forceTransfer) {
-            Logger.info(() -> "[Transfer] Blocked spawn-to-spawn transfer for " + player.getName());
+            Logger.info(() -> String.format("[Transfer] Blocked spawn-to-spawn transfer for %s", player.getName()));
             return;
         }
 
-        Logger.info(() -> "[Transfer] Starting connection for player " + player.getName() + " -> " + sector.getName());
+        Logger.info(() -> String.format("[Transfer] Starting teleport for player %s -> %s", player.getName(), sector.getName()));
 
-        plugin.getServer().getScheduler().runTask(plugin, () -> {
-
+        Bukkit.getScheduler().runTask(plugin, () -> {
             SectorChangeEvent event = new SectorChangeEvent(player, sector);
             Bukkit.getPluginManager().callEvent(event);
 
             if (event.isCancelled()) {
-                Logger.info(() -> "[Transfer] Cancelled by event for " + player.getName());
+                Logger.info(() -> String.format("[Transfer] Teleport cancelled by event for %s", player.getName()));
                 return;
             }
 
             if (player.isInsideVehicle()) {
-                Logger.info(() -> "[Transfer] Removing vehicle for " + player.getName());
+                Logger.info(() -> String.format("[Transfer] Removing vehicle for %s", player.getName()));
                 player.leaveVehicle();
             }
 
             CompletableFuture.runAsync(() -> {
-                Logger.info(() -> "[Transfer] Updating player data for " + player.getName());
+                Logger.info(() -> String.format("[Transfer] Updating player data for %s", player.getName()));
                 user.updateAndSave(player, sector);
 
-                Logger.info(() -> "[Transfer] Sending teleport request for " + player.getName());
+                Logger.info(() -> String.format("[Transfer] Sending teleport packet for %s", player.getName()));
                 PacketRequestTeleportSector packet = new PacketRequestTeleportSector(player.getName(), sector.getName());
                 PaperSector.getInstance().getRedisService().publish(PacketChannel.PACKET_TELEPORT_TO_SECTOR, packet);
 
             }).thenRun(() -> {
-                plugin.getServer().getScheduler().runTask(plugin,
-                        () -> Logger.info(() -> "[Transfer] Finished for " + player.getName()));
+                long duration = System.currentTimeMillis() - startTime;
+                Bukkit.getScheduler().runTask(plugin,
+                        () -> Logger.info(() -> String.format("[Transfer] Teleport process finished for %s (ms: %d)", player.getName(), duration)));
             });
         });
     }

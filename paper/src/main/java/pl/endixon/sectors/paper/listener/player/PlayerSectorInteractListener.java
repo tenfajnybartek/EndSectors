@@ -279,7 +279,7 @@ public class PlayerSectorInteractListener implements Listener {
     private void cancelIfRedirecting(Player player, org.bukkit.event.Cancellable event) {
         UserRedis user = UserManager.getUser(player).orElse(null);
         if (user == null) return;
-        if (System.currentTimeMillis() - user.getLastSectorTransfer() < 3000L) {
+        if (System.currentTimeMillis() - user.getLastSectorTransfer() < 5000L) {
             event.setCancelled(true);
         }
     }
