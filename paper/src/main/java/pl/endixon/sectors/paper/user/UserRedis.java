@@ -116,10 +116,7 @@ public class UserRedis {
         this.sectorName = (currentSector != null && currentSector.getType() != SectorType.QUEUE) ? currentSector.getName() : "null";
     }
 
-    public void updateAndSave(@NonNull Player player, @NonNull Sector currentSector) {
-        updateFromPlayer(player, currentSector);
-        saveSync();
-    }
+
 
     public Map<String, String> toRedisMap() {
         Map<String, String> map = new HashMap<>();
@@ -143,6 +140,12 @@ public class UserRedis {
         map.put("flying", String.valueOf(flying));
         return map;
     }
+
+    public void updateAndSave(@NonNull Player player, @NonNull Sector currentSector) {
+        updateFromPlayer(player, currentSector);
+        saveSync();
+    }
+
     public void saveSync() {
         CompletableFuture.runAsync(() -> {
             try {
