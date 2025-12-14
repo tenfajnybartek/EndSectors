@@ -114,12 +114,21 @@ public class Sector {
     }
 
     public boolean isInSector(Location loc) {
-        return loc.getBlockX() <= Math.max(this.getFirstCorner().getPosX(), this.getSecondCorner().getPosX())
-                && loc.getBlockX() >= Math.min(this.getFirstCorner().getPosX(), this.getSecondCorner().getPosX())
-                && loc.getBlockZ() <= Math.max(this.getFirstCorner().getPosZ(), this.getSecondCorner().getPosZ())
-                && loc.getBlockZ() >= Math.min(this.getFirstCorner().getPosZ(), this.getSecondCorner().getPosZ())
-                && this.getWorldName().equals(loc.getWorld().getName());
+        if (loc == null || loc.getWorld() == null) return false;
+
+        int x = loc.getBlockX();
+        int z = loc.getBlockZ();
+
+        int minX = Math.min(this.getFirstCorner().getPosX(), this.getSecondCorner().getPosX());
+        int maxX = Math.max(this.getFirstCorner().getPosX(), this.getSecondCorner().getPosX());
+        int minZ = Math.min(this.getFirstCorner().getPosZ(), this.getSecondCorner().getPosZ());
+        int maxZ = Math.max(this.getFirstCorner().getPosZ(), this.getSecondCorner().getPosZ());
+
+        return loc.getWorld().getName().equals(this.getWorldName())
+                && x >= minX && x <= maxX
+                && z >= minZ && z <= maxZ;
     }
+
 
 
     public int getBorderDistance(Location loc) {

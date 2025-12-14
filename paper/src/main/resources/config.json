@@ -1,3 +1,48 @@
 {
-  "currentSector": "spawn1"
+  "currentSector": "spawn_1",
+  "ScoreboardEnabled": true,
+  "scoreboard": {
+    "SPAWN": [
+      "§a📍 Sektor: {sectorName}",
+      "§e👤 Nick: {playerName}",
+      "                    ",
+      "§b⚡ TPS: {tps}",
+      "§c🟢 Online: {onlineCount}",
+      "                    ",
+      "§7Znajdujesz się na kanale: {sectorName}",
+      "§7Aby zmienić kanał użyj /ch"
+    ],
+    "NETHER": [
+      "§a📍 Sektor: {sectorName}",
+      "§e👤 Nick: {playerName}",
+      "                    ",
+      "                    ",
+      "§b⚡ TPS: {tps}",
+      "§c🟢 Online: {onlineCount}"
+    ],
+    "END": [
+      "§a📍 Sektor: {sectorName}",
+      "§e👤 Nick: {playerName}",
+      "                    ",
+      "                    ",
+      "§b⚡ TPS: {tps}",
+      "§c🟢 Online: {onlineCount}"
+    ],
+    "ADMIN": [
+      "                    ",
+      "§b📶 Ping: {ping}ms",
+      "§d🖥 CPU: {cpu}%",
+      "§5💾 RAM: {freeRam}/{maxRam}MB"
+    ]
+  },
+  "adminTitlePrefix": "🛡 ",
+  "adminTitleSuffix": " 🛡",
+  "playerTitlePrefix": "✨ ",
+  "playerTitleSuffix": " ✨",
+  "sectorTitles": {
+    "SPAWN": "🏰 Spawn",
+    "NETHER": "🔥 Nether",
+    "END": "🌌 End",
+    "DEFAULT": "❓ {sectorType}"
+  }
 }

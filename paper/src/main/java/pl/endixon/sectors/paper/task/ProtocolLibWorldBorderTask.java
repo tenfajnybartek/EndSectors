@@ -1,4 +1,4 @@
-package pl.endixon.sectors.paper.sector;
+package pl.endixon.sectors.paper.task;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -9,6 +9,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import pl.endixon.sectors.paper.sector.Sector;
+import pl.endixon.sectors.paper.sector.SectorManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -60,9 +62,6 @@ public class ProtocolLibWorldBorderTask extends BukkitRunnable {
                 sizePacket.getWorldBorderActions().write(0, EnumWrappers.WorldBorderAction.LERP_SIZE);
                 sizePacket.getDoubles().write(0, borderSize);
                 sizePacket.getDoubles().write(1, borderSize);
-                sizePacket.getLongs().write(0, 5000L);
-
-
                 sizePacket.getLongs().write(0, 0L);
                 manager.sendServerPacket(player, sizePacket);
 

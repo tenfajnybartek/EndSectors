@@ -38,7 +38,7 @@ import pl.endixon.sectors.paper.redis.listener.*;
 import pl.endixon.sectors.paper.redis.packet.PacketExecuteCommand;
 import pl.endixon.sectors.paper.redis.packet.PacketPlayerInfoRequest;
 import pl.endixon.sectors.paper.redis.packet.PacketSectorInfo;
-import pl.endixon.sectors.paper.sector.ProtocolLibWorldBorderTask;
+
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.sector.transfer.SectorTeleportService;
 import pl.endixon.sectors.paper.sector.SectorManager;
@@ -69,14 +69,15 @@ public class PaperSector extends JavaPlugin {
     public void onEnable() {
         instance = this;
         protocolManager = ProtocolLibrary.getProtocolManager();
-        this.initManager();
+        ConfigLoader config = ConfigLoader.load(getDataFolder());
+        this.initManager(config);
         this.redisManager.publish(
                 PacketChannel.PACKET_CONFIGURATION_REQUEST,
                 new PacketConfigurationRequest(this.getSectorManager().getCurrentSectorName())
         );
         this.initListeners();
         this.initCommands();
-        this.scheduleTasks();
+        this.scheduleTasks(config);
         Logger.info("Włączono EndSectors!");
     }
 
@@ -116,9 +117,9 @@ public class PaperSector extends JavaPlugin {
 
 
 
-    private void initManager() {
+    private void initManager(ConfigLoader config) {
         Logger.info("Inicjalizacja managerów...");
-        ConfigLoader config = ConfigLoader.load(getDataFolder());
+
         this.sectorManager = new SectorManager(this, config.currentSector);
         this.userManager = new UserManager();
         this.redisManager.initialize("127.0.0.1", 6379, "");
@@ -158,13 +159,15 @@ public class PaperSector extends JavaPlugin {
         getCommand("channel").setExecutor(new ChannelCommand(sectorManager, sectorTeleportService));
     }
 
-    private void scheduleTasks() {
+    public void scheduleTasks(ConfigLoader config) {
+        if (config.ScoreboardEnabled) {
+            new SpawnScoreboardTask(sectorManager, config).runTaskTimer(this, 20L, 20L);
+        }
         new ProtocolLibWorldBorderTask(sectorManager).runTaskTimer(this, 20L, 20L);
-        new SpawnScoreboardTask(sectorManager).runTaskTimer(this, 20L, 20L);
-        new SendInfoPlayerTask(this).runTaskTimer(this, 12000L, 12000L);
         new BorderActionBarTask(this).runTaskTimer(this, 20L, 20L);
-
+        new SendInfoPlayerTask(this).runTaskTimer(this, 12000L, 12000L);
     }
+
     public static PaperSector getInstance() {
         return instance;
     }

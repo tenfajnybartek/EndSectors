@@ -4,68 +4,79 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import pl.endixon.sectors.paper.config.ConfigLoader;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.sector.SectorManager;
-
+import com.sun.management.OperatingSystemMXBean;
 import java.lang.management.ManagementFactory;
-import java.lang.management.OperatingSystemMXBean;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SpawnScoreboardTask extends BukkitRunnable {
 
     private final SectorManager sectorManager;
+    private final ConfigLoader config;
 
-    public SpawnScoreboardTask(SectorManager sectorManager) {
+    public SpawnScoreboardTask(SectorManager sectorManager, ConfigLoader config) {
         this.sectorManager = sectorManager;
+        this.config = config;
     }
 
     @Override
     public void run() {
-        OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
+        com.sun.management.OperatingSystemMXBean osBean =
+                (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             Sector sector = sectorManager.getCurrentSector();
             if (sector == null) continue;
-
             boolean isAdmin = player.hasPermission("sectors.admin");
-
-            String sectorTypeIcon = switch (sector.getType()) {
-                case NETHER -> "🔥 Nether";
-                case END -> "🌌 End";
-                case SPAWN -> "🏰 Spawn";
-                default -> "❓ " + sector.getType().name();
-            };
-
-            List<String> lines = new ArrayList<>();
-            lines.add("§a ");
-            lines.add("§a📍 Sektor: §f" + sector.getName());
-            lines.add("§e👤 Nick: §f" + player.getName());
-            lines.add("§a ");
-
-
-            lines.add("§b⚡ TPS: §f" + sector.getTPSColored());
-            lines.add("§c🟢 Online: §f" + sector.getPlayerCount());
-            lines.add("§a ");
-
+            List<String> lines = new ArrayList<>(config.scoreboard.getOrDefault(sector.getType().name(), new ArrayList<>()));
             if (isAdmin) {
-                double cpuLoad = getSystemCpuLoad(osBean);
-                long freeMem = Runtime.getRuntime().freeMemory() / 1024 / 1024;
-                long maxMem = Runtime.getRuntime().maxMemory() / 1024 / 1024;
-
-                lines.add("§b📶 Ping: §f" + player.getPing() + "ms");
-                lines.add("§d🖥 CPU: §f" + String.format("%.2f", cpuLoad * 100) + "%");
-                lines.add("§5💾 RAM: §f" + freeMem + "MB / " + maxMem + "MB");
-                lines.add("§a ");
-            } else {
-                lines.add("§a ");
+                lines.addAll(config.scoreboard.getOrDefault("ADMIN", new ArrayList<>()));
             }
-            lines.add("§7Znajdujesz się na kanale: §f" + sector.getName());
-            lines.add("§7Aby zmienić kanał użyj /ch");
-
-            sendSidebar(player, (isAdmin ? "🛡 " : "✨ ") + sectorTypeIcon + (isAdmin ? " 🛡" : " ✨"), lines);
+            List<String> parsedLines = new ArrayList<>();
+            for (String line : lines) {
+                parsedLines.add(parseLine(line, player, sector, osBean));
+            }
+            String title = getTitle(sector, isAdmin);
+            sendSidebar(player, title, parsedLines);
         }
     }
+
+    private String parseLine(String line, Player player, Sector sector, OperatingSystemMXBean osBean) {
+        double cpuLoad = getSystemCpuLoad();
+        long freeMem = Runtime.getRuntime().freeMemory() / 1024 / 1024;
+        long maxMem = Runtime.getRuntime().maxMemory() / 1024 / 1024;
+
+        String cpuText;
+        if (cpuLoad < 0) {
+            cpuText = "N/A";
+        } else {
+            cpuText = String.format("%.2f", cpuLoad * 100);
+        }
+        return line.replace("{playerName}", player.getName())
+                .replace("{sectorName}", sector.getName())
+                .replace("{tps}", sector.getTPSColored())
+                .replace("{onlineCount}", String.valueOf(sector.getPlayerCount()))
+                .replace("{ping}", String.valueOf(player.getPing()))
+                .replace("{cpu}", String.format(cpuText))
+                .replace("{freeRam}", String.valueOf(freeMem))
+                .replace("{maxRam}", String.valueOf(maxMem));
+    }
+
+    private String getTitle(Sector sector, boolean isAdmin) {
+        String icon = config.sectorTitles.getOrDefault(
+                sector.getType().name(),
+                config.sectorTitles.get("DEFAULT").replace("{sectorType}", sector.getType().name())
+        );
+
+        String prefix = isAdmin ? config.adminTitlePrefix : config.playerTitlePrefix;
+        String suffix = isAdmin ? config.adminTitleSuffix : config.playerTitleSuffix;
+
+        return prefix + icon + suffix;
+    }
+
 
     private void sendSidebar(Player player, String title, List<String> lines) {
         var board = Bukkit.getScoreboardManager().getNewScoreboard();
@@ -76,17 +87,14 @@ public class SpawnScoreboardTask extends BukkitRunnable {
         for (String line : lines) {
             obj.getScore(line).setScore(score--);
         }
-
         player.setScoreboard(board);
     }
 
-    private double getSystemCpuLoad(OperatingSystemMXBean osBean) {
-        try {
-            var method = osBean.getClass().getMethod("getSystemCpuLoad");
-            method.setAccessible(true);
-            return (double) method.invoke(osBean);
-        } catch (Exception e) {
-            return 0.0;
-        }
+    public static double getSystemCpuLoad() {
+        OperatingSystemMXBean osBean =
+                (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        double load = osBean.getSystemCpuLoad();
+        if (load < 0) load = 0;
+        return load * 100;
     }
 }
