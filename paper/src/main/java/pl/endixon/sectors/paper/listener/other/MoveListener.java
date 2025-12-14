@@ -46,8 +46,8 @@ public class MoveListener implements Listener {
                 from.getBlockY() == to.getBlockY() &&
                 from.getBlockZ() == to.getBlockZ()) return;
 
-        UserRedis userMongo = UserManager.getUser(player);
-            if (userMongo == null) return;
+        UserRedis userRedis = UserManager.getUser(player).orElse(null);
+            if (userRedis == null) return;
 
                 SectorManager sectorManager = paperSector.getSectorManager();
                 Sector currentSector = sectorManager.getCurrentSector();
@@ -88,8 +88,8 @@ public class MoveListener implements Listener {
                         return;
                     }
 
-                    if (System.currentTimeMillis() - userMongo.getLastTransferTimestamp() < 3000L) {
-                        long remaining = 3000L - (System.currentTimeMillis() - userMongo.getLastTransferTimestamp());
+                    if (System.currentTimeMillis() - userRedis.getLastTransferTimestamp() < 3000L) {
+                        long remaining = 3000L - (System.currentTimeMillis() - userRedis.getLastTransferTimestamp());
                         player.showTitle(Title.title(
                                 Component.text(ChatUtil.fixColors("&cNie możesz połączyć się z tym sektorem teraz!")).color(NamedTextColor.RED),
                                 Component.text(ChatUtil.fixColors("&7Odczekaj " + (remaining / 1000 + 1) + " sekund i spróbuj ponownie")).color(NamedTextColor.GRAY),
@@ -103,18 +103,18 @@ public class MoveListener implements Listener {
                         return;
                     }
 
-                    if (System.currentTimeMillis() - userMongo.getLastSectorTransfer() < 3000L) return;
+                    if (System.currentTimeMillis() - userRedis.getLastSectorTransfer() < 3000L) return;
 
-                    userMongo.setLastSectorTransfer(true);
+                    userRedis.setLastSectorTransfer(true);
                     SectorChangeEvent ev = new SectorChangeEvent(player, spawnToTeleport);
                     Bukkit.getPluginManager().callEvent(ev);
                     if (ev.isCancelled()) return;
 
                     if (!teleport) {
-                        paperSector.getSectorTeleportService().teleportToSector(player, userMongo, spawnToTeleport, false);
+                        paperSector.getSectorTeleportService().teleportToSector(player, userRedis, spawnToTeleport, false);
                     } else {
                         Bukkit.getScheduler().runTaskLater(paperSector,
-                                () -> paperSector.getSectorTeleportService().teleportToSector(player, userMongo, spawnToTeleport, false),
+                                () -> paperSector.getSectorTeleportService().teleportToSector(player, userRedis, spawnToTeleport, false),
                                 0L);
                     }
                     return;
@@ -136,8 +136,8 @@ public class MoveListener implements Listener {
                         return;
                     }
 
-                    if (System.currentTimeMillis() - userMongo.getLastTransferTimestamp() < 3000L) {
-                        long remaining = 3000L - (System.currentTimeMillis() - userMongo.getLastTransferTimestamp());
+                    if (System.currentTimeMillis() - userRedis.getLastTransferTimestamp() < 3000L) {
+                        long remaining = 3000L - (System.currentTimeMillis() - userRedis.getLastTransferTimestamp());
                         player.showTitle(Title.title(
                                 Component.text(ChatUtil.fixColors("&cNie możesz połączyć się z tym sektorem teraz!")).color(NamedTextColor.RED),
                                 Component.text(ChatUtil.fixColors("&7Odczekaj " + (remaining / 1000 + 1) + " sekund i spróbuj ponownie")).color(NamedTextColor.GRAY),
@@ -151,18 +151,18 @@ public class MoveListener implements Listener {
                         return;
                     }
 
-                    if (System.currentTimeMillis() - userMongo.getLastSectorTransfer() < 5000L) return;
+                    if (System.currentTimeMillis() - userRedis.getLastSectorTransfer() < 5000L) return;
 
-                    userMongo.setLastSectorTransfer(true);
+                    userRedis.setLastSectorTransfer(true);
                     SectorChangeEvent ev = new SectorChangeEvent(player, sector);
                     Bukkit.getPluginManager().callEvent(ev);
                     if (ev.isCancelled()) return;
 
                     if (!teleport) {
-                        paperSector.getSectorTeleportService().teleportToSector(player, userMongo, sector, false);
+                        paperSector.getSectorTeleportService().teleportToSector(player, userRedis, sector, false);
                     } else {
                         Bukkit.getScheduler().runTaskLater(paperSector,
-                                () -> paperSector.getSectorTeleportService().teleportToSector(player, userMongo, sector, false),
+                                () -> paperSector.getSectorTeleportService().teleportToSector(player, userRedis, sector, false),
                                 0L);
                     }
                 }

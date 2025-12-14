@@ -1,20 +1,3 @@
-/*
- * EndSectors Non-Commercial License
- * (c) 2025 Endixon
- *
- * Permission is granted to use, copy, and
- * modify this software **only** for personal
- * or educational purposes.
- *
- * Commercial use, redistribution, claiming
- * this work as your own, or copying code
- * without explicit permission is strictly
- * prohibited.
- *
- * Visit https://github.com/Endixon/EndSectors
- * for more info.
- */
-
 package pl.endixon.sectors.paper.command;
 
 import org.bukkit.command.Command;
@@ -46,7 +29,9 @@ public class ChannelCommand implements CommandExecutor {
 
         if (!isInSpawnSector(player)) return true;
 
-        UserRedis user = UserManager.getUser(player);
+        UserRedis user = UserManager.getUser(player).orElse(null);
+        if (user == null) return true;
+
         new SectorChannelWindow(player, sectorManager, user, teleportService).open();
         return true;
     }

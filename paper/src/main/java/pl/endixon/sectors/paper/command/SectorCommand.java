@@ -17,6 +17,7 @@ import pl.endixon.sectors.paper.redis.packet.PacketExecuteCommand;
 import pl.endixon.sectors.common.util.ChatUtil;
 import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.sector.SectorManager;
+import pl.endixon.sectors.paper.user.UserManager;
 
 import java.util.Arrays;
 
@@ -112,34 +113,31 @@ public class SectorCommand implements CommandExecutor {
             }
 
 
-            case "inspect": {
-                if (args.length < 2) {
-                    sender.sendMessage(ChatUtil.fixColors("&cPodaj nick: &6/sector inspect <nick>"));
-                    return true;
+                case "inspect": {
+                    if (args.length < 2) {
+                        sender.sendMessage(ChatUtil.fixColors("&cPodaj nick: &6/sector inspect <nick>"));
+                        return true;
+                    }
+                    String targetName = args[1];
+
+                    UserManager.getUserAsync(targetName).thenAccept(optionalUser -> {
+                        optionalUser.ifPresentOrElse(u -> {
+                            sender.sendMessage(ChatUtil.fixColors("&e&m==========&6&l[ INFORMACJE O GRACZU ]&e&m=========="));
+                            sender.sendMessage(ChatUtil.fixColors(" &fNick: &a" + u.getName()));
+                            sender.sendMessage(ChatUtil.fixColors(" &fSektor: &b" + u.getSectorName()));
+                            sender.sendMessage(ChatUtil.fixColors(" &fGamemode: &d" + u.getPlayerGameMode()));
+                            sender.sendMessage(ChatUtil.fixColors(" &fLevel: &a" + u.getExperienceLevel()));
+                            sender.sendMessage(ChatUtil.fixColors(" &fExp: &e" + u.getExperience()));
+                            sender.sendMessage(ChatUtil.fixColors("&e&m=========================================="));
+                        }, () -> {
+                            sender.sendMessage(ChatUtil.fixColors("&cNie znaleziono danych lub gracz jest offline."));
+                        });
+                    });
+
+                    break;
                 }
 
-                String targetName = args[1];
-
-                plugin.getUserManager().getUser(targetName).thenAccept(u -> {
-                    if (u == null) {
-                        sender.sendMessage(ChatUtil.fixColors("&cNie znaleziono danych lub gracz jest offline."));
-                        return;
-                    }
-
-                    sender.sendMessage(ChatUtil.fixColors("&e&m==========&6&l[ INFORMACJE O GRACZU ]&e&m=========="));
-                    sender.sendMessage(ChatUtil.fixColors(" &fNick: &a" + u.getName()));
-                    sender.sendMessage(ChatUtil.fixColors(" &fSektor: &b" + u.getSectorName()));
-                    sender.sendMessage(ChatUtil.fixColors(" &fGamemode: &d" + u.getPlayerGameMode()));
-                    sender.sendMessage(ChatUtil.fixColors(" &fLevel: &a" + u.getExperienceLevel()));
-                    sender.sendMessage(ChatUtil.fixColors(" &fExp: &e" + u.getExperience()));
-                    sender.sendMessage(ChatUtil.fixColors("&e&m=========================================="));
-                });
-
-                break;
-            }
-
-
-            default: {
+                default: {
                 sender.sendMessage(ChatUtil.fixColors("&cNie ma takiej opcji."));
                 break;
             }
