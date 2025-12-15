@@ -22,6 +22,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -79,8 +80,8 @@ public class PaperSector extends JavaPlugin {
         this.initCommands();
         this.scheduleTasks(config);
         new SectorsAPI(this);
-
         Logger.info("Włączono EndSectors!");
+
     }
 
     @Override

@@ -11,6 +11,7 @@ import pl.endixon.sectors.paper.sector.SectorManager;
 import pl.endixon.sectors.paper.sector.transfer.SectorTeleportService;
 import pl.endixon.sectors.paper.user.UserManager;
 import pl.endixon.sectors.paper.user.UserRedis;
+import pl.endixon.sectors.paper.util.Logger;
 
 import java.util.Collection;
 import java.util.List;
@@ -31,6 +32,7 @@ public class SectorsAPI {
         this.sectorManager = plugin.getSectorManager();
         this.teleportService = new SectorTeleportService(plugin);
         instance = this;
+      Logger.info("SectorsAPI zainicjowane");
     }
 
     public static SectorsAPI getInstance() {
