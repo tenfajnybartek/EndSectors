@@ -31,6 +31,9 @@ public class ChatUtil {
         return ChatUtil.fixColors(fixHexColors(message));
     }
 
+
+
+
     public static String fixHexColors(String message) {
         if (message == null || message.isEmpty()) return "";
 

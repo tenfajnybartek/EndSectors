@@ -90,6 +90,11 @@ public class Sector {
         return this.isOnline() ? tps : 0;
     }
 
+    public static boolean isSectorFull(Sector sector) {
+        if (sector == null) return true;
+        return sector.getPlayerCount() >= sector.getMaxPlayers();
+    }
+
     public String getTPSColored() {
         double currentTps = getTPS();
         ChatColor color = ChatColor.RED;

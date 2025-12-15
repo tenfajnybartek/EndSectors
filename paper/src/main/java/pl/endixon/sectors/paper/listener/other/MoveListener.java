@@ -21,6 +21,8 @@ import pl.endixon.sectors.paper.user.UserManager;
 import pl.endixon.sectors.paper.user.UserRedis;
 import pl.endixon.sectors.paper.util.Configuration;
 
+import java.time.Duration;
+
 @RequiredArgsConstructor
 public class MoveListener implements Listener {
 
@@ -88,14 +90,29 @@ public class MoveListener implements Listener {
                 return;
             }
 
+
+            if (Sector.isSectorFull(sector)) {
+                player.showTitle(Title.title(
+                        Component.text(Configuration.SECTOR_FULL_TITLE),
+                        Component.text(Configuration.SECTOR_FULL_SUBTITLE),
+                        Title.Times.times(
+                                Duration.ofMillis(500),
+                                Duration.ofMillis(2000),
+                                Duration.ofMillis(500)
+                        )
+                ));
+                currentSector.knockBorder(player, KNOCK_BORDER_FORCE);
+                return;
+            }
+
             if (System.currentTimeMillis() - userRedis.getLastTransferTimestamp() < TRANSFER_DELAY) {
                 long remaining = TRANSFER_DELAY - (System.currentTimeMillis() - userRedis.getLastTransferTimestamp());
                 player.showTitle(Title.title(
                         Component.text(
-                                ChatUtil.fixHexColors("&#ef4444Sektor chwilowo niedostępny!")
+                                Configuration.TITLE_SECTOR_UNAVAILABLE
                         ),
                         Component.text(
-                                ChatUtil.fixHexColors("&#9ca3afOdczekaj &#7dd3fc" + (remaining / 1000 + 1) + "s")
+                                Configuration.TITLE_WAIT_TIME.replace("{SECONDS}", String.valueOf(remaining / 1000 + 1))
                         ),
                         Title.Times.times(java.time.Duration.ofMillis(500),
                                 java.time.Duration.ofMillis(2000),
@@ -144,14 +161,27 @@ public class MoveListener implements Listener {
             return;
         }
 
+
+        if (Sector.isSectorFull(spawnToTeleport)) {
+            player.showTitle(Title.title(
+                    Component.text(Configuration.SECTOR_FULL_TITLE),
+                    Component.text(Configuration.SECTOR_FULL_SUBTITLE),
+                    Title.Times.times(Duration.ofMillis(500),
+                            Duration.ofMillis(2000),
+                            Duration.ofMillis(500))
+            ));
+            currentSector.knockBorder(player, KNOCK_BORDER_FORCE);
+            return;
+        }
+
         if (System.currentTimeMillis() - userRedis.getLastTransferTimestamp() < TRANSFER_DELAY) {
             long remaining = TRANSFER_DELAY - (System.currentTimeMillis() - userRedis.getLastTransferTimestamp());
             player.showTitle(Title.title(
                     Component.text(
-                            ChatUtil.fixHexColors("&#ef4444Sektor chwilowo niedostępny!")
+                            Configuration.TITLE_SECTOR_UNAVAILABLE
                     ),
                     Component.text(
-                            ChatUtil.fixHexColors("&#9ca3afOdczekaj &#7dd3fc" + (remaining / 1000 + 1) + "s")
+                            Configuration.TITLE_WAIT_TIME.replace("{SECONDS}", String.valueOf(remaining / 1000 + 1))
                     ),
                     Title.Times.times(java.time.Duration.ofMillis(500),
                             java.time.Duration.ofMillis(2000),

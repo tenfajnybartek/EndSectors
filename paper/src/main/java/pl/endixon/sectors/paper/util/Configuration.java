@@ -23,6 +23,15 @@ import pl.endixon.sectors.common.util.ChatUtil;
 
 public interface Configuration {
 
+
+    String SECTOR_FULL_TITLE = ChatUtil.fixHexColors(
+            "&#ef4444Sektor pełny!"
+    );
+
+    String SECTOR_FULL_SUBTITLE = ChatUtil.fixHexColors(
+            "&#9ca3afSpróbuj połączyć się później"
+    );
+
     String BORDER_MESSAGE = ChatUtil.fixHexColors(
             "&#f5c542Zbliżasz się do granicy sektora &#4ade80{SECTOR} &#7dd3fc{DISTANCE}m"
     );
@@ -61,9 +70,13 @@ public interface Configuration {
             "&#f59e0bWystąpił problem podczas ładowania danych"
     );
 
-    double BORDER_TELEPORT_DISTANCE = 10;
-    String BORDER_TELEPORT_DISTANCE_MESSAGE = ChatUtil.fixHexColors(
-            "&#ef4444Nie możesz użyć ender perla tak blisko granicy sektora!"
+
+    String TITLE_SECTOR_UNAVAILABLE = ChatUtil.fixHexColors(
+            "&#ef4444Sektor chwilowo niedostępny!"
+    );
+
+    String  TITLE_WAIT_TIME = ChatUtil.fixHexColors(
+            "&#9ca3afOdczekaj &#7dd3fc{SECONDS}s"
     );
 
 }

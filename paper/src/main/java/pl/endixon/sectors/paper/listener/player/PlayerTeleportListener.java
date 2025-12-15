@@ -68,6 +68,21 @@ public class PlayerTeleportListener implements Listener {
                 return;
             }
 
+        if (Sector.isSectorFull(targetSector)) {
+            player.showTitle(Title.title(
+                    Component.text(Configuration.SECTOR_FULL_TITLE),
+                    Component.text(Configuration.SECTOR_FULL_SUBTITLE),
+                    Title.Times.times(
+                            Duration.ofMillis(500),
+                            Duration.ofMillis(2000),
+                            Duration.ofMillis(500)
+                    )
+            ));
+            currentSector.knockBorder(player, KNOCK_BORDER_FORCE);
+            return;
+        }
+
+
             if (System.currentTimeMillis() - user.getLastSectorTransfer() < TRANSFER_DELAY) return;
             user.setLastSectorTransfer(true);
             paperSector.getSectorTeleportService().teleportToSector(player, user, targetSector, false);

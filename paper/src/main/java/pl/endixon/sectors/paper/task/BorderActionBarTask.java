@@ -1,6 +1,8 @@
 package pl.endixon.sectors.paper.task;
 
 import net.kyori.adventure.text.Component;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -50,13 +52,12 @@ public class BorderActionBarTask extends BukkitRunnable {
                     .replace("{SECTOR}", displayName)
                     .replace("{DISTANCE}", String.valueOf(borderDistance));
 
-            player.sendActionBar(Component.text(ChatUtil.fixColors(message)));
-
+            player.sendActionBar(ChatUtil.fixHexColors(message));
             double progress = 1.0 - ((double) borderDistance / Configuration.BORDER_MESSAGE_DISTANCE);
             progress = Math.max(0.0, Math.min(1.0, progress));
 
             BossBar bossBar = bossBars.computeIfAbsent(player, p -> {
-                BossBar newBar = Bukkit.createBossBar(ChatUtil.fixColors(message), BarColor.GREEN, BarStyle.SOLID);
+                BossBar newBar = Bukkit.createBossBar((message), BarColor.GREEN, BarStyle.SOLID);
                 newBar.addPlayer(player);
                 return newBar;
             });
@@ -65,7 +66,7 @@ public class BorderActionBarTask extends BukkitRunnable {
             else if (progress > 0.33) bossBar.setColor(BarColor.YELLOW);
             else bossBar.setColor(BarColor.RED);
 
-            bossBar.setTitle(ChatUtil.fixColors(message));
+            bossBar.setTitle(ChatUtil.fixHexColors(message));
             bossBar.setProgress(progress);
             bossBar.setVisible(progress > 0);
         }
