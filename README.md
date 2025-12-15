@@ -1,6 +1,6 @@
 # EndSectors
 
-**EndSectors** — experimental Minecraft sector framework for **Paper 1.24.1** with **MongoDB & Redis** 🗄️
+**EndSectors** — experimental Minecraft sector framework for **Paper 1.24.1** with **Redis** 🗄️
 
 EndSectors allows you to split a single large Minecraft world into multiple **sectors** on one Paper server.  
 Players can move seamlessly between sectors, chat globally, and have their data synced in real-time.
