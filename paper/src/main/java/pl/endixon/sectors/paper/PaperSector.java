@@ -78,6 +78,8 @@ public class PaperSector extends JavaPlugin {
         this.initListeners();
         this.initCommands();
         this.scheduleTasks(config);
+        new SectorsAPI(this);
+
         Logger.info("Włączono EndSectors!");
     }
 
