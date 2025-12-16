@@ -6,7 +6,7 @@ EndSectors allows you to split a single large Minecraft world into multiple **se
 Players can move seamlessly between sectors, chat globally, and have their data synced in real-time.
 
 🎬 **See it in action:** [YouTube Demo](https://www.youtube.com/watch?v=U_wk1nABo_M)
- 
+
 Check out an **interactive sector map example**: [Sectors Generator](https://oski646.github.io/sectors-generator/)
 
 > [!WARNING]
