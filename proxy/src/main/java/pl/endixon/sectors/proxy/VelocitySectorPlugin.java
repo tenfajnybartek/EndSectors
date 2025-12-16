@@ -83,7 +83,7 @@ public class VelocitySectorPlugin {
     @Subscribe
     public void onProxyInitialize(com.velocitypowered.api.event.proxy.ProxyInitializeEvent event) {
         instance = this;
-        Logger.info("Uruchamiam EndSectors-Proxy...");
+        Logger.info("Starting EndSectors-Proxy...");
         System.setProperty("io.netty.transport.noNative", "true");
         this.sectorManager = new SectorManager();
         this.teleportationManager = new TeleportationManager();
@@ -92,7 +92,7 @@ public class VelocitySectorPlugin {
         this.initRedisManager();
         this.initListeners();
         this.getServer().getScheduler().buildTask(this, new QueueRunnable()).repeat(2, TimeUnit.SECONDS).schedule();
-        Logger.info("Uruchomiono!");
+        Logger.info("EndSectors-Proxy started successfully.");
     }
 
     @Subscribe
@@ -107,7 +107,7 @@ public class VelocitySectorPlugin {
         Path configPath = getDataDirectory().resolve("config.json");
 
         if (!Files.exists(configPath)) {
-            Logger.info("Brak config.json w katalogu pluginu! Trwa tworzenie domyślnego configu...");
+            Logger.info("config.json not found in the plugin directory! Creating default configuration...");
             ConfigCreator.createDefaultConfig(getDataDirectory());
             return;
         }
@@ -116,7 +116,7 @@ public class VelocitySectorPlugin {
             Map<String, Object> root = mapper.readValue(Files.newBufferedReader(configPath), typeRef);
             Object sectorsObj = root.get("sectors");
             if (!(sectorsObj instanceof Map)) {
-                Logger.info("Nie znaleziono sekcji 'sectors' w config.json!");
+                Logger.info("Section 'sectors' was not found in config.json!");
                 return;
             }
             Map<String, Object> sectors = (Map<String, Object>) sectorsObj;
@@ -166,14 +166,14 @@ public class VelocitySectorPlugin {
                 loadedSectors.add(sectorName + " (" + sectorType + ")");
 
             } catch (Exception e) {
-                Logger.info("Nie udało się zapisać sektora " + sectorName + ": " + e.getMessage());
+                Logger.info("Failed to save sector '" + sectorName + "': " + e.getMessage());
             }
         }
 
         if (!loadedSectors.isEmpty()) {
-            Logger.info("Załadowano sektory typu " + typeName + ": " + String.join(", ", loadedSectors));
+            Logger.info("Loaded sectors of type " + typeName + ": " + String.join(", ", loadedSectors));
         } else {
-            Logger.info("Brak sektorów do załadowania dla typu " + typeName);
+            Logger.info("No sectors to load for type " + typeName + ".");
         }
     }
 
@@ -190,7 +190,7 @@ public class VelocitySectorPlugin {
         this.redisManager.subscribe(PacketChannel.PACKET_TELEPORT_TO_SECTOR, new TeleportToSectorListener(), PacketRequestTeleportSector.class);
         this.redisManager.subscribe(PacketChannel.PACKET_SECTOR_CONNECTED, new PacketSectorConnectedPacketListener(), PacketSectorConnected.class);
         this.redisManager.subscribe(PacketChannel.PACKET_SECTOR_DISCONNECTED, new PacketSectorDisconnectedPacketListener(), PacketSectorDisconnected.class);
-        Logger.info("Zainicjalizowano RedisManagera");
+        Logger.info("RedisManager initialized.");
     }
 
 

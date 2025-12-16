@@ -79,7 +79,7 @@ public class PaperSector extends JavaPlugin {
         this.initCommands();
         this.scheduleTasks(config);
         new SectorsAPI(this);
-        Logger.info("Włączono EndSectors!");
+        Logger.info("EndSectors enabled successfully.");
 
     }
 
@@ -99,12 +99,16 @@ public class PaperSector extends JavaPlugin {
         String currentSectorName = sectorManager.getCurrentSectorName();
 
         if (currentSector == null) {
-            Logger.info("Aktualny sektor jest NULL! Upewnij się, że sektor '" + currentSectorName + "' jest dodany w configu proxy!");
+            Logger.info(
+                    "Current sector is NULL! Make sure that the sector name '" + currentSectorName +
+                            "' matches the one defined in the proxy plugin configuration and in velocity.toml."
+            );
             Bukkit.shutdown();
             return;
         }
-        Logger.info("Załadowano " + sectorManager.getSectors().size() + " sektorów!");
-        Logger.info("Aktualny sektor: " + currentSectorName);
+        Logger.info("Loaded " + sectorManager.getSectors().size() + " sectors!");
+        Logger.info("Current sector: " + currentSectorName);
+
         if (!inited) {
             inited = true;
             Bukkit.getScheduler().runTaskTimerAsynchronously(
@@ -120,8 +124,7 @@ public class PaperSector extends JavaPlugin {
 
 
     private void initManager(ConfigLoader config) {
-        Logger.info("Inicjalizacja managerów...");
-
+        Logger.info("Initializing managers...");
         this.sectorManager = new SectorManager(this, config.currentSector);
         this.userManager = new UserManager();
         this.redisManager.initialize("127.0.0.1", 6379, "");
@@ -134,7 +137,7 @@ public class PaperSector extends JavaPlugin {
         this.redisManager.subscribe(PacketChannel.USER_CHECK_REQUEST, new PacketUserCheckListener(), PacketUserCheck.class);
         this.redisManager.subscribe(PacketChannel.PACKET_SECTOR_CONNECTED, new PacketSectorConnectedPacketListener(), PacketSectorConnected.class);
         this.redisManager.subscribe(PacketChannel.PACKET_SECTOR_DISCONNECTED, new PacketSectorDisconnectedPacketListener(), PacketSectorDisconnected.class);
-        Logger.info("Zainicjalizowano managery");
+        Logger.info("Managers initialized successfully.");
     }
 
 
