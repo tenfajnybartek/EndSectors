@@ -143,18 +143,10 @@ public class UserRedis {
 
     public void updateAndSave(@NonNull Player player, @NonNull Sector currentSector) {
         updateFromPlayer(player, currentSector);
-        saveSync();
+        Logger.info("save sektor" + currentSector.getName());
+        RedisUserCache.save(this);
     }
 
-    public void saveSync() {
-        CompletableFuture.runAsync(() -> {
-            try {
-                RedisUserCache.save(this);
-            } catch (Exception ex) {
-                Logger.info(() -> "Failed to save user " + name + " to Redis: " + ex.getMessage());
-            }
-        });
-    }
 
 
 
@@ -169,7 +161,7 @@ public class UserRedis {
 
     public void setLastSectorTransfer(boolean redirecting) {
         this.lastSectorTransfer = redirecting ? System.currentTimeMillis() : 0L;
-        saveSync();
+        RedisUserCache.save(this);
     }
 
     public void applyPlayerData() {

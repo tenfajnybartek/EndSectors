@@ -68,7 +68,7 @@ public class PlayerRespawnListener implements Listener {
         }
 
         Sector currentSector = PaperSector.getInstance().getSectorManager().getCurrentSector();
-        user.updateAndSave(player, currentSector);
+        user.updateFromPlayer(player, currentSector);
     }
 
 

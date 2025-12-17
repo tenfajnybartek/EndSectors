@@ -124,7 +124,7 @@ public class MoveListener implements Listener {
 
             if (System.currentTimeMillis() - userRedis.getLastSectorTransfer() < TRANSFER_DELAY) return;
 
-            userRedis.setLastSectorTransfer(true);
+
             SectorChangeEvent ev = new SectorChangeEvent(player, sector);
             Bukkit.getPluginManager().callEvent(ev);
             if (ev.isCancelled()) return;
