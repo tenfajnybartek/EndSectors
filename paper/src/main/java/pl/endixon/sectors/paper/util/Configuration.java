@@ -79,4 +79,7 @@ public interface Configuration {
             "&#9ca3afOdczekaj &#7dd3fc{SECONDS}s"
     );
 
+    String  spawnSectorNotFoundMessage = ChatUtil.fixHexColors(
+            "&#ef4444Nie odnaleziono dostepnego sektora spawn"
+    );
 }

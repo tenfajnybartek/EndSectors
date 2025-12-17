@@ -19,22 +19,24 @@
 
 package pl.endixon.sectors.paper.listener.player;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.user.UserManager;
 import pl.endixon.sectors.paper.user.UserRedis;
 
-public class PlayerKickListener implements Listener {
+public class PlayerDisconnectListener implements Listener {
 
     @EventHandler
     public void onKickPlayer(final PlayerKickEvent event) {
         Player player = event.getPlayer();
-
+        event.leaveMessage(Component.empty());
         UserRedis user = UserManager.getUser(player).orElse(null);
         if (user == null) return;
 
@@ -43,5 +45,10 @@ public class PlayerKickListener implements Listener {
         if (System.currentTimeMillis() - user.getLastSectorTransfer() < 5000L) return;
 
         user.updateAndSave(player, currentSector);
+    }
+
+    @EventHandler
+    public void onQuitPlayer(final PlayerQuitEvent event) {
+        event.quitMessage(null);
     }
 }

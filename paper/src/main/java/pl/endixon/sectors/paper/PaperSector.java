@@ -22,7 +22,6 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -145,8 +144,8 @@ public class PaperSector extends JavaPlugin {
     private void initListeners() {
         List<Listener> listeners = List.of(
                 new PlayerRespawnListener(this),
-                new PlayerKickListener(),
-                new PlayerQuitListener(),
+                new PlayerDisconnectListener(),
+                new PlayerDisconnectListener(),
                 new PlayerLoginListener(this),
                 new PlayerSectorInteractListener(sectorManager, this),
                 new PlayerLocallyJoinListener(this),

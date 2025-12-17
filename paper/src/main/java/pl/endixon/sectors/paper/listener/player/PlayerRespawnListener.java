@@ -44,12 +44,12 @@ public class PlayerRespawnListener implements Listener {
     @EventHandler
     void onPlayerDeath(PlayerDeathEvent event) {
         event.deathMessage(Component.text(""));
+        final Player victim = event.getEntity();
+        Sector currentSector = paperSector.getSectorManager().getCurrentSector();
 
-        Sector queue = paperSector.getSectorManager().getCurrentSector();
-        if (queue.getType() == SectorType.QUEUE)
+        if (currentSector.getType() == SectorType.QUEUE)
             return;
 
-        final Player victim = event.getEntity();
         paperSector.getServer().getScheduler().scheduleSyncDelayedTask(
                 paperSector,
                 () -> victim.spigot().respawn(),
@@ -59,18 +59,25 @@ public class PlayerRespawnListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-        event.setRespawnLocation(new Location(player.getWorld(), 0.5, 70, 0.5));
-
         UserRedis user = UserManager.getUser(player).orElse(null);
+        final Sector sector = PaperSector.getInstance().getSectorManager().find(SectorType.SPAWN);
+        Sector currentSector = paperSector.getSectorManager().getCurrentSector();
+
+
+        if (currentSector.getType() == SectorType.QUEUE)
+            return;
+
         if (user == null) {
             player.kick(Component.text(Configuration.playerDataNotFoundMessage));
             return;
         }
 
-        Sector currentSector = PaperSector.getInstance().getSectorManager().getCurrentSector();
-        user.updateFromPlayer(player, currentSector);
+        if (sector == null) {
+            player.kick(Component.text(Configuration.spawnSectorNotFoundMessage));
+            return;
+        }
+
+        paperSector.getSectorTeleportService().teleportToSector(player, user, sector, false);
     }
-
-
 }
 
