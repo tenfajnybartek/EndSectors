@@ -30,10 +30,7 @@ import org.bukkit.entity.Player;
 import pl.endixon.sectors.common.sector.SectorData;
 import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.paper.PaperSector;
-import pl.endixon.sectors.paper.user.RedisUserCache;
 import pl.endixon.sectors.paper.user.UserRedis;
-import pl.endixon.sectors.paper.util.Logger;
-
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
@@ -64,8 +61,6 @@ public class SectorManager {
     public Sector getSector(String sectorName) {
         return this.sectors.get(sectorName);
     }
-
-
 
     public Sector getSector(Location location) {
         for (Sector sector : sectors.values()) {
