@@ -21,6 +21,7 @@
 package pl.endixon.sectors.paper.sector;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -29,6 +30,8 @@ import org.bukkit.entity.Player;
 import pl.endixon.sectors.common.sector.SectorData;
 import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.paper.PaperSector;
+import pl.endixon.sectors.paper.user.RedisUserCache;
+import pl.endixon.sectors.paper.user.UserRedis;
 import pl.endixon.sectors.paper.util.Logger;
 
 import java.util.*;
@@ -80,28 +83,71 @@ public class SectorManager {
 
     public Sector find(SectorType type) {
         return this.sectors.values().stream()
-                .filter(s -> s.getType() == type)
                 .filter(Sector::isOnline)
+                .filter(s -> s.getType() == type)
+                .filter(s -> s.getType() != SectorType.END)
+                .filter(s -> s.getType() != SectorType.NETHER)
+                .filter(s -> s.getType() != SectorType.QUEUE)
                 .findFirst()
                 .orElse(null);
     }
 
-    public Location randomLocation(Sector sector) {
-        World world = Bukkit.getWorld(sector.getWorldName());
-        if (world == null) return null;
+    public Sector getRandomSector() {
+        List<Sector> candidates = sectors.values().stream()
+                .filter(Sector::isOnline)
+                .filter(s -> s.getType() != SectorType.NETHER)
+                .filter(s -> s.getType() != SectorType.END)
+                .filter(s -> s.getType() != SectorType.QUEUE)
+                .filter(s -> s.getType() != SectorType.SPAWN)
+
+                .toList();
+
+        if (candidates.isEmpty()) {
+            throw new IllegalStateException("Brak dostępnych sektorów do losowania!");
+        }
+
+        return candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
+    }
+
+
+
+
+    public Location randomLocation(@NonNull Player player, @NonNull UserRedis user) {
+        Sector randomSector = getRandomSector();
+
+        World world = Bukkit.getWorld(randomSector.getWorldName());
+        if (world == null)
+            throw new IllegalStateException("World not loaded for sector " + randomSector.getName());
 
         double safeMargin = 10;
-        double minX = Math.min(sector.getFirstCorner().getPosX(), sector.getSecondCorner().getPosX()) + safeMargin;
-        double maxX = Math.max(sector.getFirstCorner().getPosX(), sector.getSecondCorner().getPosX()) - safeMargin;
-        double minZ = Math.min(sector.getFirstCorner().getPosZ(), sector.getSecondCorner().getPosZ()) + safeMargin;
-        double maxZ = Math.max(sector.getFirstCorner().getPosZ(), sector.getSecondCorner().getPosZ()) - safeMargin;
-        double x = minX + Math.random() * (maxX - minX);
-        double z = minZ + Math.random() * (maxZ - minZ);
-        int y = world.getHighestBlockYAt((int) x, (int) z) + 5;
-        Bukkit.getLogger().info("RandomLocation -> x: " + x + ", y: " + y + ", z: " + z);
+        double minX = Math.min(randomSector.getFirstCorner().getPosX(), randomSector.getSecondCorner().getPosX()) + safeMargin;
+        double maxX = Math.max(randomSector.getFirstCorner().getPosX(), randomSector.getSecondCorner().getPosX()) - safeMargin;
+        double minZ = Math.min(randomSector.getFirstCorner().getPosZ(), randomSector.getSecondCorner().getPosZ()) + safeMargin;
+        double maxZ = Math.max(randomSector.getFirstCorner().getPosZ(), randomSector.getSecondCorner().getPosZ()) - safeMargin;
 
-        return new Location(world, x, y, z);
+        double x = minX + ThreadLocalRandom.current().nextDouble(maxX - minX);
+        double z = minZ + ThreadLocalRandom.current().nextDouble(maxZ - minZ);
+        int y = world.getHighestBlockYAt((int) x, (int) z) + 1;
+
+        Location loc = new Location(world, x, y, z);
+
+
+        user.setX(x);
+        user.setY(y);
+        user.setZ(z);
+        user.setYaw(loc.getYaw());
+        user.setPitch(loc.getPitch());
+
+        if (paperSector.getSectorManager().getCurrentSector() != null && paperSector.getSectorManager().getCurrentSector().getName().equals(user.getSectorName())) {
+            player.teleport(loc);
+            user.updateAndSave(player,randomSector);
+        } else {
+            paperSector.getSectorTeleportService().teleportToSector(player, user, randomSector, false, true);
+
+        }
+        return loc;
     }
+
 
 
     public Sector getBalancedRandomSpawnSector() {

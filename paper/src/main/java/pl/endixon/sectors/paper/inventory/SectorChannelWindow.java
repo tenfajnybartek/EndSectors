@@ -101,7 +101,8 @@ public class SectorChannelWindow {
             return;
         }
 
-        teleportService.teleportToSector(player, userData, sector, true);
+        teleportService.teleportToSector(player, userData, sector, false, true);
+
     }
 
     public void open() {

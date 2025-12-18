@@ -9,6 +9,7 @@
     import pl.endixon.sectors.paper.event.sector.SectorChangeEvent;
     import pl.endixon.sectors.paper.sector.Sector;
     import pl.endixon.sectors.paper.sector.SectorManager;
+    import pl.endixon.sectors.paper.user.RedisUserCache;
     import pl.endixon.sectors.paper.user.UserRedis;
     import pl.endixon.sectors.paper.util.Logger;
 
@@ -23,7 +24,7 @@
             this.plugin = plugin;
         }
 
-        public void teleportToSector(Player player, UserRedis user, Sector sector, boolean forceTransfer) {
+        public void teleportToSector(Player player, UserRedis user, Sector sector, boolean forceTransfer, boolean preserveCoordinates) {
             long startTime = System.currentTimeMillis();
 
             SectorManager sectorManager = plugin.getSectorManager();
@@ -52,7 +53,12 @@
 
                 Logger.info(() -> String.format("[Transfer] Updating player data for %s", player.getName()));
 
+                if (!preserveCoordinates) {
                     user.updateAndSave(player, sector);
+                } else {
+                    user.setSectorName(sector.getName());
+                    RedisUserCache.save(user);
+                }
 
                 Logger.info(() -> String.format("[Transfer] Sending teleport packet for %s", player.getName()));
                 PacketRequestTeleportSector packet = new PacketRequestTeleportSector(player.getName(), sector.getName());

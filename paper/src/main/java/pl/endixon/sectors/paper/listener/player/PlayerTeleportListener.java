@@ -85,6 +85,6 @@ public class PlayerTeleportListener implements Listener {
 
             if (System.currentTimeMillis() - user.getLastSectorTransfer() < TRANSFER_DELAY) return;
             user.setLastSectorTransfer(true);
-            paperSector.getSectorTeleportService().teleportToSector(player, user, targetSector, false);
+            paperSector.getSectorTeleportService().teleportToSector(player, user, targetSector, false,false);
     }
 }

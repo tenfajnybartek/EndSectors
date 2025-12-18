@@ -67,13 +67,7 @@ public class PlayerLocallyJoinListener implements Listener {
                 sendSectorTitle(player, currentSector);
                 user.setLastSectorTransfer(false);
                 user.setLastTransferTimestamp(System.currentTimeMillis());
-
-                boolean success = player.teleport(
-                        paperSector.getSectorManager().randomLocation(currentSector)
-                );
-                if (success) sendSectorTitle(player, currentSector);
-                else Logger.info(() -> "Failed to teleport player " + player.getName());
-
+                paperSector.getSectorManager().randomLocation(player, user);
             } else {
                 user.applyPlayerData();
                 sendSectorTitle(player, currentSector);

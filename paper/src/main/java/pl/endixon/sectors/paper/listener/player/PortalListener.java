@@ -82,6 +82,6 @@ public class PortalListener implements Listener {
         Bukkit.getPluginManager().callEvent(ev);
         if (ev.isCancelled()) return;
 
-        paperSector.getSectorTeleportService().teleportToSector(player, userRedis, targetSector, false);
+        paperSector.getSectorTeleportService().teleportToSector(player, userRedis, targetSector, false,false);
     }
 }

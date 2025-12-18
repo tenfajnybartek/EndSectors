@@ -1,5 +1,6 @@
 package pl.endixon.sectors.paper;
 
+import lombok.NonNull;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import pl.endixon.sectors.common.sector.SectorData;
@@ -79,9 +80,10 @@ public class SectorsAPI {
         return sectorManager.find(type);
     }
 
-    public Location getRandomLocation(Sector sector) {
-        return sectorManager.randomLocation(sector);
+    public Location getRandomLocation(@NonNull Player player, @NonNull UserRedis user) {
+        return sectorManager.randomLocation(player,user);
     }
+
 
     public Sector getBalancedSpawn() {
         return sectorManager.getBalancedRandomSpawnSector();
@@ -91,8 +93,8 @@ public class SectorsAPI {
         return sectorManager.getCurrentSector();
     }
 
-    public void teleportPlayer(Player player, UserRedis user, Sector sector, boolean force) {
-        teleportService.teleportToSector(player, user, sector, force);
+    public void teleportPlayer(Player player, UserRedis user, Sector sector, boolean force, boolean preserveCoordinates) {
+        teleportService.teleportToSector(player, user, sector, force,preserveCoordinates);
     }
 
 

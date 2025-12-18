@@ -44,6 +44,7 @@ import pl.endixon.sectors.paper.sector.transfer.SectorTeleportService;
 import pl.endixon.sectors.paper.sector.SectorManager;
 import pl.endixon.sectors.paper.task.*;
 import pl.endixon.sectors.paper.user.UserManager;
+import pl.endixon.sectors.paper.util.DeathScreenPacketutils;
 import pl.endixon.sectors.paper.util.Logger;
 import java.util.List;
 
@@ -78,6 +79,7 @@ public class PaperSector extends JavaPlugin {
         this.initCommands();
         this.scheduleTasks(config);
         new SectorsAPI(this);
+        DeathScreenPacketutils.register(this);
         Logger.info("EndSectors enabled successfully.");
 
     }

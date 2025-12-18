@@ -129,7 +129,7 @@ public class MoveListener implements Listener {
             Bukkit.getPluginManager().callEvent(ev);
             if (ev.isCancelled()) return;
 
-            paperSector.getSectorTeleportService().teleportToSector(player, userRedis, sector, false);
+            paperSector.getSectorTeleportService().teleportToSector(player, userRedis, sector, false,false);
         }
     }
 
@@ -198,7 +198,7 @@ public class MoveListener implements Listener {
         Bukkit.getPluginManager().callEvent(ev);
         if (ev.isCancelled()) return;
 
-        paperSector.getSectorTeleportService().teleportToSector(player, userRedis, spawnToTeleport, false);
+        paperSector.getSectorTeleportService().teleportToSector(player, userRedis, spawnToTeleport, false,false);
     }
 
 }

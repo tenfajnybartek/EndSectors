@@ -143,7 +143,16 @@ public class UserRedis {
 
     public void updateAndSave(@NonNull Player player, @NonNull Sector currentSector) {
         updateFromPlayer(player, currentSector);
-        Logger.info("save sektor" + currentSector.getName());
+        Logger.info(() -> String.format(
+                "Zapis użytkownika %s -> sektor=%s, x=%.2f, y=%.2f, z=%.2f, yaw=%.2f, pitch=%.2f",
+                getName(),
+                currentSector.getName(),
+                getX(),
+                getY(),
+                getZ(),
+                getYaw(),
+                getPitch()
+        ));
         RedisUserCache.save(this);
     }
 
