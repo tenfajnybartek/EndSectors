@@ -30,14 +30,14 @@ public class SetHomeCommand implements CommandExecutor {
         PlayerProfile profile = UserCache.get(player.getUniqueId());
         if (profile == null) {
             player.sendMessage(Component.text(ChatUtil.fixHexColors("&#FF5555Profil użytkownika nie został znaleziony!")));
-
             return true;
         }
 
         Location loc = player.getLocation();
         String sector = sectorsAPI.getSectorManager().getCurrentSector().getName();
-        String homeName = "home";
 
+
+        String homeName = args.length > 0 ? args[0].toLowerCase() : "home";
         Home home = new Home(
                 homeName,
                 sector,
@@ -48,10 +48,12 @@ public class SetHomeCommand implements CommandExecutor {
                 loc.getYaw(),
                 loc.getPitch()
         );
-
         profile.getHomes().put(homeName, home);
         plugin.getRepository().save(profile);
-        player.sendMessage(Component.text(ChatUtil.fixHexColors("&#00FFAAPomyślnie ustawiono home na sektorze &#FFFF00" + sector)));
+
+        player.sendMessage(Component.text(ChatUtil.fixHexColors(
+                "&#00FFAAPomyślnie ustawiono home &#FFFF00" + homeName + " &#00FFAAna sektorze &#FFFF00" + sector
+        )));
         return true;
     }
 }

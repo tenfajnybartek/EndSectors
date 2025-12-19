@@ -12,6 +12,7 @@ import pl.endixon.sectors.tools.command.HomeCommand;
 import pl.endixon.sectors.tools.command.RandomTPCommand;
 import pl.endixon.sectors.tools.command.SetHomeCommand;
 import pl.endixon.sectors.tools.command.SpawnCommand;
+import pl.endixon.sectors.tools.listeners.InventoryInternactListener;
 import pl.endixon.sectors.tools.listeners.PlayerJoinListener;
 import pl.endixon.sectors.tools.listeners.PlayerQuitListener;
 import pl.endixon.sectors.tools.service.MongoService;
@@ -95,6 +96,7 @@ public class Main extends JavaPlugin {
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new PlayerJoinListener(repository), this);
         pm.registerEvents(new PlayerQuitListener(repository), this);
+        pm.registerEvents(new InventoryInternactListener(),this);
     }
 
     private void registerCommands() {

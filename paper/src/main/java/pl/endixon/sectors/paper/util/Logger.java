@@ -30,6 +30,16 @@ public class Logger {
 
     private static final ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
 
+
+    public static void info(String message) {
+        System.out.println("[INFO] " + message);
+    }
+
+    public static void info(String message, Exception e) {
+        System.out.println("[INFO] " + message);
+        e.printStackTrace();
+    }
+
     public static void info(Object object) {
         console.sendMessage(ChatUtil.fixColorsLogger("%M[EndSectors-Paper] %C" + object.toString()));
     }

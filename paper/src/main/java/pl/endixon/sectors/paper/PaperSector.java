@@ -67,6 +67,7 @@ public class PaperSector extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+
         protocolManager = ProtocolLibrary.getProtocolManager();
         ConfigLoader config = ConfigLoader.load(getDataFolder());
         this.initManager(config);
