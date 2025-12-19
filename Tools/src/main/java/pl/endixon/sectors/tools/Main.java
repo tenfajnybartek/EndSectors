@@ -102,7 +102,6 @@ public class Main extends JavaPlugin {
         registerCommand("randomtp", new RandomTPCommand());
         registerCommand("spawn", new SpawnCommand());
         registerCommand("home", new HomeCommand());
-        registerCommand("sethome", new SetHomeCommand());
 
     }
 
