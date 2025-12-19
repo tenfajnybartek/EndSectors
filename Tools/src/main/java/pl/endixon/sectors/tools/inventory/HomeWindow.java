@@ -48,7 +48,6 @@ public class HomeWindow {
         for (int i = 0; i < HOME_SLOTS; i++) {
             String homeKey = "Domek #" + (i + 1);
             Home home = homes.get(homeKey);
-
             ItemStack item;
             if (home != null) {
                 item = new StackBuilder(new ItemStack(Material.OAK_SIGN))
