@@ -49,6 +49,7 @@ public class HomeWindow {
             String homeKey = "Domek #" + (i + 1);
             Home home = homes.get(homeKey);
             ItemStack item;
+
             if (home != null) {
                 item = new StackBuilder(new ItemStack(Material.OAK_SIGN))
                         .name(ChatUtil.fixHexColors("&#4ade80"  + home.getName()))
