@@ -43,7 +43,7 @@ public class HomeCommand implements CommandExecutor {
 
         user.setTransferOffsetUntil(0);
 
-        String homeName = "home"; // args[0] później
+        String homeName = "home"; //todo dodać wiele home
         Home home = profile.getHomes().get(homeName);
         if (home == null) {
             player.sendMessage(Component.text(ChatUtil.fixHexColors("<#FF5555>Nie masz ustawionego home o nazwie <#FFAA00>" + homeName + "<#FF5555>!")));
