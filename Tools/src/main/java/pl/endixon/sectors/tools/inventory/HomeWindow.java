@@ -52,7 +52,7 @@ public class HomeWindow {
             ItemStack item;
             if (home != null) {
                 item = new StackBuilder(new ItemStack(Material.OAK_SIGN))
-                        .name("&a" + home.getName())
+                        .name(ChatUtil.fixHexColors("&#4ade80"  + home.getName()))
                         .lores(buildLore(home))
                         .build();
             } else {
@@ -104,7 +104,7 @@ public class HomeWindow {
                     );
                     homes.put(homeKey, newHome);
                     plugin.getRepository().save(profile);
-                    player.sendMessage(ChatUtil.fixHexColors("&#00FFAAPomyślnie utworzono Domek " + homeKey));
+                    player.sendMessage(ChatUtil.fixHexColors("&#00FFAAPomyślnie utworzono Domek"));
                     open();
                 }
             });
@@ -136,13 +136,13 @@ public class HomeWindow {
 
         Sector homeSector = sectorsAPI.getSectorManager().getSector(home.getSector());
         if (homeSector == null) {
-            player.sendMessage(Component.text(ChatUtil.fixHexColors("&#FF5555Nie udało się znaleźć sektora dla home!")));
+            player.sendMessage(Component.text(ChatUtil.fixHexColors("&#FF5555Nie udało się znaleźć sektora dla twojego domku!")));
             return;
         }
 
         World world = Bukkit.getWorld(homeSector.getWorldName());
         if (world == null) {
-            player.sendMessage(Component.text(ChatUtil.fixHexColors("&#FF5555Świat dla home nie jest załadowany!")));
+            player.sendMessage(Component.text(ChatUtil.fixHexColors("&#FF5555Świat dla domku nie jest załadowany!")));
             return;
         }
 
