@@ -5,9 +5,9 @@ import pl.endixon.sectors.common.util.ChatUtil;
 public enum Messages {
 
     CONSOLE_BLOCK("&cTa komenda jest tylko dla gracza"),
-    SPAWN_TITLE("&#FFD700Spawn"),
-    SPAWN_OFFLINE("&#FF5555Spawn aktualnie offline"),
-    SPAWN_ALREADY("&#FF5555Już jesteś na spawnie"),
+    SPAWN_TITLE(ChatUtil.fixHexColors("&#FFD700Spawn")),
+    SPAWN_OFFLINE(ChatUtil.fixHexColors("&#FF5555Spawn aktualnie offline")),
+    SPAWN_ALREADY(ChatUtil.fixHexColors("&#FF5555Już jesteś na spawnie")),
     RANDOM_TITLE(ChatUtil.fixHexColors("&#00FFFFRandomTP")),
     RANDOM_START(ChatUtil.fixHexColors("&#AAAAAALosowanie sektora..."));
 
