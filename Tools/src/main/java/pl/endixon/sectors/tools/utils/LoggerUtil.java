@@ -33,10 +33,6 @@ public class LoggerUtil {
     public static void info(Object object) {
         console.sendMessage(ChatUtil.fixColorsLogger("%M[EndSectors-Tools] %C" + object.toString()));
     }
-    public static void info(Supplier<String> supplier) {
-        info(supplier.get());
-    }
-
 
 }
 
