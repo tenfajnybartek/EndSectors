@@ -90,7 +90,6 @@ public class CombatSectorListener implements Listener {
     }
 
 
-    //listener w tools
     @EventHandler
     public void onEnderPearlTeleport(PlayerTeleportEvent event) {
         Player player = event.getPlayer();

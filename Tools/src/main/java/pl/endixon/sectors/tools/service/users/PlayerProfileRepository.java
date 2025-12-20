@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
-
+import org.bukkit.GameMode;
 import static com.mongodb.client.model.Filters.eq;
 
 @RequiredArgsConstructor

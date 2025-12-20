@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 public enum MessagesUtil {
 
 
+
     CONSOLE_BLOCK("&#ef4444Ta komenda jest tylko dla gracza"),
     SPAWN_TITLE("&#ff5555Błąd"),
     PORTAL_COMBAT_TITLE("&#ff5555Błąd"),
@@ -19,14 +20,17 @@ public enum MessagesUtil {
     PLAYERDATANOT_FOUND_MESSAGE("&#ef4444Profil użytkownika nie został znaleziony!"),
     RANDOM_SECTOR_NOTFOUND("&#FF5555Nie udało się znaleźć losowego sektora!");
 
-
     private final String text;
 
     MessagesUtil(String text) {
         this.text = text;
     }
 
+    public Component get(ChatAdventureUtil util) {
+        return util.toComponent(text);
+    }
+
     public Component get() {
-        return ChatAdventureUtil.toComponent(text);
+        return new ChatAdventureUtil().toComponent(text);
     }
 }

@@ -9,15 +9,23 @@ import java.util.regex.Pattern;
 
 public class ChatAdventureUtil {
 
-    private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
+    private final Pattern hexPattern;
 
-    public static Component toComponent(String message) {
+    public ChatAdventureUtil(Pattern hexPattern) {
+        this.hexPattern = hexPattern;
+    }
+
+    public ChatAdventureUtil() {
+        this(Pattern.compile("&#([A-Fa-f0-9]{6})"));
+    }
+
+    public Component toComponent(String message) {
         if (message == null || message.isEmpty()) return Component.empty();
 
-        Matcher matcher = HEX_PATTERN.matcher(message);
+        Matcher matcher = hexPattern.matcher(message);
         Component component = Component.empty();
-
         int lastIndex = 0;
+
         while (matcher.find()) {
             if (matcher.start() > lastIndex) {
                 component = component.append(Component.text(message.substring(lastIndex, matcher.start())));
@@ -39,6 +47,7 @@ public class ChatAdventureUtil {
         if (lastIndex < message.length()) {
             component = component.append(Component.text(message.substring(lastIndex)));
         }
+
         return component;
     }
 }
