@@ -56,6 +56,7 @@ public class CombatListener implements Listener {
         if (!(event instanceof EntityDamageByEntityEvent entityEvent)) {
             return;
         }
+
         Player victim = (Player) entityEvent.getEntity();
         Player attacker = (Player) entityEvent.getDamager();
 
@@ -84,9 +85,6 @@ public class CombatListener implements Listener {
 
         combatManager.startCombat(attacker, victim);
     }
-
-
-
 
     @EventHandler
     public void onMoveDuringCombat(PlayerMoveEvent event) {
