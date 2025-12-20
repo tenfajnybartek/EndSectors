@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -53,7 +54,7 @@ public class CombatSectorListener implements Listener {
         current.knockBorder(player, KNOCK_BORDER_FORCE);
         player.showTitle(Title.title(
                 Messages.SECTOR_COMBAT_TITLE.get(),
-            Messages.SECTOR_COMBAT_SUBTITLE.get(),
+                Messages.SECTOR_COMBAT_SUBTITLE.get(),
                 Title.Times.times(
                         Duration.ofMillis(200),
                         Duration.ofSeconds(2),
@@ -82,33 +83,6 @@ public class CombatSectorListener implements Listener {
         }
 
         player.showTitle(Title.title(
-             Messages.PORTAL_COMBAT_TITLE.get(),
-                Messages.PORTAL_COMBAT_SUBTITLE.get(),
-                Title.Times.times(
-                        Duration.ofMillis(200),
-                        Duration.ofSeconds(2),
-                        Duration.ofMillis(200)
-                )
-        ));
-    }
-
-
-    @EventHandler
-    public void onEnderPearlTeleport(PlayerTeleportEvent event) {
-        Player player = event.getPlayer();
-        if (!combatManager.isInCombat(player)) return;
-        if (event.getCause() != PlayerTeleportEvent.TeleportCause.ENDER_PEARL) return;
-
-        event.setCancelled(true);
-        player.teleport(event.getFrom());
-
-        SectorManager sectorManager = SectorsAPI.getInstance().getSectorManager();
-        Sector current = sectorManager.getCurrentSector();
-        if (current != null) {
-            current.knockBorder(player, KNOCK_BORDER_FORCE);
-        }
-
-        player.showTitle(Title.title(
                 Messages.PORTAL_COMBAT_TITLE.get(),
                 Messages.PORTAL_COMBAT_SUBTITLE.get(),
                 Title.Times.times(
@@ -119,4 +93,33 @@ public class CombatSectorListener implements Listener {
         ));
     }
 
+
+    //listener w tools
+    @EventHandler
+    public void onEnderPearlTeleport(PlayerTeleportEvent event) {
+        Player player = event.getPlayer();
+        Location to = event.getTo();
+
+        if (event.getCause() != PlayerTeleportEvent.TeleportCause.ENDER_PEARL) return;
+
+
+        boolean inCombat = combatManager.isInCombat(player);
+        boolean onSolidBlock = to.getBlock().getType().isSolid();
+
+        if (inCombat || onSolidBlock) {
+            event.setCancelled(true);
+            player.teleport(event.getFrom());
+
+            player.showTitle(Title.title(
+                    Messages.PORTAL_COMBAT_TITLE.get(),
+                    Messages.SECTOR_COMBAT_SUBTITLE.get(),
+                    Title.Times.times(
+                            Duration.ofMillis(200),
+                            Duration.ofSeconds(2),
+                            Duration.ofMillis(200)
+                    )
+            ));
+
+        }
+    }
 }

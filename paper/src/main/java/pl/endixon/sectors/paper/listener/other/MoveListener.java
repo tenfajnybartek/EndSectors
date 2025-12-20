@@ -15,6 +15,7 @@ import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.common.util.ChatUtil;
 import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.event.sector.SectorChangeEvent;
+import pl.endixon.sectors.paper.event.sector.SectorEnderPearlEvent;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.sector.SectorManager;
 import pl.endixon.sectors.paper.user.UserManager;
@@ -45,6 +46,18 @@ public class MoveListener implements Listener {
 
         Sector sector = sectorManager.getSector(event.getTo());
         if (sector == null) return;
+
+        SectorChangeEvent ev = new SectorChangeEvent(player, sector);
+        Bukkit.getPluginManager().callEvent(ev);
+
+        if (ev.isCancelled()) return;
+
+       SectorEnderPearlEvent ev1 = new SectorEnderPearlEvent(player, sector);
+        Bukkit.getPluginManager().callEvent(ev1);
+
+        if (ev1.isCancelled()) return;
+
+
 
         Bukkit.getScheduler().runTask(paperSector, () -> processSectorTransfer(player, userRedis, current, sector));
     }

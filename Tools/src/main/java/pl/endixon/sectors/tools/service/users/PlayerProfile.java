@@ -14,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlayerProfile {
-
+    @BsonId
     private UUID uuid;
     private String name;
     private int kills;

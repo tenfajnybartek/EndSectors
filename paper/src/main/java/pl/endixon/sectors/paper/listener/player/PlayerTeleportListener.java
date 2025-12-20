@@ -11,6 +11,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import pl.endixon.sectors.common.util.ChatUtil;
 import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.event.sector.SectorChangeEvent;
+import pl.endixon.sectors.paper.event.sector.SectorEnderPearlEvent;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.sector.SectorManager;
 import pl.endixon.sectors.paper.user.UserManager;
@@ -37,6 +38,7 @@ public class PlayerTeleportListener implements Listener {
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         if (event.isCancelled()) return;
 
+
         Sector queue = paperSector.getSectorManager().getCurrentSector();
         if (queue.getType() == SectorType.QUEUE) return;
         if (event.getCause() != PlayerTeleportEvent.TeleportCause.ENDER_PEARL) return;
@@ -46,40 +48,35 @@ public class PlayerTeleportListener implements Listener {
 
 
         UserRedis user = UserManager.getUser(player).orElse(null);
-            if (user == null) return;
+        if (user == null) return;
 
-            SectorManager sectorManager = paperSector.getSectorManager();
-            Sector currentSector = sectorManager.getSector(player.getLocation());
-            Sector targetSector = sectorManager.getSector(to);
-            if (currentSector == null || targetSector == null) return;
+        SectorManager sectorManager = paperSector.getSectorManager();
+        Sector currentSector = sectorManager.getSector(player.getLocation());
+        Sector targetSector = sectorManager.getSector(to);
+        if (currentSector == null || targetSector == null) return;
 
-            if (targetSector.getType() == SectorType.SPAWN) {
-                targetSector = sectorManager.find(SectorType.SPAWN);
-            }
+        if (targetSector.getType() == SectorType.SPAWN) {
+            targetSector = sectorManager.find(SectorType.SPAWN);
+        }
 
         SectorChangeEvent ev = new SectorChangeEvent(player, targetSector);
         Bukkit.getPluginManager().callEvent(ev);
         if (ev.isCancelled()) return;
 
-
-
-
         if (!targetSector.isOnline()) {
-                player.showTitle(Title.title(
-                        ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_TITLE),
-                        ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_SUBTITLE),
+            player.showTitle(Title.title(
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_TITLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_SUBTITLE),
 
-                        Title.Times.times(
-                                Duration.ofMillis(500),
-                                Duration.ofMillis(2000),
-                                Duration.ofMillis(500)
-                        )
-                ));
-            event.setCancelled(true);
-            player.teleport(event.getFrom());
-
-                return;
-            }
+                    Title.Times.times(
+                            Duration.ofMillis(500),
+                            Duration.ofMillis(2000),
+                            Duration.ofMillis(500)
+                    )
+            ));
+            currentSector.knockBorder(player, KNOCK_BORDER_FORCE);
+            return;
+        }
 
         if (Sector.isSectorFull(targetSector)) {
             player.showTitle(Title.title(
@@ -91,8 +88,7 @@ public class PlayerTeleportListener implements Listener {
                             Duration.ofMillis(500)
                     )
             ));
-            event.setCancelled(true);
-            player.teleport(event.getFrom());
+            currentSector.knockBorder(player, KNOCK_BORDER_FORCE);
             return;
         }
 
@@ -106,13 +102,12 @@ public class PlayerTeleportListener implements Listener {
                             java.time.Duration.ofMillis(2000),
                             java.time.Duration.ofMillis(500))
             ));
-            event.setCancelled(true);
-            player.teleport(event.getFrom());
+            currentSector.knockBorder(player, KNOCK_BORDER_FORCE);
             return;
         }
 
-            if (System.currentTimeMillis() - user.getLastSectorTransfer() < TRANSFER_DELAY) return;
 
+        if (System.currentTimeMillis() - user.getLastSectorTransfer() < TRANSFER_DELAY) return;
 
         user.setLastSectorTransfer(true);
         user.activateTransferOffset();
