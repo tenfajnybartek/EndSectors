@@ -16,6 +16,7 @@ import pl.endixon.sectors.paper.sector.SectorManager;
 import pl.endixon.sectors.paper.user.UserManager;
 import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.paper.user.UserRedis;
+import pl.endixon.sectors.paper.util.ChatAdventureUtil;
 import pl.endixon.sectors.paper.util.Configuration;
 import pl.endixon.sectors.paper.util.Logger;
 
@@ -32,6 +33,9 @@ public class PortalListener implements Listener {
     public void onPortalEnter(PlayerPortalEvent event) {
         Player player = event.getPlayer();
         event.setCancelled(true);
+        event.setCanCreatePortal(false);
+        player.teleport(event.getFrom());
+
         UserRedis userRedis = UserManager.getUser(player).orElse(null);
         if (userRedis == null) return;
 
@@ -64,8 +68,8 @@ public class PortalListener implements Listener {
 
         if (!targetSector.isOnline()) {
             player.showTitle(Title.title(
-                    Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_TITLE)),
-                    Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_SUBTITLE)),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_TITLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_SUBTITLE),
                     Title.Times.times(
                             Duration.ofMillis(500),
                             Duration.ofMillis(2000),
@@ -77,8 +81,8 @@ public class PortalListener implements Listener {
 
         if (Sector.isSectorFull(targetSector)) {
             player.showTitle(Title.title(
-                    Component.text(Configuration.SECTOR_FULL_TITLE),
-                    Component.text(Configuration.SECTOR_FULL_SUBTITLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_FULL_TITLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_FULL_SUBTITLE),
                     Title.Times.times(
                             Duration.ofMillis(500),
                             Duration.ofMillis(2000),
@@ -92,8 +96,8 @@ public class PortalListener implements Listener {
         if (System.currentTimeMillis() < userRedis.getTransferOffsetUntil() && !inTransfer) {
             long remaining = userRedis.getTransferOffsetUntil() - System.currentTimeMillis();
             player.showTitle(Title.title(
-                    Component.text(Configuration.TITLE_SECTOR_UNAVAILABLE),
-                    Component.text(Configuration.TITLE_WAIT_TIME.replace(
+                    ChatAdventureUtil.toComponent(Configuration.TITLE_SECTOR_UNAVAILABLE),
+                    ChatAdventureUtil.toComponent(Configuration.TITLE_WAIT_TIME.replace(
                             "{SECONDS}", String.valueOf(remaining / 1000 + 1))),
                     Title.Times.times(
                             Duration.ofMillis(500),

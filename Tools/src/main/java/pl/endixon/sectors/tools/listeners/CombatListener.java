@@ -9,6 +9,8 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import pl.endixon.sectors.tools.Main;
 import pl.endixon.sectors.tools.manager.CombatManager;
 import pl.endixon.sectors.tools.task.CombatTask;
+import pl.endixon.sectors.tools.utils.ChatAdventureUtil;
+import pl.endixon.sectors.tools.utils.Messages;
 
 public class CombatListener implements Listener {
 
@@ -44,7 +46,7 @@ public class CombatListener implements Listener {
         Player player = event.getPlayer();
 
         if (combatManager.isInCombat(player)) {
-            player.sendMessage("§cNie możesz używać komend w trakcie walki!");
+            player.sendMessage((Messages.COMBAT_NO_COMMAND.get()));
             event.setCancelled(true);
         }
     }

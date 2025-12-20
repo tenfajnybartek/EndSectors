@@ -23,18 +23,18 @@ public class HomeCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(Component.text(ChatUtil.fixHexColors(Messages.CONSOLE_BLOCK.get())));
+            sender.sendMessage(Messages.CONSOLE_BLOCK.get());
             return true;
         }
 
         PlayerProfile profile = UserCache.get(player.getUniqueId());
         if (profile == null) {
-            player.sendMessage(Component.text(ChatUtil.fixHexColors("&#FF5555Profil użytkownika nie został znaleziony!")));
+            player.sendMessage(Messages.PLAYERDATANOT_FOUND_MESSAGE.get());
             return true;
         }
         UserRedis user = sectorsAPI.getUser(player).orElse(null);
         if (user == null) {
-            player.sendMessage(Component.text(ChatUtil.fixHexColors("&#FF5555Profil użytkownika nie został znaleziony!")));
+            player.sendMessage(Messages.PLAYERDATANOT_FOUND_MESSAGE.get());
             return true;
         }
 

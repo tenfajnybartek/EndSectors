@@ -46,6 +46,7 @@ import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.sector.SectorManager;
 import pl.endixon.sectors.paper.user.UserManager;
 import pl.endixon.sectors.paper.user.UserRedis;
+import pl.endixon.sectors.paper.util.ChatAdventureUtil;
 import pl.endixon.sectors.paper.util.Configuration;
 
 @AllArgsConstructor
@@ -78,7 +79,7 @@ public class PlayerSectorInteractListener implements Listener {
 
         if (!allowed && dist <= Configuration.BREAK_BORDER_DISTANCE) {
             event.setCancelled(true);
-            p.sendMessage(ChatUtil.fixColors(Configuration.BREAK_BORDER_DISTANCE_MESSAGE));
+            p.sendMessage(ChatAdventureUtil.toComponent(Configuration.BREAK_BORDER_DISTANCE_MESSAGE));
         }
     }
 
@@ -95,7 +96,7 @@ public class PlayerSectorInteractListener implements Listener {
 
         if (!canPlace && distanceToBorder <= Configuration.PLACE_BORDER_DISTANCE) {
             event.setCancelled(true);
-            player.sendMessage(ChatUtil.fixColors(Configuration.PLACE_BORDER_DISTANCE_MESSAGE));
+            player.sendMessage(ChatAdventureUtil.toComponent(Configuration.PLACE_BORDER_DISTANCE_MESSAGE));
         }
     }
 

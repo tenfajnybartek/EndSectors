@@ -2,6 +2,7 @@ package pl.endixon.sectors.paper.listener.player;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -9,11 +10,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import pl.endixon.sectors.common.util.ChatUtil;
 import pl.endixon.sectors.paper.PaperSector;
+import pl.endixon.sectors.paper.event.sector.SectorChangeEvent;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.sector.SectorManager;
 import pl.endixon.sectors.paper.user.UserManager;
 import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.paper.user.UserRedis;
+import pl.endixon.sectors.paper.util.ChatAdventureUtil;
 import pl.endixon.sectors.paper.util.Configuration;
 
 import java.time.Duration;
@@ -54,37 +57,67 @@ public class PlayerTeleportListener implements Listener {
                 targetSector = sectorManager.find(SectorType.SPAWN);
             }
 
-            if (!targetSector.isOnline()) {
+        SectorChangeEvent ev = new SectorChangeEvent(player, targetSector);
+        Bukkit.getPluginManager().callEvent(ev);
+        if (ev.isCancelled()) return;
+
+
+
+
+        if (!targetSector.isOnline()) {
                 player.showTitle(Title.title(
-                        Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_TITLE)),
-                        Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_SUBTITLE)),
+                        ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_TITLE),
+                        ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_SUBTITLE),
+
                         Title.Times.times(
                                 Duration.ofMillis(500),
                                 Duration.ofMillis(2000),
                                 Duration.ofMillis(500)
                         )
                 ));
-                currentSector.knockBorder(player, KNOCK_BORDER_FORCE);
+            event.setCancelled(true);
+            player.teleport(event.getFrom());
+
                 return;
             }
 
         if (Sector.isSectorFull(targetSector)) {
             player.showTitle(Title.title(
-                    Component.text(Configuration.SECTOR_FULL_TITLE),
-                    Component.text(Configuration.SECTOR_FULL_SUBTITLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_FULL_TITLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_FULL_SUBTITLE),
                     Title.Times.times(
                             Duration.ofMillis(500),
                             Duration.ofMillis(2000),
                             Duration.ofMillis(500)
                     )
             ));
-            currentSector.knockBorder(player, KNOCK_BORDER_FORCE);
+            event.setCancelled(true);
+            player.teleport(event.getFrom());
             return;
         }
 
+        boolean inTransfer = user.getLastSectorTransfer() > 0;
+        if (System.currentTimeMillis() < user.getTransferOffsetUntil() && !inTransfer) {
+            long remaining = user.getTransferOffsetUntil() - System.currentTimeMillis();
+            player.showTitle(Title.title(
+                    ChatAdventureUtil.toComponent(Configuration.TITLE_SECTOR_UNAVAILABLE),
+                    ChatAdventureUtil.toComponent(Configuration.TITLE_WAIT_TIME.replace("{SECONDS}", String.valueOf(remaining / 1000 + 1))),
+                    Title.Times.times(java.time.Duration.ofMillis(500),
+                            java.time.Duration.ofMillis(2000),
+                            java.time.Duration.ofMillis(500))
+            ));
+            event.setCancelled(true);
+            player.teleport(event.getFrom());
+            return;
+        }
 
             if (System.currentTimeMillis() - user.getLastSectorTransfer() < TRANSFER_DELAY) return;
-            user.setLastSectorTransfer(true);
-            paperSector.getSectorTeleportService().teleportToSector(player, user, targetSector, false,false);
+
+
+        user.setLastSectorTransfer(true);
+        user.activateTransferOffset();
+        user.setLastTransferTimestamp(System.currentTimeMillis());
+
+        paperSector.getSectorTeleportService().teleportToSector(player, user, targetSector, false,false);
     }
 }

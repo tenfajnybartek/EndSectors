@@ -10,11 +10,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import pl.endixon.sectors.paper.SectorsAPI;
 import pl.endixon.sectors.paper.event.sector.SectorChangeEvent;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.sector.SectorManager;
 import pl.endixon.sectors.tools.manager.CombatManager;
+import pl.endixon.sectors.tools.utils.ChatAdventureUtil;
 import pl.endixon.sectors.tools.utils.Messages;
 
 import java.time.Duration;
@@ -50,8 +52,8 @@ public class CombatSectorListener implements Listener {
 
         current.knockBorder(player, KNOCK_BORDER_FORCE);
         player.showTitle(Title.title(
-                Component.text(Messages.SECTOR_COMBAT_SUBTITLE.get()),
-                Component.text(Messages.SECTOR_COMBAT_TITLE.get()),
+                Messages.SECTOR_COMBAT_TITLE.get(),
+            Messages.SECTOR_COMBAT_SUBTITLE.get(),
                 Title.Times.times(
                         Duration.ofMillis(200),
                         Duration.ofSeconds(2),
@@ -80,8 +82,35 @@ public class CombatSectorListener implements Listener {
         }
 
         player.showTitle(Title.title(
-                Component.text(Messages.PORTAL_COMBAT_TITLE.get()),
-                Component.text(Messages.PORTAL_COMBAT_SUBTITLE.get()),
+             Messages.PORTAL_COMBAT_TITLE.get(),
+                Messages.PORTAL_COMBAT_SUBTITLE.get(),
+                Title.Times.times(
+                        Duration.ofMillis(200),
+                        Duration.ofSeconds(2),
+                        Duration.ofMillis(200)
+                )
+        ));
+    }
+
+
+    @EventHandler
+    public void onEnderPearlTeleport(PlayerTeleportEvent event) {
+        Player player = event.getPlayer();
+        if (!combatManager.isInCombat(player)) return;
+        if (event.getCause() != PlayerTeleportEvent.TeleportCause.ENDER_PEARL) return;
+
+        event.setCancelled(true);
+        player.teleport(event.getFrom());
+
+        SectorManager sectorManager = SectorsAPI.getInstance().getSectorManager();
+        Sector current = sectorManager.getCurrentSector();
+        if (current != null) {
+            current.knockBorder(player, KNOCK_BORDER_FORCE);
+        }
+
+        player.showTitle(Title.title(
+                Messages.PORTAL_COMBAT_TITLE.get(),
+                Messages.PORTAL_COMBAT_SUBTITLE.get(),
                 Title.Times.times(
                         Duration.ofMillis(200),
                         Duration.ofSeconds(2),

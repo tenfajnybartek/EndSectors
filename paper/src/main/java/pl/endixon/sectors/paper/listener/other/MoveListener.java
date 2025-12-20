@@ -19,6 +19,7 @@ import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.sector.SectorManager;
 import pl.endixon.sectors.paper.user.UserManager;
 import pl.endixon.sectors.paper.user.UserRedis;
+import pl.endixon.sectors.paper.util.ChatAdventureUtil;
 import pl.endixon.sectors.paper.util.Configuration;
 
 import java.time.Duration;
@@ -80,12 +81,15 @@ public class MoveListener implements Listener {
 
             if (!sector.isOnline()) {
                 player.showTitle(Title.title(
-                        Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_TITLE)),
-                        Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_SUBTITLE)),
-                        Title.Times.times(java.time.Duration.ofMillis(500),
+                        ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_TITLE),
+                        ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_SUBTITLE),
+                        Title.Times.times(
+                                java.time.Duration.ofMillis(500),
                                 java.time.Duration.ofMillis(2000),
-                                java.time.Duration.ofMillis(500))
+                                java.time.Duration.ofMillis(500)
+                        )
                 ));
+
                 currentSector.knockBorder(player, KNOCK_BORDER_FORCE);
                 return;
             }
@@ -93,14 +97,15 @@ public class MoveListener implements Listener {
 
             if (Sector.isSectorFull(sector)) {
                 player.showTitle(Title.title(
-                        Component.text(Configuration.SECTOR_FULL_TITLE),
-                        Component.text(Configuration.SECTOR_FULL_SUBTITLE),
+                        ChatAdventureUtil.toComponent(Configuration.SECTOR_FULL_TITLE),
+                        ChatAdventureUtil.toComponent(Configuration.SECTOR_FULL_SUBTITLE),
                         Title.Times.times(
                                 Duration.ofMillis(500),
                                 Duration.ofMillis(2000),
                                 Duration.ofMillis(500)
                         )
                 ));
+
                 currentSector.knockBorder(player, KNOCK_BORDER_FORCE);
                 return;
             }
@@ -109,8 +114,8 @@ public class MoveListener implements Listener {
             if (System.currentTimeMillis() < userRedis.getTransferOffsetUntil() && !inTransfer) {
                 long remaining = userRedis.getTransferOffsetUntil() - System.currentTimeMillis();
                 player.showTitle(Title.title(
-                        Component.text(Configuration.TITLE_SECTOR_UNAVAILABLE),
-                        Component.text(Configuration.TITLE_WAIT_TIME.replace("{SECONDS}", String.valueOf(remaining / 1000 + 1))),
+                        ChatAdventureUtil.toComponent(Configuration.TITLE_SECTOR_UNAVAILABLE),
+                        ChatAdventureUtil.toComponent(Configuration.TITLE_WAIT_TIME.replace("{SECONDS}", String.valueOf(remaining / 1000 + 1))),
                         Title.Times.times(java.time.Duration.ofMillis(500),
                                 java.time.Duration.ofMillis(2000),
                                 java.time.Duration.ofMillis(500))
@@ -140,8 +145,8 @@ public class MoveListener implements Listener {
             spawnToTeleport = paperSector.getSectorManager().getBalancedRandomSpawnSector();
         } catch (IllegalStateException e) {
             player.showTitle(Title.title(
-                    Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_TITLE)),
-                    Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_SUBTITLE)),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_TITLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_SUBTITLE),
                     Title.Times.times(java.time.Duration.ofMillis(500),
                             java.time.Duration.ofMillis(2000),
                             java.time.Duration.ofMillis(500))
@@ -152,8 +157,8 @@ public class MoveListener implements Listener {
 
         if (!spawnToTeleport.isOnline()) {
             player.showTitle(Title.title(
-                    Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_TITLE)),
-                    Component.text(ChatUtil.fixColors(Configuration.SECTOR_DISABLED_SUBTITLE)),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_TITLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_SUBTITLE),
                     Title.Times.times(java.time.Duration.ofMillis(500),
                             java.time.Duration.ofMillis(2000),
                             java.time.Duration.ofMillis(500))
@@ -165,8 +170,8 @@ public class MoveListener implements Listener {
 
         if (Sector.isSectorFull(spawnToTeleport)) {
             player.showTitle(Title.title(
-                    Component.text(Configuration.SECTOR_FULL_TITLE),
-                    Component.text(Configuration.SECTOR_FULL_SUBTITLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_FULL_TITLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_FULL_SUBTITLE),
                     Title.Times.times(Duration.ofMillis(500),
                             Duration.ofMillis(2000),
                             Duration.ofMillis(500))
@@ -179,8 +184,8 @@ public class MoveListener implements Listener {
         if (System.currentTimeMillis() < userRedis.getTransferOffsetUntil() && !inTransfer) {
             long remaining = userRedis.getTransferOffsetUntil() - System.currentTimeMillis();
             player.showTitle(Title.title(
-                    Component.text(Configuration.TITLE_SECTOR_UNAVAILABLE),
-                    Component.text(Configuration.TITLE_WAIT_TIME.replace("{SECONDS}", String.valueOf(remaining / 1000 + 1))),
+                    ChatAdventureUtil.toComponent(Configuration.TITLE_SECTOR_UNAVAILABLE),
+                    ChatAdventureUtil.toComponent(Configuration.TITLE_WAIT_TIME.replace("{SECONDS}", String.valueOf(remaining / 1000 + 1))),
                     Title.Times.times(java.time.Duration.ofMillis(500),
                             java.time.Duration.ofMillis(2000),
                             java.time.Duration.ofMillis(500))

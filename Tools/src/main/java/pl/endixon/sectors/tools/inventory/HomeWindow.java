@@ -12,6 +12,7 @@ import pl.endixon.sectors.common.util.ChatUtil;
 import pl.endixon.sectors.paper.SectorsAPI;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.user.UserRedis;
+import pl.endixon.sectors.paper.util.ChatAdventureUtil;
 import pl.endixon.sectors.tools.Main;
 import pl.endixon.sectors.tools.inventory.api.WindowUI;
 import pl.endixon.sectors.tools.inventory.api.builder.StackBuilder;
@@ -76,14 +77,14 @@ public class HomeWindow {
                     } else if (event.isRightClick()) {
                         homes.remove(home.getName());
                         plugin.getRepository().save(profile);
-                        player.sendMessage(ChatUtil.fixHexColors("&#FF5555Usunięto Domek"));
+                        player.sendMessage(ChatAdventureUtil.toComponent("&#FF5555Usunięto Domek"));
                         open();
                     }
                 } else {
 
                     if (currentSector.getType() == SectorType.SPAWN) {
                         player.closeInventory();
-                        player.sendMessage(ChatUtil.fixHexColors("&#FF5555Nie możesz tworzyć domków na sektorze SPAWN!"));
+                        player.sendMessage(ChatAdventureUtil.toComponent("&#FF5555Nie możesz tworzyć domków na sektorze SPAWN!"));
                         return;
                     }
 
@@ -100,7 +101,7 @@ public class HomeWindow {
                     );
                     homes.put(homeKey, newHome);
                     plugin.getRepository().save(profile);
-                    player.sendMessage(ChatUtil.fixHexColors("&#00FFAAPomyślnie utworzono Domek"));
+                    player.sendMessage(ChatAdventureUtil.toComponent("&#00FFAAPomyślnie utworzono Domek"));
                     open();
                 }
             });
@@ -132,13 +133,13 @@ public class HomeWindow {
 
         Sector homeSector = sectorsAPI.getSectorManager().getSector(home.getSector());
         if (homeSector == null) {
-            player.sendMessage(Component.text(ChatUtil.fixHexColors("&#FF5555Nie udało się znaleźć sektora dla twojego domku!")));
+            player.sendMessage(ChatAdventureUtil.toComponent("&#FF5555Nie udało się znaleźć sektora dla twojego domku!"));
             return;
         }
 
         World world = Bukkit.getWorld(homeSector.getWorldName());
         if (world == null) {
-            player.sendMessage(Component.text(ChatUtil.fixHexColors("&#FF5555Świat dla domku nie jest załadowany!")));
+            player.sendMessage(ChatAdventureUtil.toComponent("&#FF5555Świat dla domku nie jest załadowany!"));
             return;
         }
 
@@ -155,11 +156,11 @@ public class HomeWindow {
         if (home.getSector().equals(user.getSectorName())) {
             player.teleport(loc);
             user.updateAndSave(player, homeSector);
-            player.sendMessage(Component.text(ChatUtil.fixHexColors("&#00FFAAPomyślnie przeteleportowano!")));
+            player.sendMessage(ChatAdventureUtil.toComponent("&#00FFAAPomyślnie przeteleportowano!"));
         } else {
             sectorsAPI.getPaperSector().getSectorTeleportService()
                     .teleportToSector(player, user, homeSector, false, true);
-            player.sendMessage(Component.text(ChatUtil.fixHexColors("&#00FFAAPomyślnie przeteleportowano!")));
+            player.sendMessage(ChatAdventureUtil.toComponent("&#00FFAAPomyślnie przeteleportowano!"));
         }
     }
 }

@@ -34,6 +34,8 @@ import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.user.UserManager;
 import pl.endixon.sectors.paper.user.UserRedis;
+import pl.endixon.sectors.paper.util.ChatAdventureUtil;
+import pl.endixon.sectors.paper.util.Configuration;
 import pl.endixon.sectors.paper.util.Logger;
 
 import java.time.Duration;
@@ -78,16 +80,19 @@ public class PlayerLocallyJoinListener implements Listener {
 
 
 
-        private void sendSectorTitle(Player player, Sector sector) {
+    private void sendSectorTitle(Player player, Sector sector) {
         player.showTitle(Title.title(
-                Component.text(ChatUtil.fixColors("")),
-                Component.text(ChatUtil.fixColors("&cPołączono się na sektor " + sector.getName())),
+                ChatAdventureUtil.toComponent(""),
+                ChatAdventureUtil.toComponent(
+                        Configuration.SECTOR_CONNECTED_MESSAGE.replace("{SECTOR}", sector.getName())
+                ),
                 Title.Times.times(
                         Duration.ofMillis(500),
                         Duration.ofMillis(2000),
                         Duration.ofMillis(500)
                 )
         ));
-    }
+
+}
 }
 

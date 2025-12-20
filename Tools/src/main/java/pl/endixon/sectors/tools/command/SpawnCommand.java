@@ -1,6 +1,7 @@
 package pl.endixon.sectors.tools.command;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.title.Title;
 import org.bukkit.entity.Player;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,6 +15,8 @@ import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.tools.utils.TeleportHelper;
 import pl.endixon.sectors.tools.utils.Messages;
 
+import java.time.Duration;
+
 public class SpawnCommand implements CommandExecutor {
 
     private static final int COUNTDOWN_TIME = 10;
@@ -22,24 +25,29 @@ public class SpawnCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(Component.text(ChatUtil.fixHexColors(Messages.CONSOLE_BLOCK.get())));
+            sender.sendMessage(Messages.CONSOLE_BLOCK.get());
             return true;
         }
 
         UserRedis user = SectorsAPI.getInstance().getUser(player).orElse(null);
         if (user == null) {
-            player.sendMessage(Component.text(ChatUtil.fixHexColors("&#FF5555Profil użytkownika nie został znaleziony!")));
+            player.sendMessage(Messages.PLAYERDATANOT_FOUND_MESSAGE.get());
 
             return true;
         }
 
         Sector currentSector = SectorsAPI.getInstance().getSectorManager().getCurrentSector();
         if (currentSector != null && currentSector.getType() == SectorType.SPAWN) {
-            player.sendTitle(
-                    ChatUtil.fixHexColors(Messages.SPAWN_TITLE.get()),
-                    ChatUtil.fixHexColors(Messages.SPAWN_ALREADY.get()),
-                    10, 40, 10
-            );
+            player.showTitle(Title.title(
+                    Messages.SPAWN_TITLE.get(),
+                    Messages.SPAWN_ALREADY.get(),
+                    Title.Times.times(
+                            Duration.ofMillis(10),
+                            Duration.ofMillis(40),
+                            Duration.ofMillis(10)
+                    )
+            ));
+
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
             return true;
         }
@@ -48,11 +56,16 @@ public class SpawnCommand implements CommandExecutor {
         try {
             spawnSector = SectorsAPI.getInstance().getSectorManager().getBalancedRandomSpawnSector();
         } catch (IllegalStateException e) {
-            player.sendTitle(
-                    ChatUtil.fixHexColors(Messages.SPAWN_TITLE.get()),
-                    ChatUtil.fixHexColors(Messages.SPAWN_OFFLINE.get()),
-                    10, 40, 10
-            );
+            player.showTitle(Title.title(
+                    Messages.SPAWN_TITLE.get(),
+                    Messages.SPAWN_OFFLINE.get(),
+                    Title.Times.times(
+                            Duration.ofMillis(10),
+                            Duration.ofMillis(40),
+                            Duration.ofMillis(10)
+                    )
+            ));
+
             return true;
         }
 

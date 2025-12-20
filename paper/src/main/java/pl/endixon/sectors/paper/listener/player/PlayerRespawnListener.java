@@ -34,6 +34,7 @@ import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.user.UserManager;
 import pl.endixon.sectors.paper.user.UserRedis;
+import pl.endixon.sectors.paper.util.ChatAdventureUtil;
 import pl.endixon.sectors.paper.util.Configuration;
 
 @AllArgsConstructor
@@ -68,14 +69,15 @@ public class PlayerRespawnListener implements Listener {
             return;
 
         if (user == null) {
-            player.kick(Component.text(Configuration.playerDataNotFoundMessage));
+            player.kick(ChatAdventureUtil.toComponent(Configuration.playerDataNotFoundMessage));
             return;
         }
 
         if (sector == null) {
-            player.kick(Component.text(Configuration.spawnSectorNotFoundMessage));
+            player.kick(ChatAdventureUtil.toComponent(Configuration.spawnSectorNotFoundMessage));
             return;
         }
+
 
         paperSector.getSectorTeleportService().teleportToSector(player, user, sector, false,false);
     }

@@ -28,6 +28,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.sector.SectorManager;
+import pl.endixon.sectors.paper.util.ChatAdventureUtil;
+import pl.endixon.sectors.paper.util.Configuration;
 
 public class PlayerLoginListener implements Listener {
 
@@ -43,8 +45,10 @@ public class PlayerLoginListener implements Listener {
         SectorManager sectorManager = paperSector.getSectorManager();
 
         if (sectorManager.getSectors().isEmpty()) {
-            paperSector.getLogger().warning("No sectors available. Kicking player %s".formatted(player.getName()));
-            event.kickMessage(Component.text("Brak dostępnych sektorów").color(TextColor.fromHexString("#ef4444")));
+            paperSector.getLogger().warning("No sectors available. Kicking player %s".formatted(player.getName()));;
+            event.kickMessage(ChatAdventureUtil.toComponent(Configuration.SectorNotFoundMessage)
+            );
+
             event.setResult(PlayerLoginEvent.Result.KICK_OTHER);
         }
     }

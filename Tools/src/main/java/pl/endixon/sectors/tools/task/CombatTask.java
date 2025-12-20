@@ -6,9 +6,16 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import pl.endixon.sectors.common.util.ChatUtil;
+import pl.endixon.sectors.paper.util.ChatAdventureUtil;
 import pl.endixon.sectors.tools.manager.CombatManager;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class CombatTask implements Runnable {
+
+    private static final Map<Player, CombatTask> activeTasks = new HashMap<>();
 
     private final JavaPlugin plugin;
     private final CombatManager combatManager;
@@ -21,12 +28,20 @@ public class CombatTask implements Runnable {
         this.plugin = plugin;
         this.combatManager = combatManager;
         this.player = player;
+
+        if (activeTasks.containsKey(player)) {
+            CombatTask existing = activeTasks.get(player);
+            existing.resetTime();
+            return;
+        }
+
+        activeTasks.put(player, this);
         createBossBar();
     }
 
     private void createBossBar() {
         bossBar = Bukkit.createBossBar(
-                "Jesteś w walce " + timeLeft + "s",
+               ChatUtil.fixHexColors("&#ff5555Jesteś podczas walki, &#f5c542pozostało " + timeLeft + "s"),
                 BarColor.RED,
                 BarStyle.SEGMENTED_10
         );
@@ -34,24 +49,32 @@ public class CombatTask implements Runnable {
         bossBar.setProgress(1.0);
     }
 
+    private void resetTime() {
+        this.timeLeft = 30;
+    }
+
     @Override
     public void run() {
         if (!combatManager.isInCombat(player) || timeLeft <= 0) {
             if (bossBar != null) bossBar.removeAll();
             combatManager.endCombat(player);
+            activeTasks.remove(player);
             Bukkit.getScheduler().cancelTask(taskId);
             return;
         }
 
         if (bossBar != null) {
             bossBar.setProgress(timeLeft / 30.0);
-            bossBar.setTitle("Jesteś w walce " + timeLeft + "s");
+            bossBar.setTitle(ChatUtil.fixHexColors("&#ff5555Jesteś podczas walki, &#f5c542pozostało " + timeLeft + "s"
+            ));
         }
 
         timeLeft--;
     }
 
     public void start() {
+        if (activeTasks.get(player) != this) return;
+
         taskId = Bukkit.getScheduler().runTaskTimer(plugin, this, 0L, 20L).getTaskId();
     }
 }
