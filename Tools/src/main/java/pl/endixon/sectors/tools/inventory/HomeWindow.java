@@ -1,6 +1,5 @@
 package pl.endixon.sectors.tools.inventory;
 
-import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -16,8 +15,8 @@ import pl.endixon.sectors.paper.util.ChatAdventureUtil;
 import pl.endixon.sectors.tools.Main;
 import pl.endixon.sectors.tools.inventory.api.WindowUI;
 import pl.endixon.sectors.tools.inventory.api.builder.StackBuilder;
-import pl.endixon.sectors.tools.service.home.Home;
-import pl.endixon.sectors.tools.service.users.PlayerProfile;
+import pl.endixon.sectors.tools.user.profile.ProfileHome;
+import pl.endixon.sectors.tools.user.profile.PlayerProfile;
 import java.util.List;
 import java.util.Map;
 
@@ -38,13 +37,13 @@ public class HomeWindow {
     }
 
     public void open() {
-        Map<String, Home> homes = profile.getHomes();
+        Map<String, ProfileHome> homes = profile.getHomes();
         WindowUI window = new WindowUI("&7Twoje Domki", 1);
         Sector currentSector = sectorsAPI.getSectorManager().getCurrentSector();
 
         for (int i = 0; i < HOME_SLOTS; i++) {
             String homeKey = "Domek #" + (i + 1);
-            Home home = homes.get(homeKey);
+            ProfileHome home = homes.get(homeKey);
             ItemStack item;
 
             if (home != null) {
@@ -89,7 +88,7 @@ public class HomeWindow {
                     }
 
                     Location loc = player.getLocation();
-                    Home newHome = new Home(
+                    ProfileHome newHome = new ProfileHome(
                             homeKey,
                             currentSector.getName(),
                             loc.getWorld().getName(),
@@ -110,7 +109,7 @@ public class HomeWindow {
         player.openInventory(window.getInventory());
     }
 
-    private List<String> buildLore(Home home) {
+    private List<String> buildLore(ProfileHome home) {
         return List.of(
                 ChatUtil.fixHexColors(""),
                 ChatUtil.fixHexColors(""),
@@ -128,7 +127,7 @@ public class HomeWindow {
     }
 
 
-    private void handleTeleport(Home home, UserRedis user) {
+    private void handleTeleport(ProfileHome home, UserRedis user) {
         if (user == null) return;
 
         Sector homeSector = sectorsAPI.getSectorManager().getSector(home.getSector());

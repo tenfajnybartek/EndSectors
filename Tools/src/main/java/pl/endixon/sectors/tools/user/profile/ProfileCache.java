@@ -1,4 +1,4 @@
-package pl.endixon.sectors.tools.service.users;
+package pl.endixon.sectors.tools.user.profile;
 
 import java.util.Map;
 import java.util.UUID;

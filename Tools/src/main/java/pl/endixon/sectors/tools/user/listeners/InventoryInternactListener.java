@@ -17,7 +17,7 @@
  *
  */
 
-package pl.endixon.sectors.tools.listeners;
+package pl.endixon.sectors.tools.user.listeners;
 
 import lombok.RequiredArgsConstructor;
 import org.bukkit.event.EventHandler;

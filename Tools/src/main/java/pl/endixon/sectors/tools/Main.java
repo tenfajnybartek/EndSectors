@@ -10,18 +10,16 @@
 
     import pl.endixon.sectors.paper.SectorsAPI;
 
-    import pl.endixon.sectors.tools.listeners.CombatListener;
+    import pl.endixon.sectors.tools.user.listeners.CombatListener;
     import pl.endixon.sectors.tools.manager.CombatManager;
     import pl.endixon.sectors.tools.command.HomeCommand;
     import pl.endixon.sectors.tools.command.RandomTPCommand;
     import pl.endixon.sectors.tools.command.SpawnCommand;
-    import pl.endixon.sectors.tools.listeners.InventoryInternactListener;
-    import pl.endixon.sectors.tools.listeners.PlayerJoinListener;
-    import pl.endixon.sectors.tools.listeners.PlayerQuitListener;
-    import pl.endixon.sectors.tools.listeners.CombatSectorListener;
+    import pl.endixon.sectors.tools.user.listeners.InventoryInternactListener;
+    import pl.endixon.sectors.tools.user.listeners.ProfileListener;
     import pl.endixon.sectors.tools.manager.MongoManager;
-    import pl.endixon.sectors.tools.service.users.PlayerProfileRepository;
-    import pl.endixon.sectors.tools.service.users.PlayerProfile;
+    import pl.endixon.sectors.tools.user.profile.PlayerProfileRepository;
+    import pl.endixon.sectors.tools.user.profile.PlayerProfile;
     import pl.endixon.sectors.tools.utils.Logger;
 
     @Getter
@@ -99,10 +97,8 @@
 
         private void registerListeners() {
             PluginManager pm = Bukkit.getPluginManager();
-            pm.registerEvents(new PlayerJoinListener(repository), this);
-            pm.registerEvents(new PlayerQuitListener(repository), this);
+            pm.registerEvents(new ProfileListener(repository), this);
             pm.registerEvents(new CombatListener(combatManager), this);
-            pm.registerEvents(new CombatSectorListener(combatManager), this);
             pm.registerEvents(new InventoryInternactListener(),this);
 
         }

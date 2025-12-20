@@ -1,4 +1,4 @@
-package pl.endixon.sectors.tools.service.users;
+package pl.endixon.sectors.tools.user.profile;
 
 import com.mongodb.client.MongoCollection;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
-import org.bukkit.GameMode;
+
 import static com.mongodb.client.model.Filters.eq;
 
 @RequiredArgsConstructor

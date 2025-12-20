@@ -1,4 +1,4 @@
-package pl.endixon.sectors.tools.service.home;
+package pl.endixon.sectors.tools.user.profile;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class Home {
+public class ProfileHome {
 
     private String name;
     private String sector;

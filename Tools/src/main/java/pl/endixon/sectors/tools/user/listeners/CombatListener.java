@@ -1,11 +1,14 @@
-package pl.endixon.sectors.tools.listeners;
+package pl.endixon.sectors.tools.user.listeners;
 
-import lombok.RequiredArgsConstructor;
+
 import net.kyori.adventure.title.Title;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -13,16 +16,22 @@ import pl.endixon.sectors.paper.SectorsAPI;
 import pl.endixon.sectors.paper.event.sector.SectorChangeEvent;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.sector.SectorManager;
+import pl.endixon.sectors.tools.Main;
 import pl.endixon.sectors.tools.manager.CombatManager;
+import pl.endixon.sectors.tools.task.CombatTask;
 import pl.endixon.sectors.tools.utils.MessagesUtil;
 
 import java.time.Duration;
 
-@RequiredArgsConstructor
-public class CombatSectorListener implements Listener {
+public class CombatListener implements Listener {
 
     private final CombatManager combatManager;
     private static final double KNOCK_BORDER_FORCE = 1.35;
+
+
+    public CombatListener(CombatManager combatManager) {
+        this.combatManager = combatManager;
+    }
 
     @EventHandler
     public void onSectorChange(SectorChangeEvent event) {
@@ -30,6 +39,21 @@ public class CombatSectorListener implements Listener {
         boolean inCombat = combatManager.isInCombat(player);
         event.setCancelled(inCombat);
     }
+
+
+    @EventHandler
+    public void onPlayerDamage(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Player victim)) return;
+        if (!(event.getDamager() instanceof Player attacker)) return;
+        if (victim.getGameMode() != GameMode.SURVIVAL && victim.getGameMode() != GameMode.ADVENTURE) return;
+        if (attacker.getGameMode() != GameMode.SURVIVAL && attacker.getGameMode() != GameMode.ADVENTURE) return;
+        if (combatManager.isInCombat(attacker)) combatManager.endCombat(attacker);
+        if (combatManager.isInCombat(victim)) combatManager.endCombat(victim);
+        this.combatManager.startCombat(attacker, victim);
+        new CombatTask(Main.getInstance(), combatManager, attacker).start();
+        new CombatTask(Main.getInstance(), combatManager, victim).start();
+    }
+
 
 
     @EventHandler
@@ -66,7 +90,6 @@ public class CombatSectorListener implements Listener {
 
         if (!combatManager.isInCombat(player)) return;
 
-
         event.setCancelled(true);
         event.setCanCreatePortal(false);
         player.teleport(event.getFrom());
@@ -97,7 +120,6 @@ public class CombatSectorListener implements Listener {
 
         if (event.getCause() != PlayerTeleportEvent.TeleportCause.ENDER_PEARL) return;
 
-
         boolean inCombat = combatManager.isInCombat(player);
         boolean onSolidBlock = to.getBlock().getType().isSolid();
 
@@ -115,6 +137,17 @@ public class CombatSectorListener implements Listener {
                     )
             ));
 
+        }
+    }
+
+
+    @EventHandler
+    public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
+        Player player = event.getPlayer();
+
+        if (combatManager.isInCombat(player)) {
+            player.sendMessage((MessagesUtil.COMBAT_NO_COMMAND.get()));
+            event.setCancelled(true);
         }
     }
 }

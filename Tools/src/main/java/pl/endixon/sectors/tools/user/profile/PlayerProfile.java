@@ -1,8 +1,7 @@
-package pl.endixon.sectors.tools.service.users;
+package pl.endixon.sectors.tools.user.profile;
 
 import lombok.*;
 import org.bson.codecs.pojo.annotations.BsonId;
-import pl.endixon.sectors.tools.service.home.Home;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +18,6 @@ public class PlayerProfile {
     private String name;
     private int kills;
     private int deaths;
-    private Map<String, Home> homes = new HashMap<>();
+    private Map<String, ProfileHome> homes = new HashMap<>();
     private long combatUntil;
 }
