@@ -4,10 +4,12 @@ package pl.endixon.sectors.tools.user.listeners;
 import net.kyori.adventure.title.Title;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
@@ -49,17 +51,40 @@ public class CombatListener implements Listener {
 
 
     @EventHandler
-    public void onPlayerDamage(EntityDamageByEntityEvent event) {
-        if (!(event.getEntity() instanceof Player victim)) return;
-        if (!(event.getDamager() instanceof Player attacker)) return;
-        if (victim.getGameMode() != GameMode.SURVIVAL && victim.getGameMode() != GameMode.ADVENTURE) return;
-        if (attacker.getGameMode() != GameMode.SURVIVAL && attacker.getGameMode() != GameMode.ADVENTURE) return;
-        if (combatManager.isInCombat(attacker)) combatManager.endCombat(attacker);
-        if (combatManager.isInCombat(victim)) combatManager.endCombat(victim);
-        this.combatManager.startCombat(attacker, victim);
-        new CombatTask(Main.getInstance(), combatManager, attacker).start();
-        new CombatTask(Main.getInstance(), combatManager, victim).start();
+    public void onPlayerDamage(EntityDamageEvent event) {
+
+        if (!(event instanceof EntityDamageByEntityEvent entityEvent)) {
+            return;
+        }
+        Player victim = (Player) entityEvent.getEntity();
+        Player attacker = (Player) entityEvent.getDamager();
+
+        if (event.getEntity().getType() != EntityType.PLAYER
+                || entityEvent.getDamager().getType() != EntityType.PLAYER) {
+            return;
+        }
+
+        processCombat(attacker, victim);
     }
+
+    private void processCombat(Player attacker, Player victim) {
+
+        if ((victim.getGameMode() != GameMode.SURVIVAL && victim.getGameMode() != GameMode.ADVENTURE)
+                || (attacker.getGameMode() != GameMode.SURVIVAL && attacker.getGameMode() != GameMode.ADVENTURE)) {
+            return;
+        }
+
+        if (combatManager.isInCombat(attacker)) {
+            combatManager.endCombat(attacker);
+        }
+
+        if (combatManager.isInCombat(victim)) {
+            combatManager.endCombat(victim);
+        }
+
+        combatManager.startCombat(attacker, victim);
+    }
+
 
 
 

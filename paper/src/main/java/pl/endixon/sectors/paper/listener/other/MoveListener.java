@@ -90,7 +90,7 @@ public class MoveListener implements Listener {
 
             if (!sector.isOnline()) {
                 player.showTitle(Title.title(
-                        ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_TITLE),
+                        ChatAdventureUtil.toComponent(Configuration.SECTOR_ERROR_TITLE),
                         ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_SUBTITLE),
                         Title.Times.times(
                                 java.time.Duration.ofMillis(500),
@@ -123,7 +123,7 @@ public class MoveListener implements Listener {
             if (System.currentTimeMillis() < userRedis.getTransferOffsetUntil() && !inTransfer) {
                 long remaining = userRedis.getTransferOffsetUntil() - System.currentTimeMillis();
                 player.showTitle(Title.title(
-                        ChatAdventureUtil.toComponent(Configuration.TITLE_SECTOR_UNAVAILABLE),
+                        ChatAdventureUtil.toComponent(Configuration.SECTOR_ERROR_TITLE),
                         ChatAdventureUtil.toComponent(Configuration.TITLE_WAIT_TIME.replace("{SECONDS}", String.valueOf(remaining / 1000 + 1))),
                         Title.Times.times(java.time.Duration.ofMillis(500),
                                 java.time.Duration.ofMillis(2000),
