@@ -73,8 +73,8 @@ public class HomeWindow {
                         .build();
             }
 
-            final int currentSlot = i;
-            window.setSlot(currentSlot, item, event -> {
+
+            window.setSlot(i, item, event -> {
                 if (home != null) {
                     if (event.isLeftClick()) {
                         handleTeleport(home, user);
