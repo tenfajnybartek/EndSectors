@@ -30,7 +30,6 @@ public class SpawnCommand implements CommandExecutor {
         UserRedis user = SectorsAPI.getInstance().getUser(player).orElse(null);
         if (user == null) {
             player.sendMessage(MessagesUtil.PLAYERDATANOT_FOUND_MESSAGE.get());
-
             return true;
         }
 
@@ -50,10 +49,25 @@ public class SpawnCommand implements CommandExecutor {
             return true;
         }
 
-        Sector spawnSector;
-        try {
-            spawnSector = SectorsAPI.getInstance().getSectorManager().getBalancedRandomSpawnSector();
-        } catch (IllegalStateException e) {
+        Sector spawnSector = SectorsAPI.getInstance().getSectorManager().getBalancedRandomSpawnSector();
+
+        if (spawnSector == null) {
+            player.sendMessage(MessagesUtil.RANDOM_SECTOR_NOTFOUND.get());
+            player.showTitle(Title.title(
+                    MessagesUtil.SPAWN_TITLE.get(),
+                    MessagesUtil.RANDOM_SECTOR_NOTFOUND.get(),
+                    Title.Times.times(
+                            Duration.ofMillis(10),
+                            Duration.ofMillis(40),
+                            Duration.ofMillis(10)
+                    )
+            ));
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
+            return true;
+        }
+
+        if (!spawnSector.isOnline()) {
+            player.sendMessage(MessagesUtil.SPAWN_OFFLINE.get());
             player.showTitle(Title.title(
                     MessagesUtil.SPAWN_TITLE.get(),
                     MessagesUtil.SPAWN_OFFLINE.get(),
@@ -63,7 +77,7 @@ public class SpawnCommand implements CommandExecutor {
                             Duration.ofMillis(10)
                     )
             ));
-
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
             return true;
         }
 
@@ -75,7 +89,6 @@ public class SpawnCommand implements CommandExecutor {
             SectorsAPI.getInstance().teleportPlayer(player, user, spawnSector, false, true);
             player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
         });
-
         return true;
     }
 }
