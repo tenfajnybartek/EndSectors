@@ -23,11 +23,12 @@ public class PlayerProfileRepository {
 
     public PlayerProfile create(UUID uuid, String name) {
         PlayerProfile profile = new PlayerProfile(
-                uuid, name, 0, 0, new HashMap<>()
+                uuid, name, 0, 0, new HashMap<>(), 0L
         );
         collection.insertOne(profile);
         return profile;
     }
+
 
     public void save(PlayerProfile profile) {
         collection.replaceOne(eq("_id", profile.getUuid()), profile);

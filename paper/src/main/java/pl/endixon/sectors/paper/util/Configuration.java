@@ -1,22 +1,3 @@
-/*
- *
- *  EndSectors  Non-Commercial License
- *  (c) 2025 Endixon
- *
- *  Permission is granted to use, copy, and
- *  modify this software **only** for personal
- *  or educational purposes.
- *
- *  Commercial use, redistribution, claiming
- *  this work as your own, or copying code
- *  without explicit permission is strictly
- *  prohibited.
- *
- *  Visit https://github.com/Endixon/EndSectors
- *  for more info.
- *
- */
-
 package pl.endixon.sectors.paper.util;
 
 import pl.endixon.sectors.common.util.ChatUtil;
@@ -24,13 +5,9 @@ import pl.endixon.sectors.common.util.ChatUtil;
 public interface Configuration {
 
 
-    String SECTOR_FULL_TITLE = ChatUtil.fixHexColors(
-            "&#ef4444Sektor pełny!"
-    );
+    String SECTOR_FULL_TITLE = ChatUtil.fixHexColors("&#ff5555Błąd");
+    String SECTOR_FULL_SUBTITLE = ChatUtil.fixHexColors("&#ef4444Sektor jest pełen graczy!");
 
-    String SECTOR_FULL_SUBTITLE = ChatUtil.fixHexColors(
-            "&#9ca3afSpróbuj połączyć się później"
-    );
 
     String BORDER_MESSAGE = ChatUtil.fixHexColors(
             "&#f5c542Zbliżasz się do granicy sektora &#4ade80{SECTOR} &#7dd3fc{DISTANCE}m"
@@ -47,39 +24,32 @@ public interface Configuration {
             "&#ef4444Nie możesz stawiać bloków przy sektorze!"
     );
 
-    String SECTOR_DISABLED_TITLE = ChatUtil.fixHexColors(
-            "&#ef4444Błąd"
-    );
+
+    String SECTOR_DISABLED_TITLE = ChatUtil.fixHexColors("&#ff5555Błąd");
     String SECTOR_DISABLED_SUBTITLE = ChatUtil.fixHexColors(
-            "&#9ca3afTen sektor jest aktualnie &#f87171wyłączony"
+            "&#ef4444Ten sektor jest aktualnie wyłączony"
     );
 
     int EXPLOSION_BORDER_DISTANCE = 15;
     int BUCKET_BORDER_DISTANCE = 15;
 
-
     String playerAlreadyConnectedMessage = ChatUtil.fixHexColors(
-            "&#f87171Jesteś aktualnie połączony z tym kanałem"
+            "&#ef4444Jesteś aktualnie połączony z tym kanałem"
     );
-
     String sectorIsOfflineMessage = ChatUtil.fixHexColors(
-            "&#fb7185Sektor z którym chcesz się połączyć jest aktualnie wyłączony!"
+            "&#ef4444Sektor z którym chcesz się połączyć jest aktualnie wyłączony!"
     );
-
     String playerDataNotFoundMessage = ChatUtil.fixHexColors(
-            "&#f59e0bWystąpił problem podczas ładowania danych"
+            "&#ef4444Profil użytkownika nie został znaleziony!"
+    );
+
+    String TITLE_SECTOR_UNAVAILABLE = ChatUtil.fixHexColors("&#ff5555Błąd");
+    String TITLE_WAIT_TIME = ChatUtil.fixHexColors(
+            "&#ef4444Musisz odczekać {SECONDS}s przed ponowną zmianą sektora"
     );
 
 
-    String TITLE_SECTOR_UNAVAILABLE = ChatUtil.fixHexColors(
-            "&#ef4444Sektor chwilowo niedostępny!"
-    );
-
-    String  TITLE_WAIT_TIME = ChatUtil.fixHexColors(
-            "&#9ca3afOdczekaj &#7dd3fc{SECONDS}s"
-    );
-
-    String  spawnSectorNotFoundMessage = ChatUtil.fixHexColors(
+    String spawnSectorNotFoundMessage = ChatUtil.fixHexColors(
             "&#ef4444Nie odnaleziono dostepnego sektora spawn"
     );
 }

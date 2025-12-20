@@ -1,17 +1,16 @@
-package pl.endixon.sectors.tools.service;
+package pl.endixon.sectors.tools.manager;
 
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import lombok.Getter;
-import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.pojo.PojoCodecProvider;
 
 import static org.bson.codecs.configuration.CodecRegistries.*;
 
 @Getter
-public class MongoService {
+public class MongoManager {
 
     private MongoClient client;
     private MongoDatabase database;

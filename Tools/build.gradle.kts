@@ -36,11 +36,14 @@ dependencies {
 
 tasks.named<ShadowJar>("shadowJar") {
     mergeServiceFiles()
+
     exclude("META-INF/**")
+
     dependencies {
         exclude(dependency("net.bytebuddy:.*"))
     }
     minimize()
+
 }
 
 tasks.build {
