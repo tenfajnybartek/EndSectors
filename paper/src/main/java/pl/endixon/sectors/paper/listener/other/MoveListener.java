@@ -1,18 +1,14 @@
 package pl.endixon.sectors.paper.listener.other;
 
 import lombok.RequiredArgsConstructor;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import pl.endixon.sectors.common.sector.SectorType;
-import pl.endixon.sectors.common.util.ChatUtil;
 import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.event.sector.SectorChangeEvent;
 import pl.endixon.sectors.paper.event.sector.SectorEnderPearlEvent;
@@ -110,7 +106,7 @@ public class MoveListener implements Listener {
 
             if (Sector.isSectorFull(sector)) {
                 player.showTitle(Title.title(
-                        ChatAdventureUtil.toComponent(Configuration.SECTOR_FULL_TITLE),
+                        ChatAdventureUtil.toComponent(Configuration.SECTOR_ERROR_TITLE),
                         ChatAdventureUtil.toComponent(Configuration.SECTOR_FULL_SUBTITLE),
                         Title.Times.times(
                                 Duration.ofMillis(500),
@@ -153,13 +149,14 @@ public class MoveListener implements Listener {
     }
 
     private void processSpawnSectorTransfer(Player player, UserRedis userRedis, Sector currentSector) {
-        Sector spawnToTeleport;
-        try {
-            spawnToTeleport = paperSector.getSectorManager().getBalancedRandomSpawnSector();
-        } catch (IllegalStateException e) {
+
+        Sector spawnToTeleport = paperSector.getSectorManager().getBalancedRandomSpawnSector();
+
+        if (spawnToTeleport == null) {
+            player.sendMessage(Configuration.spawnSectorNotFoundMessage);
             player.showTitle(Title.title(
-                    ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_TITLE),
-                    ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_SUBTITLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_ERROR_TITLE),
+                    ChatAdventureUtil.toComponent(Configuration.spawnSectorNotFoundMessage),
                     Title.Times.times(java.time.Duration.ofMillis(500),
                             java.time.Duration.ofMillis(2000),
                             java.time.Duration.ofMillis(500))
@@ -170,7 +167,7 @@ public class MoveListener implements Listener {
 
         if (!spawnToTeleport.isOnline()) {
             player.showTitle(Title.title(
-                    ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_TITLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_ERROR_TITLE),
                     ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_SUBTITLE),
                     Title.Times.times(java.time.Duration.ofMillis(500),
                             java.time.Duration.ofMillis(2000),
@@ -183,7 +180,7 @@ public class MoveListener implements Listener {
 
         if (Sector.isSectorFull(spawnToTeleport)) {
             player.showTitle(Title.title(
-                    ChatAdventureUtil.toComponent(Configuration.SECTOR_FULL_TITLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_ERROR_TITLE),
                     ChatAdventureUtil.toComponent(Configuration.SECTOR_FULL_SUBTITLE),
                     Title.Times.times(Duration.ofMillis(500),
                             Duration.ofMillis(2000),
@@ -197,7 +194,7 @@ public class MoveListener implements Listener {
         if (System.currentTimeMillis() < userRedis.getTransferOffsetUntil() && !inTransfer) {
             long remaining = userRedis.getTransferOffsetUntil() - System.currentTimeMillis();
             player.showTitle(Title.title(
-                    ChatAdventureUtil.toComponent(Configuration.TITLE_SECTOR_UNAVAILABLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_ERROR_TITLE),
                     ChatAdventureUtil.toComponent(Configuration.TITLE_WAIT_TIME.replace("{SECONDS}", String.valueOf(remaining / 1000 + 1))),
                     Title.Times.times(java.time.Duration.ofMillis(500),
                             java.time.Duration.ofMillis(2000),

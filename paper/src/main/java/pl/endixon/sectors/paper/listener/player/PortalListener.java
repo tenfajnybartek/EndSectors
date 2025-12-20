@@ -1,14 +1,12 @@
 package pl.endixon.sectors.paper.listener.player;
 
 import lombok.RequiredArgsConstructor;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerPortalEvent;
-import pl.endixon.sectors.common.util.ChatUtil;
 import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.event.sector.SectorChangeEvent;
 import pl.endixon.sectors.paper.sector.Sector;
@@ -68,7 +66,7 @@ public class PortalListener implements Listener {
 
         if (!targetSector.isOnline()) {
             player.showTitle(Title.title(
-                    ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_TITLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_ERROR_TITLE),
                     ChatAdventureUtil.toComponent(Configuration.SECTOR_DISABLED_SUBTITLE),
                     Title.Times.times(
                             Duration.ofMillis(500),
@@ -81,7 +79,7 @@ public class PortalListener implements Listener {
 
         if (Sector.isSectorFull(targetSector)) {
             player.showTitle(Title.title(
-                    ChatAdventureUtil.toComponent(Configuration.SECTOR_FULL_TITLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_ERROR_TITLE),
                     ChatAdventureUtil.toComponent(Configuration.SECTOR_FULL_SUBTITLE),
                     Title.Times.times(
                             Duration.ofMillis(500),
@@ -96,7 +94,7 @@ public class PortalListener implements Listener {
         if (System.currentTimeMillis() < userRedis.getTransferOffsetUntil() && !inTransfer) {
             long remaining = userRedis.getTransferOffsetUntil() - System.currentTimeMillis();
             player.showTitle(Title.title(
-                    ChatAdventureUtil.toComponent(Configuration.TITLE_SECTOR_UNAVAILABLE),
+                    ChatAdventureUtil.toComponent(Configuration.SECTOR_ERROR_TITLE),
                     ChatAdventureUtil.toComponent(Configuration.TITLE_WAIT_TIME.replace(
                             "{SECONDS}", String.valueOf(remaining / 1000 + 1))),
                     Title.Times.times(

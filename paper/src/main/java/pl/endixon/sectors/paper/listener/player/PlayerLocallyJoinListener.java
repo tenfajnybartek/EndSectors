@@ -78,8 +78,6 @@ public class PlayerLocallyJoinListener implements Listener {
     }
 
 
-
-
     private void sendSectorTitle(Player player, Sector sector) {
         player.showTitle(Title.title(
                 ChatAdventureUtil.toComponent(""),
@@ -92,7 +90,6 @@ public class PlayerLocallyJoinListener implements Listener {
                         Duration.ofMillis(500)
                 )
         ));
-
 }
 }
 
