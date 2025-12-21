@@ -37,6 +37,7 @@ public class ChatAdventureUtil {
         this(Pattern.compile("&#([A-Fa-f0-9]{6})"));
     }
 
+
     public Component toComponent(String message) {
         if (message == null || message.isEmpty())
             return Component.empty();

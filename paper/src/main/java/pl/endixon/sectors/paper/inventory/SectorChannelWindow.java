@@ -1,6 +1,6 @@
 /*
  *
- *  EndSectors  Non-Commercial License
+ *  EndSectors – Non-Commercial License
  *  (c) 2025 Endixon
  *
  *  Permission is granted to use, copy, and
@@ -21,6 +21,7 @@ package pl.endixon.sectors.paper.inventory;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -52,7 +53,11 @@ public class SectorChannelWindow {
             Sector sector = spawnSectors.get(slot);
 
             ItemStack head = HeadFactory.pickOnlineOfflineHead(sector.isOnline());
-            ItemStack item = new StackBuilder(head).name("&7Sektor &a" + sector.getName()).lores(buildLore(sector, manager)).build();
+
+            ItemStack item = new StackBuilder(head)
+                    .name("&7Sektor &a" + sector.getName())
+                    .lores(buildLore(sector, manager))
+                    .build();
 
             final int currentSlot = slot;
             window.setSlot(currentSlot, item, event -> handleClick(sector, manager, userData, teleportService));
@@ -62,17 +67,24 @@ public class SectorChannelWindow {
     private List<String> buildLore(Sector sector, SectorManager manager) {
         List<String> lore = new ArrayList<>();
         lore.add("");
+
         if (sector.isOnline()) {
-            lore.add(ChatUtil.fixHexColors("&#9ca3afOnline: &#4ade80%d".formatted(sector.getPlayerCount())));
-            lore.add(ChatUtil.fixHexColors("&#9ca3afTPS: %s".formatted(sector.getTPSColored())));
-            lore.add(ChatUtil.fixHexColors("&#9ca3afOstatnia aktualizacja: &#4ade80%.1fs".formatted(sector.getLastInfoPacket())));
+            lore.add(ChatUtil.fixHexColors("&#9ca3afOnline: &#4ade80" + sector.getPlayerCount()));
+            lore.add(ChatUtil.fixHexColors("&#9ca3afTPS: " + sector.getTPSColored()));
+            lore.add(ChatUtil.fixHexColors("&#9ca3afOstatnia aktualizacja: &#4ade80" + String.format("%.1fs", sector.getLastInfoPacket())));
         } else {
             lore.add(ChatUtil.fixHexColors("&#ef4444Sektor jest offline"));
         }
-        lore.add("");
-        lore.add(ChatUtil.fixHexColors(manager.getCurrentSector().getName().equals(sector.getName()) ? "&#facc15Znajdujesz się na tym kanale" : "&#facc15Kliknij, aby połączyć się z kanałem"));
+
+        lore.add(ChatUtil.fixHexColors(""));
+        lore.add(ChatUtil.fixHexColors(manager.getCurrentSector().getName().equals(sector.getName())
+                ? "&#facc15Znajdujesz się na tym kanale"
+                : "&#facc15Kliknij, aby połączyć się z kanałem"
+        ));
+
         return lore;
     }
+
 
     private void handleClick(Sector sector, SectorManager manager, UserProfile userData, SectorTeleport teleportService) {
         if (manager.getCurrentSector().getName().equals(sector.getName())) {
@@ -86,7 +98,9 @@ public class SectorChannelWindow {
         }
 
         if (userData == null) {
-            player.kick(Component.text(ChatUtil.fixColors(ConfigurationUtil.playerDataNotFoundMessage)));
+            player.kick(Component.text(
+                    ChatUtil.fixColors(ConfigurationUtil.playerDataNotFoundMessage)
+            ));
             return;
         }
 

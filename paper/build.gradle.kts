@@ -32,6 +32,7 @@ dependencies {
     implementation("org.mongodb:mongo-java-driver:3.12.14")
     compileOnly("com.mojang:authlib:1.5.21")
     compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
+    implementation("fr.mrmicky:fastboard:2.1.5")
 
 }
 
@@ -39,9 +40,15 @@ tasks.named<ShadowJar>("shadowJar") {
     mergeServiceFiles()
     exclude("META-INF/**")
 
+
+    relocate("fr.mrmicky.fastboard", "pl.endixon.sectors.shadow.fastboard") {
+        include("fr.mrmicky.fastboard.**")
+    }
+
     relocate("io.netty", "pl.endixon.sectors.shadow.netty") {
         include("io.netty.**")
     }
+
 
     dependencies {
         exclude(dependency("net.bytebuddy:.*"))

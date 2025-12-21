@@ -31,7 +31,6 @@ import pl.endixon.sectors.paper.inventory.api.builder.StackBuilder;
 import pl.endixon.sectors.paper.manager.SectorManager;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.util.HeadFactory;
-import pl.endixon.sectors.paper.util.TpsUtil;
 
 public class SectorShowWindow {
 
@@ -73,12 +72,26 @@ public class SectorShowWindow {
     private List<String> buildLore(Sector s) {
         List<String> lore = new ArrayList<>();
         lore.add("");
-        lore.add(ChatUtil.fixHexColors("&#9ca3afStatus: %s".formatted(s.isOnline() ? "&#4ade80Online" : "&#ef4444Offline")));
-        lore.add(ChatUtil.fixHexColors("&#9ca3afTPS: &#f59e0b%.1f".formatted(s.isOnline() ? TpsUtil.getTPS() : 0.0)));
-        lore.add(ChatUtil.fixHexColors("&#9ca3afOnline: &#7dd3fc%d/%d".formatted(s.getPlayerCount(), s.getMaxPlayers())));
-        int percentFull = s.getMaxPlayers() > 0 ? (int) ((double) s.getPlayerCount() / s.getMaxPlayers() * 100) : 0;
-        lore.add(ChatUtil.fixHexColors("&#9ca3afZapełnienie: &#fbbf24%d%%".formatted(percentFull)));
-        lore.add(ChatUtil.fixHexColors("&#9ca3afOstatnia aktualizacja: &#a78bfa%.1fs".formatted(s.getLastInfoPacket())));
+
+        lore.add(ChatUtil.fixHexColors("&#9ca3afStatus: " + (s.isOnline() ? "&#4ade80Online" : "&#ef4444Offline")
+        ));
+
+        lore.add(ChatUtil.fixHexColors("&#9ca3afTPS: " + s.getTPSColored()
+        ));
+
+        lore.add(ChatUtil.fixHexColors("&#9ca3afOnline: &#7dd3fc%d/%d".formatted(s.getPlayerCount(), s.getMaxPlayers())
+        ));
+
+        int percentFull = s.getMaxPlayers() > 0
+                ? (int) ((double) s.getPlayerCount() / s.getMaxPlayers() * 100)
+                : 0;
+
+        lore.add(ChatUtil.fixHexColors("&#9ca3afZapełnienie: &#fbbf24%d%%".formatted(percentFull)
+        ));
+
+        lore.add(ChatUtil.fixHexColors("&#9ca3afOstatnia aktualizacja: &#a78bfa%.1fs".formatted(s.getLastInfoPacket())
+        ));
+
         return lore;
     }
 

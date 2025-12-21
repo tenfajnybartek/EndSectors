@@ -94,18 +94,18 @@ public class Sector {
         return sector.getPlayerCount() >= sector.getMaxPlayers();
     }
 
-    public Component getTPSColored() {
+    public String getTPSColored() {
         double currentTps = getTPS();
-        String colorHex = "#FF0000";
-
-        if (currentTps >= 19.0)
-            colorHex = "#00FF00";
-        else if (currentTps >= 16.0)
-            colorHex = "#FFFF00";
+        String colorHex = "&#FF0000";
+        if (currentTps >= 19.0) colorHex = "&#00FF00";
+        else if (currentTps >= 16.0) colorHex = "&#FFFF00";
 
         String tpsFormatted = String.format("%.2f", Math.min(currentTps, 20.0));
-        return CHAT.toComponent(colorHex + tpsFormatted);
+
+        return colorHex + tpsFormatted;
     }
+
+
 
     public void setTPS(float tps) {
         this.tps = tps;
@@ -165,12 +165,32 @@ public class Sector {
         return null;
     }
 
+
     public void knockBorder(Player player, double power) {
-        Location center = new Location(player.getWorld(), this.getCenter().getPosX(), player.getLocation().getY(), this.getCenter().getPosZ());
+        Location loc = player.getLocation();
+        Corner c1 = getFirstCorner();
+        Corner c2 = getSecondCorner();
 
-        Vector direction = new Vector(player.getLocation().getX() - center.getX(), 0, player.getLocation().getZ() - center.getZ()).normalize();
 
-        player.setVelocity(direction.multiply(power));
+        double minX = Math.min(c1.getPosX(), c2.getPosX());
+        double maxX = Math.max(c1.getPosX(), c2.getPosX());
+        double minZ = Math.min(c1.getPosZ(), c2.getPosZ());
+        double maxZ = Math.max(c1.getPosZ(), c2.getPosZ());
+        double distMinX = loc.getX() - minX;
+        double distMaxX = maxX - loc.getX();
+        double distMinZ = loc.getZ() - minZ;
+        double distMaxZ = maxZ - loc.getZ();
+
+
+        double minDist = Math.min(Math.min(distMinX, distMaxX), Math.min(distMinZ, distMaxZ));
+        Vector direction = new Vector(0, 0, 0);
+
+        if (minDist == distMinX) direction.setX(1);
+        else if (minDist == distMaxX) direction.setX(-1);
+        else if (minDist == distMinZ) direction.setZ(1);
+        else if (minDist == distMaxZ) direction.setZ(-1);
+        player.setVelocity(direction.normalize().multiply(power));
     }
+
 
 }

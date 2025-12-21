@@ -206,19 +206,25 @@ public class PlayerSectorInteractListener implements Listener {
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
-        Player player = (Player) event.getEntity();
-        Sector current = PaperSector.getSectorManager().getCurrentSector();
 
-        if (!(event.getEntity() instanceof Player)) {
+        if (!(event.getEntity() instanceof Player player)) {
             return;
         }
+
+        Sector current = PaperSector.getSectorManager().getCurrentSector();
+        if (current == null) {
+            return;
+        }
+
 
         if (current.getType() == SectorType.QUEUE) {
             event.setCancelled(true);
             return;
         }
+
         cancelIfRedirecting(player, event);
     }
+
 
     @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent event) {

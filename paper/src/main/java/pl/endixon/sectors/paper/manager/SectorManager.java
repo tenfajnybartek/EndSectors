@@ -36,6 +36,7 @@ import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.user.profile.UserProfile;
+import pl.endixon.sectors.paper.user.profile.UserProfileCache;
 import pl.endixon.sectors.paper.util.LoggerUtil;
 
 @RequiredArgsConstructor
@@ -127,11 +128,7 @@ public class SectorManager {
 
         Location loc = new Location(world, x, y, z);
 
-        user.setX(x);
-        user.setY(y);
-        user.setZ(z);
-        user.setYaw(loc.getYaw());
-        user.setPitch(loc.getPitch());
+        user.setLocationAndSave(loc);
 
         if (randomSector.getName().equals(user.getSectorName())) {
             player.teleport(loc);

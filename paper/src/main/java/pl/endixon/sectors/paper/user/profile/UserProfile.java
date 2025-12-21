@@ -175,6 +175,17 @@ public class UserProfile {
         UserProfileCache.save(this);
     }
 
+
+
+    public void setLocationAndSave(Location loc) {
+        this.x = loc.getX();
+        this.y = loc.getY();
+        this.z = loc.getZ();
+        this.yaw = loc.getYaw();
+        this.pitch = loc.getPitch();
+        UserProfileCache.save(this);
+    }
+
     public Player getPlayer() {
         return Bukkit.getPlayer(name);
     }

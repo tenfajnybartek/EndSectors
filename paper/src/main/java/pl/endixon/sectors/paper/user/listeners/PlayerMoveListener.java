@@ -70,7 +70,7 @@ public class PlayerMoveListener implements Listener {
 
         Sector targetSector = sectorManager.getSector(event.getTo());
         if (targetSector == null) {
-            LoggerUtil.info(() -> "Target sector not found for player: " + player.getName() + " at location: " + event.getTo());
+
             return;
         }
 
@@ -106,7 +106,6 @@ public class PlayerMoveListener implements Listener {
 
         Sector targetSector = sectorManager.getSector(event.getTo());
         if (targetSector == null) {
-            LoggerUtil.info(() -> "Target sector not found for player: " + player.getName() + " at location: " + event.getTo());
             return;
         }
 
