@@ -39,14 +39,7 @@ public class PacketSectorInfoPacketListener implements PacketListener<PacketSect
             sector.setPlayerCount(packet.getPlayerCount());
             sector.setMaxPlayers(packet.getMaxPlayers());
             sector.setOnline(packet.isStatus());
-            LoggerUtil.info(String.format(
-                    "[Heartbeat] Sektor: %s | TPS: %.2f | Gracze: %d/%d | Status: %b",
-                    packet.getSector(),
-                    packet.getTps(),
-                    packet.getPlayerCount(),
-                    packet.getMaxPlayers(),
-                    packet.isStatus()
-            ));
+
         }
     }
 }

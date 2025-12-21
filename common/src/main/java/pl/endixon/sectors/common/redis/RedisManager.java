@@ -26,32 +26,69 @@ public class RedisManager {
     private final Set<String> onlinePlayers = Collections.synchronizedSet(new HashSet<>());
 
     public void initialize(String host, int port, String password) {
+        try {
+            RedisURI uri = RedisURI.builder()
+                    .withHost(host)
+                    .withPort(port)
+                    .withPassword(CharBuffer.wrap(password))
+                    .build();
 
-        RedisURI uri = RedisURI.builder().withHost(host).withPort(port).withPassword(CharBuffer.wrap(password)).build();
+            DefaultClientResources resources = DefaultClientResources.builder()
+                    .ioThreadPoolSize(4)
+                    .build();
 
-        DefaultClientResources resources = DefaultClientResources.builder().ioThreadPoolSize(4).build();
-        redisClient = RedisClient.create(resources, uri);
+            redisClient = RedisClient.create(resources, uri);
 
-        ClientOptions options = ClientOptions.builder().autoReconnect(true).publishOnScheduler(true).build();
-        redisClient.setOptions(options);
-        publishCommands = redisClient.connect().async();
-        pubSubConnection = redisClient.connectPubSub();
+            ClientOptions options = ClientOptions.builder()
+                    .autoReconnect(true)
+                    .publishOnScheduler(true)
+                    .build();
+            redisClient.setOptions(options);
+
+            publishCommands = redisClient.connect().async();
+
+            pubSubConnection = redisClient.connectPubSub();
+
+        } catch (Exception e) {
+            Logger.info("Błąd inicjalizacji Redis lub PubSub: " + e.getMessage());
+            e.printStackTrace();
+            redisClient = null;
+            publishCommands = null;
+            pubSubConnection = null;
+        }
     }
+
+
 
     public <T extends Serializable> void subscribe(String channel, PacketListener<T> listener, Class<T> type) {
-        RedisPubSubCommands<String, String> sync = pubSubConnection.sync();
-        sync.subscribe(channel);
-
-        pubSubConnection.addListener(new RedisPubSubAdapter<>() {
-            @Override
-            public void message(String ch, String msg) {
-                if (ch.equals(channel)) {
-                    T packet = gson.fromJson(msg, type);
-                    listener.handle(packet);
+        try {
+            pubSubConnection.addListener(new RedisPubSubAdapter<>() {
+                @Override
+                public void message(String ch, String msg) {
+                    if (ch.equals(channel)) {
+                        try {
+                            T packet = gson.fromJson(msg, type);
+                            listener.handle(packet);
+                        } catch (Exception e) {
+                            Logger.info("Błąd w PubSub listenerze: " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
                 }
-            }
-        });
+            });
+
+            pubSubConnection.async().subscribe(channel).exceptionally(ex -> {
+                Logger.info("Nie udało się zasubskrybować kanału Redis: " + ex.getMessage());
+                ex.printStackTrace();
+                return null;
+            });
+
+        } catch (Exception e) {
+            Logger.info("Błąd podczas subskrypcji Redis: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
+
 
     public void publish(String channel, Packet packet) {
         String json = gson.toJson(packet);
@@ -109,18 +146,6 @@ public class RedisManager {
         }
     }
 
-    public void del(String key) {
-        publishCommands.del(key);
-    }
-
-    public boolean exists(String key) {
-        try {
-            return publishCommands.exists(key).get() > 0;
-        } catch (Exception e) {
-            Logger.info("Redis exists failed: " + key, e);
-            return false;
-        }
-    }
 
     public void shutdown() {
         if (pubSubConnection != null)

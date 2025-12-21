@@ -1,5 +1,6 @@
 package pl.endixon.sectors.proxy.redis.listener;
 
+import com.velocitypowered.api.proxy.Player;
 import pl.endixon.sectors.common.cache.UserFlagCache;
 import pl.endixon.sectors.common.packet.PacketListener;
 import pl.endixon.sectors.common.packet.object.PacketUserCheck;
@@ -34,6 +35,9 @@ public class PacketUserCheckProxyListener implements PacketListener<PacketUserCh
     private void addPlayerToQueue(String username, String sector) {
         QueueManager queueManager = VelocitySectorPlugin.getInstance().getQueueManager();
         Queue queue = queueManager.getMap().computeIfAbsent(sector, Queue::new);
-        VelocitySectorPlugin.getInstance().getServer().getPlayer(username).ifPresentOrElse(queue::addPlayer, () -> Logger.info("Gracz " + username + " nie znaleziony na serwerze!"));
+        VelocitySectorPlugin.getInstance().getServer()
+                .getPlayer(username)
+                .map(Player::getUniqueId)
+                .ifPresent(queue::addPlayer);
     }
 }

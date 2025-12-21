@@ -172,17 +172,23 @@ public class SectorManager {
                 }))
                 .toList();
 
+        LoggerUtil.info(String.format("All spawns: %d | Healthy spawns: %d", allSpawns.size(), healthySpawns.size()));
+
         if (healthySpawns.isEmpty()) {
-            LoggerUtil.info(String.format("Błąd balansu! Wszystkie spawny (%d) są offline lub lagują!", allSpawns.size()));
+            LoggerUtil.info(String.format("Balance error! All spawns (%d) are either offline or lagging!", allSpawns.size()));
             return null;
         }
 
-        int poolSize = Math.max(1, Math.min(5, (int) Math.ceil(healthySpawns.size() * 0.3)));
+        int poolSize = Math.max(1, (int) Math.ceil(healthySpawns.size() * 0.3));
 
-        if (ThreadLocalRandom.current().nextInt(100) < 5) {
-            LoggerUtil.info(String.format("Balans Spawnów: Online: %d/%d | Losowanie z top: %d", healthySpawns.size(), allSpawns.size(), poolSize));
-        }
-        return healthySpawns.get(ThreadLocalRandom.current().nextInt(poolSize));
+        LoggerUtil.info(String.format("Spawn balance: Online: %d/%d | Random selection from top %d%% (~%d spawns)", healthySpawns.size(), allSpawns.size(), 30, poolSize));
+
+        int chosenIndex = ThreadLocalRandom.current().nextInt(poolSize);
+        Sector chosen = healthySpawns.get(chosenIndex);
+
+        LoggerUtil.info(String.format("Chosen spawn: %s | Players: %d/%d | TPS: %.2f", chosen.getName(), chosen.getPlayerCount(), chosen.getMaxPlayers(), chosen.getTPS()));
+
+        return chosen;
     }
 
     public Sector getCurrentSector() {
