@@ -93,69 +93,157 @@ public class SectorManager {
     }
 
     public Sector getRandomSector() {
-        List<Sector> candidates = sectors.values().stream()
-                .filter(Sector::isOnline)
-                .filter(s -> s.getType() != SectorType.NETHER)
-                .filter(s -> s.getType() != SectorType.END)
-                .filter(s -> s.getType() != SectorType.QUEUE)
-                .filter(s -> s.getType() != SectorType.SPAWN)
-                .toList();
+
+        List<Sector> candidates = new ArrayList<>(
+                sectors.values().stream()
+                        .filter(Sector::isOnline)
+                        .filter(s -> s.getType() != SectorType.SPAWN)
+                        .filter(s -> s.getType() != SectorType.QUEUE)
+                        .filter(s -> s.getType() != SectorType.NETHER)
+                        .filter(s -> s.getType() != SectorType.END)
+                        .filter(s -> !Sector.isSectorFull(s))
+                        .toList()
+        );
 
         if (candidates.isEmpty()) {
-            throw new IllegalStateException("Brak dostępnych sektorów do losowania!");
+            throw new IllegalStateException("Brak dostępnych NIEPEŁNYCH sektorów do RTP");
         }
 
-        return candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
+        Collections.shuffle(candidates);
+
+        candidates.sort(Comparator.comparingDouble(s -> {
+            double occupancy = (double) s.getPlayerCount() / Math.max(s.getMaxPlayers(), 1);
+            return occupancy / Math.max(s.getTPS(), 1.0);
+        }));
+
+        LoggerUtil.info(String.format(
+                "[RTP] Candidates: %d",
+                candidates.size()
+        ));
+
+        for (Sector s : candidates) {
+            LoggerUtil.info(String.format(
+                    "[RTP] Candidate -> %s | Players: %d/%d | TPS: %.2f",
+                    s.getName(),
+                    s.getPlayerCount(),
+                    s.getMaxPlayers(),
+                    s.getTPS()
+            ));
+        }
+
+        int poolSize = Math.max(1, (int) Math.ceil(candidates.size() * 0.5));
+
+        LoggerUtil.info(String.format(
+                "[RTP] Pool size: %d (top 50%%)",
+                poolSize
+        ));
+
+        int index = ThreadLocalRandom.current().nextInt(poolSize);
+        Sector chosen = candidates.get(index);
+
+        LoggerUtil.info(String.format(
+                "[RTP] Chosen sector: %s | Players: %d/%d | TPS: %.2f | Index: %d/%d",
+                chosen.getName(),
+                chosen.getPlayerCount(),
+                chosen.getMaxPlayers(),
+                chosen.getTPS(),
+                index,
+                poolSize
+        ));
+
+        return chosen;
     }
+
 
 
     public Location randomLocation(@NonNull Player player, @NonNull UserProfile user) {
-        Sector randomSector = getRandomSector();
 
-        World world = Bukkit.getWorld(randomSector.getWorldName());
+        Sector sector = getRandomSector();
+
+        World world = Bukkit.getWorld(sector.getWorldName());
         if (world == null) {
-            throw new IllegalStateException("World not loaded for sector " + randomSector.getName());
+            throw new IllegalStateException("World not loaded for sector " + sector.getName());
         }
 
-        double safeMargin = 20.0;
-        double minX = Math.min(randomSector.getFirstCorner().getPosX(), randomSector.getSecondCorner().getPosX()) + safeMargin;
-        double maxX = Math.max(randomSector.getFirstCorner().getPosX(), randomSector.getSecondCorner().getPosX()) - safeMargin;
-        double minZ = Math.min(randomSector.getFirstCorner().getPosZ(), randomSector.getSecondCorner().getPosZ()) + safeMargin;
-        double maxZ = Math.max(randomSector.getFirstCorner().getPosZ(), randomSector.getSecondCorner().getPosZ()) - safeMargin;
-        double x = minX + ThreadLocalRandom.current().nextDouble(maxX - minX);
-        double z = minZ + ThreadLocalRandom.current().nextDouble(maxZ - minZ);
-        int y = findSafeY(world, (int) x, (int) z);
 
-        Location loc = new Location(world, x, y, z);
+        int margin = 30;
+
+        int minX = Math.min(sector.getFirstCorner().getPosX(), sector.getSecondCorner().getPosX()) + margin;
+        int maxX = Math.max(sector.getFirstCorner().getPosX(), sector.getSecondCorner().getPosX()) - margin;
+        int minZ = Math.min(sector.getFirstCorner().getPosZ(), sector.getSecondCorner().getPosZ()) + margin;
+        int maxZ = Math.max(sector.getFirstCorner().getPosZ(), sector.getSecondCorner().getPosZ()) - margin;
+
+        if (minX >= maxX || minZ >= maxZ) {
+            throw new IllegalStateException("Sektor " + sector.getName() + " jest za mały na RTP");
+        }
+
+        Location loc = null;
+
+        for (int i = 0; i < 10; i++) {
+            int x = ThreadLocalRandom.current().nextInt(minX, maxX);
+            int z = ThreadLocalRandom.current().nextInt(minZ, maxZ);
+            int y = findSafeY(world, x, z);
+
+            Location test = new Location(world, x + 0.5, y, z + 0.5);
+
+            if (sector.isInSector(test)) {
+                loc = test;
+                break;
+            }
+        }
+
+        if (loc == null) {
+            throw new IllegalStateException("Nie udało się znaleźć bezpiecznej lokalizacji RTP w sektorze " + sector.getName());
+        }
 
         user.setLocationAndSave(loc);
 
-        if (randomSector.getName().equals(user.getSectorName())) {
+        if (sector.getName().equals(user.getSectorName())) {
             player.teleport(loc);
-            user.updateAndSave(player, randomSector);
+            user.updateAndSave(player, sector);
         } else {
-            paperSector.getSectorTeleport().teleportToSector(player, user, randomSector, false, true);
+            paperSector.getSectorTeleport().teleportToSector(player, user, sector, false, true);
         }
+
         return loc;
     }
 
+
     private int findSafeY(World world, int x, int z) {
-        int maxHeight = world.getMaxHeight() - 2;
-        for (int y = maxHeight; y > 0; y--) {
-            Block block = world.getBlockAt(x, y, z);
+
+        int surfaceY = world.getHighestBlockYAt(x, z);
+
+        if (surfaceY <= world.getMinHeight()) {
+            return surfaceY + 1;
+        }
+
+        for (int y = surfaceY; y > surfaceY - 10 && y > world.getMinHeight(); y--) {
+
+            Block base = world.getBlockAt(x, y, z);
             Block above = world.getBlockAt(x, y + 1, z);
             Block above2 = world.getBlockAt(x, y + 2, z);
-            if (isSafeBase(block) && above.isEmpty() && above2.isEmpty()) {
-                return y + 1;
+
+            if (!isSafeBase(base)) {
+                continue;
             }
+
+            if (!above.isPassable() || !above2.isPassable()) {
+                continue;
+            }
+
+            return y + 1;
         }
-        return world.getHighestBlockYAt(x, z) + 1;
+        return surfaceY + 1;
     }
 
     private boolean isSafeBase(Block block) {
-        Material type = block.getType();
-        return type == Material.GRASS_BLOCK || type == Material.DIRT || type == Material.SAND;
+        return block.getType().isSolid()
+                && block.getType() != Material.LAVA
+                && block.getType() != Material.WATER
+                && block.getType() != Material.CACTUS
+                && block.getType() != Material.MAGMA_BLOCK;
     }
+
 
     public Sector getBalancedRandomSpawnSector() {
 
