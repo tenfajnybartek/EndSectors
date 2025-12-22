@@ -163,33 +163,56 @@ public class SectorManager {
                 .filter(s -> s.getType() == SectorType.SPAWN)
                 .toList();
 
-        List<Sector> healthySpawns = allSpawns.stream()
-                .filter(Sector::isOnline)
-                .filter(s -> s.getTPS() > 15.0)
-                .sorted(Comparator.comparingDouble(s -> {
-                    double occupancy = (double) s.getPlayerCount() / Math.max(s.getMaxPlayers(), 1);
-                    return occupancy / s.getTPS();
-                }))
-                .toList();
+        List<Sector> healthySpawns = new ArrayList<>(
+                allSpawns.stream()
+                        .filter(Sector::isOnline)
+                        .filter(s -> s.getTPS() > 15.0)
+                        .toList()
+        );
 
-        LoggerUtil.info(String.format("All spawns: %d | Healthy spawns: %d", allSpawns.size(), healthySpawns.size()));
+        LoggerUtil.info(String.format(
+                "All spawns: %d | Healthy spawns: %d",
+                allSpawns.size(), healthySpawns.size()
+        ));
 
         if (healthySpawns.isEmpty()) {
-            LoggerUtil.info(String.format("Balance error! All spawns (%d) are either offline or lagging!", allSpawns.size()));
+            LoggerUtil.info(String.format(
+                    "Balance error! All spawns (%d) are either offline or lagging!",
+                    allSpawns.size()
+            ));
             return null;
         }
 
+
+        Collections.shuffle(healthySpawns);
+
+        healthySpawns.sort(Comparator.comparingDouble(s -> {
+            double occupancy = (double) s.getPlayerCount() / Math.max(s.getMaxPlayers(), 1);
+            return occupancy / s.getTPS();
+        }));
+
         int poolSize = Math.max(1, (int) Math.ceil(healthySpawns.size() * 0.3));
 
-        LoggerUtil.info(String.format("Spawn balance: Online: %d/%d | Random selection from top %d%% (~%d spawns)", healthySpawns.size(), allSpawns.size(), 30, poolSize));
+        LoggerUtil.info(String.format(
+                "Spawn balance: Online: %d/%d | Random selection from top %d%% (~%d spawns)",
+                healthySpawns.size(), allSpawns.size(), 30, poolSize
+        ));
 
-        int chosenIndex = ThreadLocalRandom.current().nextInt(poolSize);
-        Sector chosen = healthySpawns.get(chosenIndex);
+        Sector chosen = healthySpawns.get(
+                ThreadLocalRandom.current().nextInt(poolSize)
+        );
 
-        LoggerUtil.info(String.format("Chosen spawn: %s | Players: %d/%d | TPS: %.2f", chosen.getName(), chosen.getPlayerCount(), chosen.getMaxPlayers(), chosen.getTPS()));
+        LoggerUtil.info(String.format(
+                "Chosen spawn: %s | Players: %d/%d | TPS: %.2f",
+                chosen.getName(),
+                chosen.getPlayerCount(),
+                chosen.getMaxPlayers(),
+                chosen.getTPS()
+        ));
 
         return chosen;
     }
+
 
     public Sector getCurrentSector() {
         return this.getSector(currentSectorName);
