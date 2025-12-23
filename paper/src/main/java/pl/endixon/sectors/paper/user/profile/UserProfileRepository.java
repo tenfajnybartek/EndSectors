@@ -30,15 +30,13 @@ public class UserProfileRepository {
         return UserProfileCache.load(player.getName().toLowerCase()).map(UserProfile::new);
     }
 
+    public static Optional<UserProfile> getUser(@NonNull String player) {
+        return UserProfileCache.load(player.toLowerCase()).map(UserProfile::new);
+    }
+
     public static CompletableFuture<Optional<UserProfile>> getUserAsync(@NonNull String name) {
         return CompletableFuture.supplyAsync(() -> UserProfileCache.load(name.toLowerCase()).map(UserProfile::new));
     }
 
-    public static CompletableFuture<UserProfile> getOrCreateAsync(@NonNull String name) {
-        return getUserAsync(name).thenApply(optional -> optional.orElseGet(() -> new UserProfile(name)));
-    }
 
-    public static CompletableFuture<UserProfile> getOrCreateAsync(@NonNull Player player) {
-        return getUserAsync(player.getName()).thenApply(optional -> optional.orElseGet(() -> new UserProfile(player)));
-    }
 }

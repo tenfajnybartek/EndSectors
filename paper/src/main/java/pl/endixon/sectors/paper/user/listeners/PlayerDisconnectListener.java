@@ -40,6 +40,8 @@ public class PlayerDisconnectListener implements Listener {
         event.leaveMessage(Component.empty());
 
         UserProfile user = UserProfileRepository.getUser(player).orElse(null);
+
+
         if (user == null) {
             LoggerUtil.info(() -> "[Kick] UserProfile not found for player: " + player.getName());
             return;
@@ -64,8 +66,14 @@ public class PlayerDisconnectListener implements Listener {
     public void onQuitPlayer(final PlayerQuitEvent event) {
         Player player = event.getPlayer();
         event.quitMessage(null);
-
+        Sector currentSector = PaperSector.getInstance().getSectorManager().getCurrentSector();
         UserProfile user = UserProfileRepository.getUser(player).orElse(null);
+
+
+        if (currentSector == null || currentSector.getType() == SectorType.QUEUE) {
+            return;
+        }
+
         if (user == null) {
             LoggerUtil.info(() -> "[Quit] UserProfile not found for player: " + player.getName());
             return;
@@ -77,7 +85,7 @@ public class PlayerDisconnectListener implements Listener {
             return;
         }
 
-        Sector currentSector = PaperSector.getInstance().getSectorManager().getCurrentSector();
+
         LoggerUtil.info(() -> String.format("[Quit] Saving player %s data for sector %s.", player.getName(), currentSector != null ? currentSector.getName() : "null"));
         user.updateAndSave(player, currentSector,false);
     }

@@ -7,18 +7,17 @@ import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.user.profile.UserProfile;
 import pl.endixon.sectors.paper.user.profile.UserProfileRepository;
 
+import java.util.Optional;
+
 public class PacketUserCheckListener implements PacketListener<PacketUserCheck> {
 
     @Override
     public void handle(PacketUserCheck packet) {
         String username = packet.getUsername().toLowerCase();
-
-        UserProfileRepository.getUserAsync(username).thenAccept(optionalUser -> {
-            boolean exists = optionalUser.isPresent();
-            String sector = optionalUser.map(UserProfile::getSectorName).orElse(null);
-
-            PacketUserCheck response = new PacketUserCheck(username, exists, sector);
-            PaperSector.getInstance().getRedisManager().publish(PacketChannel.USER_CHECK_RESPONSE, response);
-        });
+        Optional<UserProfile> user = UserProfileRepository.getUser(username);
+        boolean exists = user.isPresent();
+        String sector = user.map(UserProfile::getSectorName).orElse(null);
+        PacketUserCheck response = new PacketUserCheck(username, exists, sector);
+        PaperSector.getInstance().getRedisManager().publish(PacketChannel.USER_CHECK_RESPONSE, response);
     }
 }

@@ -47,6 +47,7 @@ import pl.endixon.sectors.proxy.manager.TeleportationManager;
 import pl.endixon.sectors.proxy.queue.QueueManager;
 import pl.endixon.sectors.proxy.queue.runnable.QueueRunnable;
 import pl.endixon.sectors.proxy.redis.listener.*;
+import pl.endixon.sectors.proxy.user.RedisUserService;
 import pl.endixon.sectors.proxy.util.Logger;
 
 @Plugin(id = "endsectors-proxy", name = "EndSectorsProxy", version = "1.0")
@@ -59,6 +60,7 @@ public class VelocitySectorPlugin {
     private final ProxyServer server;
     private final Path dataDirectory;
     private SectorManager sectorManager;
+    private RedisUserService redisUserService;
 
     public final RedisManager redisManager = new RedisManager();
     private QueueManager QueueManager;
@@ -74,6 +76,10 @@ public class VelocitySectorPlugin {
         return redisManager;
     }
 
+    public RedisUserService getRedisUserService() {
+        return redisUserService;
+    }
+
     @Subscribe
     public void onProxyInitialize(com.velocitypowered.api.event.proxy.ProxyInitializeEvent event) {
         instance = this;
@@ -81,6 +87,7 @@ public class VelocitySectorPlugin {
         System.setProperty("io.netty.transport.noNative", "true");
         this.sectorManager = new SectorManager();
         this.teleportationManager = new TeleportationManager();
+        this.redisUserService = new RedisUserService(this);
         this.QueueManager = new QueueManager();
         this.loadSectors();
         this.initRedisManager();
@@ -201,4 +208,5 @@ public class VelocitySectorPlugin {
     public ProxyServer getServerInstance() {
         return server;
     }
+
 }

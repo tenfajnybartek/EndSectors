@@ -1,42 +1,36 @@
 package pl.endixon.sectors.proxy.queue;
 
+import com.velocitypowered.api.proxy.Player;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.Getter;
+import lombok.Setter;
 
+@Getter
 public class Queue {
 
-    @Getter
+    @Setter
     private String sector;
-    private final List<UUID> players;
+    private final List<Player> players;
 
-    public Queue(String sector) {
+    public Queue(final String sector) {
         this.sector = sector;
         this.players = new CopyOnWriteArrayList<>();
     }
 
-    public List<UUID> getPlayers() {
-        return players;
-    }
-
-    public synchronized boolean addPlayer(UUID uuid) {
-        if (players.contains(uuid)) {
-            return false;
+    public void addPlayer(final Player player) {
+        if (this.hasPlayer(player)) {
+            return;
         }
-        players.add(uuid);
-        return true;
+        this.players.add(player);
     }
 
-    public void removePlayer(UUID uuid) {
-        players.remove(uuid);
+    public void removePlayer(final Player player) {
+        this.players.removeIf(p -> p.getUniqueId().equals(player.getUniqueId()));
     }
 
-    public boolean hasPlayer(UUID uuid) {
-        return players.contains(uuid);
-    }
-
-    public void setSector(String sector) {
-        this.sector = sector;
+    public boolean hasPlayer(final Player player) {
+        return this.players.stream()
+                .anyMatch(p -> p.getUniqueId().equals(player.getUniqueId()));
     }
 }

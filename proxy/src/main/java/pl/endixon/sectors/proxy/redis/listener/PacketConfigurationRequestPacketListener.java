@@ -1,22 +1,3 @@
-/*
- *
- *  EndSectors  Non-Commercial License
- *  (c) 2025 Endixon
- *
- *  Permission is granted to use, copy, and
- *  modify this software **only** for personal
- *  or educational purposes.
- *
- *   Commercial use, redistribution, claiming
- *  this work as your own, or copying code
- *  without explicit permission is strictly
- *  prohibited.
- *
- *  Visit https://github.com/Endixon/EndSectors
- *  for more info.
- *
- */
-
 package pl.endixon.sectors.proxy.redis.listener;
 
 import pl.endixon.sectors.common.packet.PacketListener;
@@ -27,27 +8,33 @@ import pl.endixon.sectors.proxy.VelocitySectorPlugin;
 import pl.endixon.sectors.proxy.manager.SectorManager;
 import pl.endixon.sectors.proxy.util.Logger;
 
+import java.util.Collection;
+
 public class PacketConfigurationRequestPacketListener implements PacketListener<PacketConfigurationRequest> {
 
     @Override
     public void handle(PacketConfigurationRequest packet) {
-        String sector = packet.getSector();
+        final String targetSector = packet.getSector();
 
-        if (sector == null || sector.isEmpty()) {
-            Logger.info("Otrzymano zapytanie o pakiet konfiguracji z pustym sektorem, ignoruję pakiet.");
+        if (targetSector == null || targetSector.isEmpty()) {
             return;
         }
 
-        SectorManager sectorManager = VelocitySectorPlugin.getInstance().getSectorManager();
-        if (sectorManager == null || sectorManager.getSectorsData() == null) {
-            Logger.info("SectorManager lub lista sektorów jest null, nie można wysłać pakietu konfiguracji.");
+        final SectorManager sectorManager = VelocitySectorPlugin.getInstance().getSectorManager();
+        if (sectorManager == null) {
             return;
         }
 
-        Logger.info("Otrzymano zapytanie o pakiet konfiguracji od sektora " + sector);
+        final Collection<SectorData> sectorsData = sectorManager.getSectorsData();
+        if (sectorsData == null || sectorsData.isEmpty()) {
+            Logger.info("[CRITICAL] Configuration request failed for " + targetSector + ". Sector data is missing.");
+            return;
+        }
 
-        PacketConfiguration packetConfiguration = new PacketConfiguration(sectorManager.getSectorsData().toArray(new SectorData[0]));
+        Logger.info("Received configuration packet request from sector: " + targetSector);
 
-        VelocitySectorPlugin.getInstance().getRedisService().publish(sector, packetConfiguration);
+        final PacketConfiguration responsePacket = new PacketConfiguration(sectorsData.toArray(new SectorData[0]));
+
+        VelocitySectorPlugin.getInstance().getRedisService().publish(targetSector, responsePacket);
     }
 }

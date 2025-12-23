@@ -46,11 +46,14 @@ public class SectorManager {
         return null;
     }
 
+
+
     public List<SectorData> getNonQueueSectors() {
         List<SectorData> list = new ArrayList<>();
         for (SectorData data : sectorsData) {
             if (data.getType() != SectorType.QUEUE) {
                 list.add(data);
+
             }
         }
         return list;

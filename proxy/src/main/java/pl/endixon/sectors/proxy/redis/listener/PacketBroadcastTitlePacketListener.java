@@ -1,22 +1,3 @@
-/*
- *
- *  EndSectors  Non-Commercial License
- *  (c) 2025 Endixon
- *
- *  Permission is granted to use, copy, and
- *  modify this software **only** for personal
- *  or educational purposes.
- *
- *   Commercial use, redistribution, claiming
- *  this work as your own, or copying code
- *  without explicit permission is strictly
- *  prohibited.
- *
- *  Visit https://github.com/Endixon/EndSectors
- *  for more info.
- *
- */
-
 package pl.endixon.sectors.proxy.redis.listener;
 
 import com.velocitypowered.api.proxy.Player;
@@ -27,23 +8,30 @@ import pl.endixon.sectors.common.packet.PacketListener;
 import pl.endixon.sectors.common.packet.object.PacketBroadcastTitle;
 import pl.endixon.sectors.proxy.VelocitySectorPlugin;
 
+import java.time.Duration;
+
 public class PacketBroadcastTitlePacketListener implements PacketListener<PacketBroadcastTitle> {
 
     @Override
-    public void handle(PacketBroadcastTitle packet) {
-        ProxyServer server = VelocitySectorPlugin.getInstance().getServerInstance();
-        if (server == null)
+    public void handle(final PacketBroadcastTitle packet) {
+        final ProxyServer server = VelocitySectorPlugin.getInstance().getServer();
+        if (server == null) {
             return;
+        }
 
-        Component title = Component.text(packet.getTitle());
-        Component subtitle = Component.text(packet.getSubTitle());
+        final Component title = Component.text(packet.getTitle());
+        final Component subtitle = Component.text(packet.getSubTitle());
 
-        Title.Times times = Title.Times.of(java.time.Duration.ofMillis(packet.getFadeIn()), java.time.Duration.ofMillis(packet.getStay()), java.time.Duration.ofMillis(packet.getFadeOut()));
+        final Title.Times times = Title.Times.times(
+                Duration.ofMillis(packet.getFadeIn()),
+                Duration.ofMillis(packet.getStay()),
+                Duration.ofMillis(packet.getFadeOut())
+        );
 
-        Title advTitle = Title.title(title, subtitle, times);
+        final Title adventureTitle = Title.title(title, subtitle, times);
 
-        for (Player player : server.getAllPlayers()) {
-            player.showTitle(advTitle);
+        for (final Player player : server.getAllPlayers()) {
+            player.showTitle(adventureTitle);
         }
     }
 }

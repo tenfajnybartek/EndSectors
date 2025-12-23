@@ -4,10 +4,11 @@ import com.google.gson.Gson;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.api.async.RedisAsyncCommands;
+import io.lettuce.core.api.sync.RedisCommands;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
-import io.lettuce.core.pubsub.api.sync.RedisPubSubCommands;
 import io.lettuce.core.resource.DefaultClientResources;
 import java.io.Serializable;
 import java.nio.CharBuffer;
@@ -20,8 +21,13 @@ import pl.endixon.sectors.common.util.Logger;
 public class RedisManager {
 
     private RedisClient redisClient;
+    private StatefulRedisConnection<String, String> connection;
     private StatefulRedisPubSubConnection<String, String> pubSubConnection;
-    private RedisAsyncCommands<String, String> publishCommands;
+
+
+    private RedisCommands<String, String> syncCommands;
+    private RedisAsyncCommands<String, String> asyncCommands;
+
     private final Gson gson = new Gson();
     private final Set<String> onlinePlayers = Collections.synchronizedSet(new HashSet<>());
 
@@ -31,36 +37,37 @@ public class RedisManager {
                     .withHost(host)
                     .withPort(port)
                     .withPassword(CharBuffer.wrap(password))
+                    .withDatabase(0)
                     .build();
 
             DefaultClientResources resources = DefaultClientResources.builder()
                     .ioThreadPoolSize(4)
                     .build();
 
-            redisClient = RedisClient.create(resources, uri);
+            this.redisClient = RedisClient.create(resources, uri);
 
             ClientOptions options = ClientOptions.builder()
                     .autoReconnect(true)
                     .publishOnScheduler(true)
                     .build();
-            redisClient.setOptions(options);
+            this.redisClient.setOptions(options);
 
-            publishCommands = redisClient.connect().async();
+            this.connection = redisClient.connect();
+            this.syncCommands = connection.sync();
+            this.asyncCommands = connection.async();
 
-            pubSubConnection = redisClient.connectPubSub();
+            this.pubSubConnection = redisClient.connectPubSub();
+
+            Logger.info("RedisManager został pomyślnie zainicjalizowany (Sync/Async).");
 
         } catch (Exception e) {
-            Logger.info("Błąd inicjalizacji Redis lub PubSub: " + e.getMessage());
+            Logger.info("Błąd inicjalizacji Redis: " + e.getMessage());
             e.printStackTrace();
-            redisClient = null;
-            publishCommands = null;
-            pubSubConnection = null;
         }
     }
 
-
-
     public <T extends Serializable> void subscribe(String channel, PacketListener<T> listener, Class<T> type) {
+        if (pubSubConnection == null) return;
         try {
             pubSubConnection.addListener(new RedisPubSubAdapter<>() {
                 @Override
@@ -71,88 +78,69 @@ public class RedisManager {
                             listener.handle(packet);
                         } catch (Exception e) {
                             Logger.info("Błąd w PubSub listenerze: " + e.getMessage());
-                            e.printStackTrace();
                         }
                     }
                 }
             });
 
-            pubSubConnection.async().subscribe(channel).exceptionally(ex -> {
-                Logger.info("Nie udało się zasubskrybować kanału Redis: " + ex.getMessage());
-                ex.printStackTrace();
-                return null;
-            });
-
+            pubSubConnection.async().subscribe(channel);
         } catch (Exception e) {
             Logger.info("Błąd podczas subskrypcji Redis: " + e.getMessage());
-            e.printStackTrace();
         }
     }
-
 
     public void publish(String channel, Packet packet) {
+        if (asyncCommands == null) return;
         String json = gson.toJson(packet);
-        publishCommands.publish(channel, json);
-    }
-
-    public void addOnlinePlayer(String name) {
-        if (name != null && !name.isEmpty()) {
-            onlinePlayers.add(name);
-            publishCommands.sadd("online_players", name).exceptionally(ex -> {
-                Logger.info("Failed to add player to Redis online set: " + name, ex);
-                return null;
-            });
-        }
-    }
-
-    public void removeOnlinePlayer(String name) {
-        if (name != null && !name.isEmpty()) {
-            onlinePlayers.remove(name);
-            publishCommands.srem("online_players", name).exceptionally(ex -> {
-                Logger.info("Failed to remove player from Redis online set: " + name, ex);
-                return null;
-            });
-        }
-    }
-
-    public void getOnlinePlayers(Consumer<List<String>> callback) {
-        publishCommands.smembers("online_players").thenAccept(players -> callback.accept(new ArrayList<>(players))).exceptionally(ex -> {
-            Logger.info("Failed to fetch online players from Redis", ex);
-            callback.accept(Collections.emptyList());
-            return null;
-        });
-    }
-
-    public void isPlayerOnline(String name, Consumer<Boolean> callback) {
-        publishCommands.sismember("online_players", name).thenAccept(callback).exceptionally(ex -> {
-            Logger.info("Failed to check if player is online in Redis: " + name, ex);
-            callback.accept(false);
-            return null;
-        });
+        asyncCommands.publish(channel, json);
     }
 
     public void hset(String key, Map<String, String> map) {
-        if (map == null || map.isEmpty())
-            return;
-        publishCommands.hset(key, map);
+        if (map == null || map.isEmpty() || asyncCommands == null) return;
+        asyncCommands.hset(key, map);
     }
 
     public Map<String, String> hgetAll(String key) {
+        if (key == null || syncCommands == null) {
+            return Collections.emptyMap();
+        }
         try {
-            return publishCommands.hgetall(key).get();
+            // Używamy natywnych komend synchronicznych - koniec z .async().get()!
+            Map<String, String> result = syncCommands.hgetall(key);
+            return (result == null) ? Collections.emptyMap() : result;
         } catch (Exception e) {
-            Logger.info("Redis hgetAll failed for key: " + key, e);
+            Logger.info("Redis hgetAll failed for key: " + key + " | " + e.getMessage());
             return Collections.emptyMap();
         }
     }
 
 
+    public void addOnlinePlayer(String name) {
+        if (name == null || name.isEmpty() || asyncCommands == null) return;
+        onlinePlayers.add(name);
+        asyncCommands.sadd("online_players", name);
+    }
+
+    public void removeOnlinePlayer(String name) {
+        if (name == null || name.isEmpty() || asyncCommands == null) return;
+        onlinePlayers.remove(name);
+        asyncCommands.srem("online_players", name);
+    }
+
+    public void getOnlinePlayers(Consumer<List<String>> callback) {
+        if (asyncCommands == null) return;
+        asyncCommands.smembers("online_players")
+                .thenAccept(players -> callback.accept(new ArrayList<>(players)));
+    }
+
+    public void isPlayerOnline(String name, Consumer<Boolean> callback) {
+        if (asyncCommands == null) return;
+        asyncCommands.sismember("online_players", name).thenAccept(callback);
+    }
+
     public void shutdown() {
-        if (pubSubConnection != null)
-            pubSubConnection.close();
-        if (publishCommands != null)
-            publishCommands.getStatefulConnection().close();
-        if (redisClient != null)
-            redisClient.shutdown();
+        if (pubSubConnection != null) pubSubConnection.close();
+        if (connection != null) connection.close();
+        if (redisClient != null) redisClient.shutdown();
     }
 }

@@ -62,7 +62,7 @@ public class UserProfile {
     private String playerEffectsData;
 
     private UserProfile() {
-        this.sectorName = "null";
+        this.sectorName = "unknown";
         this.firstJoin = true;
         this.lastSectorTransfer = 0L;
         this.lastTransferTimestamp = 0L;
@@ -88,7 +88,9 @@ public class UserProfile {
         this();
         this.name = player.getName();
         Sector current = PaperSector.getInstance().getSectorManager().getCurrentSector();
-        this.sectorName = (current != null && current.getType() != SectorType.QUEUE) ? current.getName() : "null";
+        this.sectorName = (current != null && current.getType() != SectorType.QUEUE)
+                ? current.getName()
+                : "unknown";
     }
 
     public UserProfile(@NonNull String name) {
@@ -145,8 +147,7 @@ public class UserProfile {
         this.playerInventoryData = PlayerDataSerializerUtil.serializeItemStacksToBase64(player.getInventory().getContents());
         this.playerEnderChestData = PlayerDataSerializerUtil.serializeItemStacksToBase64(player.getEnderChest().getContents());
         this.playerEffectsData = PlayerDataSerializerUtil.serializeEffects(player);
-
-        this.sectorName = (currentSector != null && currentSector.getType() != SectorType.QUEUE) ? currentSector.getName() : "null";
+        this.sectorName = (currentSector.getType() != SectorType.QUEUE) ? currentSector.getName() : "unknown";
         this.lastSectorTransfer = previousLastSectorTransfer;
         this.lastTransferTimestamp = previousLastTransferTimestamp;
         this.transferOffsetUntil = previousTransferOffsetUntil;
@@ -180,7 +181,7 @@ public class UserProfile {
 
     public void updateAndSave(@NonNull Player player, @NonNull Sector currentSector, boolean preserveCoordinates) {
         updateFromPlayer(player, currentSector, preserveCoordinates);
-        UserProfileCache.save(this);
+        UserProfileCache. save(this);
     }
 
 
