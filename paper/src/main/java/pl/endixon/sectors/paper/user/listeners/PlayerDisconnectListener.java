@@ -40,25 +40,18 @@ public class PlayerDisconnectListener implements Listener {
         event.leaveMessage(Component.empty());
 
         UserProfile user = UserProfileRepository.getUser(player).orElse(null);
-
-
         if (user == null) {
-            LoggerUtil.info(() -> "[Kick] UserProfile not found for player: " + player.getName());
             return;
         }
 
         Sector currentSector = PaperSector.getInstance().getSectorManager().getCurrentSector();
         if (currentSector == null || currentSector.getType() == SectorType.QUEUE) {
-            LoggerUtil.info(() -> "[Kick] Current sector is null or QUEUE for player: " + player.getName());
             return;
         }
 
         if (System.currentTimeMillis() - user.getLastSectorTransfer() < 5000L) {
-            LoggerUtil.info(() -> String.format("[Kick] Player %s is in transfer cooldown, skipping update.", player.getName()));
             return;
         }
-
-        LoggerUtil.info(() -> "[Kick] Saving data for player: " + player.getName() + " in sector: " + currentSector.getName());
         user.updateAndSave(player, currentSector,false);
     }
 
@@ -67,26 +60,20 @@ public class PlayerDisconnectListener implements Listener {
         Player player = event.getPlayer();
         event.quitMessage(null);
         Sector currentSector = PaperSector.getInstance().getSectorManager().getCurrentSector();
-        UserProfile user = UserProfileRepository.getUser(player).orElse(null);
 
+        UserProfile user = UserProfileRepository.getUser(player).orElse(null);
+        if (user == null) {
+            return;
+        }
 
         if (currentSector == null || currentSector.getType() == SectorType.QUEUE) {
             return;
         }
 
-        if (user == null) {
-            LoggerUtil.info(() -> "[Quit] UserProfile not found for player: " + player.getName());
-            return;
-        }
-
         long now = System.currentTimeMillis();
         if (now < user.getTransferOffsetUntil()) {
-            LoggerUtil.info(() -> String.format("[Quit] Player %s is in sector transfer cooldown, skipping update (%.0f ms remaining).", player.getName(), (double) (user.getTransferOffsetUntil() - now)));
             return;
         }
-
-
-        LoggerUtil.info(() -> String.format("[Quit] Saving player %s data for sector %s.", player.getName(), currentSector != null ? currentSector.getName() : "null"));
         user.updateAndSave(player, currentSector,false);
     }
 }

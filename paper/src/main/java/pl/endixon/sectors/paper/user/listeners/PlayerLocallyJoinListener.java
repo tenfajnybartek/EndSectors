@@ -32,6 +32,7 @@ import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.user.profile.UserProfile;
+import pl.endixon.sectors.paper.user.profile.UserProfileCache;
 import pl.endixon.sectors.paper.user.profile.UserProfileRepository;
 import pl.endixon.sectors.paper.util.ChatAdventureUtil;
 import pl.endixon.sectors.paper.util.ConfigurationUtil;
@@ -52,7 +53,7 @@ public class PlayerLocallyJoinListener implements Listener {
 
         Sector currentSector = paperSector.getSectorManager().getCurrentSector();
 
-        Bukkit.getScheduler().runTask(paperSector, () -> {
+
             if (currentSector == null)
                 return;
 
@@ -61,13 +62,14 @@ public class PlayerLocallyJoinListener implements Listener {
                 user.setFirstJoin(false);
                 user.setLastSectorTransfer(false);
                 user.updateFromPlayer(player, currentSector,false);
+                UserProfileCache.addToCache(user);
                 paperSector.getSectorManager().randomLocation(player, user);
             } else {
                 sendSectorTitle(player, currentSector);
                 user.applyPlayerData();
                 user.setLastSectorTransfer(false);
             }
-        });
+
     }
 
     private void sendSectorTitle(Player player, Sector sector) {

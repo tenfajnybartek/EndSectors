@@ -13,24 +13,28 @@ public class TeleportToSectorListener implements PacketListener<PacketRequestTel
 
     @Override
     public void handle(PacketRequestTeleportSector packet) {
-        final String playerName = packet.getPlayerName();
-        final String sectorName = packet.getSector();
+        String playerName = packet.getPlayerName();
+        String sectorName = packet.getSector();
 
-        final Optional<Player> playerOptional = VelocitySectorPlugin.getInstance().getServer().getPlayer(playerName);
+        Logger.info("Otrzymano request teleportu gracza " + playerName + " do sektora " + sectorName);
+
+        Optional<Player> playerOptional = VelocitySectorPlugin.getInstance().getServer().getPlayer(playerName);
         if (playerOptional.isEmpty()) {
+            Logger.info("Nie udało się teleportować gracza " + playerName + " (gracz nie istnieje)");
             return;
         }
 
-        final Player player = playerOptional.get();
-        final Optional<RegisteredServer> serverOptional = VelocitySectorPlugin.getInstance().getServer().getServer(sectorName);
-
+        Optional<RegisteredServer> serverOptional = VelocitySectorPlugin.getInstance().getServer().getServer(sectorName);
         if (serverOptional.isEmpty()) {
-            player.disconnect(Component.text("Target sector server is currently unavailable."));
-            Logger.info("[CRITICAL] Teleport failed for " + playerName + ". Server " + sectorName + " not found.");
+            playerOptional.ifPresent(player -> player.disconnect(Component.text("Brak dostępnych serwerów.")));
+            Logger.info("Nie udało się teleportować gracza " + playerName + " (serwer " + sectorName + " nie istnieje)");
             return;
         }
 
-        final RegisteredServer server = serverOptional.get();
+        Player player = playerOptional.get();
+        RegisteredServer server = serverOptional.get();
+
         player.createConnectionRequest(server).fireAndForget();
+        Logger.info("Gracz " + playerName + " teleportowany natychmiast do " + sectorName);
     }
 }

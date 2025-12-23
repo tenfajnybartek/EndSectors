@@ -26,8 +26,9 @@ public class LastSectorConnectListener {
     public void onServerConnected(ServerConnectedEvent event) {
         Player player = event.getPlayer();
         String connectedServer = event.getServer().getServerInfo().getName();
-        if (!connectedServer.equalsIgnoreCase("queue")) return;
-
+        if (!connectedServer.equalsIgnoreCase("queue")) {
+            return;
+    }
         QueueManager queueService = plugin.getQueueManager();
         queueService.findQueueByPlayer(player).ifPresent(queue -> queue.removePlayer(player));
         pollForUser(player);

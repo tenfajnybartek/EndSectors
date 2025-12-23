@@ -1,28 +1,10 @@
-/*
- *
- * EndSectors – Non-Commercial License
- * (c) 2025 Endixon
- *
- * Permission is granted to use, copy, and
- * modify this software **only** for personal
- * or educational purposes.
- *
- * Commercial use, redistribution, claiming
- * this work as your own, or copying code
- * without explicit permission is strictly
- * prohibited.
- *
- * Visit https://github.com/Endixon/EndSectors
- * for more info.
- *
- */
-
 package pl.endixon.sectors.paper;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import java.util.List;
 import lombok.Getter;
+import lombok.NonNull;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -42,6 +24,7 @@ import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.sector.SectorTeleport;
 import pl.endixon.sectors.paper.task.*;
 import pl.endixon.sectors.paper.user.listeners.*;
+import pl.endixon.sectors.paper.user.profile.UserProfileCache;
 import pl.endixon.sectors.paper.user.profile.UserProfileRepository;
 import pl.endixon.sectors.paper.util.LoggerUtil;
 
@@ -52,15 +35,10 @@ public class PaperSector extends JavaPlugin {
     private static PaperSector instance;
     private ProtocolManager protocolManager;
     private SectorManager sectorManager;
-    private UserProfileRepository userProfileRepository;
     public final RedisManager redisManager = new RedisManager();
     private boolean inited = false;
     private final SectorTeleport sectorTeleport = new SectorTeleport(this);
     private final SendSectorInfoTask sectorInfoTask = new SendSectorInfoTask(this);
-
-    public RedisManager getRedisService() {
-        return redisManager;
-    }
 
     @Override
     public void onEnable() {
@@ -68,12 +46,16 @@ public class PaperSector extends JavaPlugin {
 
         protocolManager = ProtocolLibrary.getProtocolManager();
         ConfigLoader config = ConfigLoader.load(getDataFolder());
+
         this.initManager(config);
         this.redisManager.publish(PacketChannel.PACKET_CONFIGURATION_REQUEST, new PacketConfigurationRequest(this.getSectorManager().getCurrentSectorName()));
+
         this.initListeners();
         this.initCommands();
         this.scheduleTasks(config);
+
         new SectorsAPI(this);
+        this.loadAllPlayers();
 
         LoggerUtil.info("EndSectors enabled successfully.");
     }
@@ -98,6 +80,7 @@ public class PaperSector extends JavaPlugin {
             Bukkit.shutdown();
             return;
         }
+
         LoggerUtil.info("Loaded " + sectorManager.getSectors().size() + " sectors!");
         LoggerUtil.info("Current sector: " + currentSectorName);
 
@@ -108,10 +91,15 @@ public class PaperSector extends JavaPlugin {
         redisManager.publish(PacketChannel.PACKET_SECTOR_CONNECTED, new PacketSectorConnected(currentSectorName));
     }
 
+    private void loadAllPlayers() {
+        UserProfileCache.warmup();
+    }
+
     private void initManager(ConfigLoader config) {
         LoggerUtil.info("Initializing managers...");
         this.sectorManager = new SectorManager(this, config.currentSector);
         this.redisManager.initialize("127.0.0.1", 6379, "");
+
         this.redisManager.subscribe(config.currentSector, new PacketConfigurationPacketListener(), PacketConfiguration.class);
         this.redisManager.subscribe(PacketChannel.PACKET_EXECUTE_COMMAND, new PacketExecuteCommandPacketListener(), PacketExecuteCommand.class);
         this.redisManager.subscribe(PacketChannel.PACKET_PLAYER_INFO_REQUEST, new PacketPlayerInfoRequestPacketListener(), PacketPlayerInfoRequest.class);
@@ -120,11 +108,23 @@ public class PaperSector extends JavaPlugin {
         this.redisManager.subscribe(PacketChannel.USER_CHECK_REQUEST, new PacketUserCheckListener(), PacketUserCheck.class);
         this.redisManager.subscribe(PacketChannel.PACKET_SECTOR_CONNECTED, new PacketSectorConnectedPacketListener(), PacketSectorConnected.class);
         this.redisManager.subscribe(PacketChannel.PACKET_SECTOR_DISCONNECTED, new PacketSectorDisconnectedPacketListener(), PacketSectorDisconnected.class);
+
         LoggerUtil.info("Managers initialized successfully.");
     }
 
     private void initListeners() {
-        List<Listener> listeners = List.of(new PlayerRespawnListener(this), new PlayerDisconnectListener(), new PlayerLoginListener(this), new PlayerSectorInteractListener(sectorManager, this), new PlayerLocallyJoinListener(this), new PlayerPortalListener(this), new PlayerTeleportListener(this), new PlayerInventoryInteractListener(), new PlayerChatListener(this), new PlayerMoveListener(this));
+        List<Listener> listeners = List.of(
+                new PlayerRespawnListener(this),
+                new PlayerDisconnectListener(),
+                new PlayerLoginListener(this),
+                new PlayerSectorInteractListener(sectorManager, this),
+                new PlayerLocallyJoinListener(this),
+                new PlayerPortalListener(this),
+                new PlayerTeleportListener(this),
+                new PlayerInventoryInteractListener(),
+                new PlayerChatListener(this),
+                new PlayerMoveListener(this)
+        );
         listeners.forEach(listener -> getServer().getPluginManager().registerEvents(listener, this));
     }
 
@@ -142,7 +142,7 @@ public class PaperSector extends JavaPlugin {
         new SendInfoPlayerTask(this).runTaskTimer(this, 12000L, 12000L);
     }
 
-    public static PaperSector getInstance() {
-        return instance;
+    public RedisManager getRedisService() {
+        return redisManager;
     }
 }

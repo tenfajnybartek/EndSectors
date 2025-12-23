@@ -30,12 +30,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.eclipse.sisu.launch.Main;
 import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.sector.Sector;
+import pl.endixon.sectors.paper.util.LoggerUtil;
 import pl.endixon.sectors.paper.util.PlayerDataSerializerUtil;
 
 @Getter
@@ -60,6 +62,7 @@ public class UserProfile {
     private String playerInventoryData;
     private String playerEnderChestData;
     private String playerEffectsData;
+    private long dataVersion;
 
     private UserProfile() {
         this.sectorName = "unknown";
@@ -82,6 +85,7 @@ public class UserProfile {
         this.playerInventoryData = "";
         this.playerEnderChestData = "";
         this.playerEffectsData = "";
+        this.dataVersion = 0L;
     }
 
     public UserProfile(@NonNull Player player) {
@@ -121,6 +125,7 @@ public class UserProfile {
         this.fireTicks = Integer.parseInt(redisData.getOrDefault("fireTicks", String.valueOf(fireTicks)));
         this.allowFlight = Boolean.parseBoolean(redisData.getOrDefault("allowFlight", String.valueOf(allowFlight)));
         this.flying = Boolean.parseBoolean(redisData.getOrDefault("flying", String.valueOf(flying)));
+        this.dataVersion = Long.parseLong(redisData.getOrDefault("dataVersion", "0"));
     }
 
     public void updateFromPlayer(@NonNull Player player, @NonNull Sector currentSector, boolean preserveCoordinates) {
@@ -176,13 +181,15 @@ public class UserProfile {
         map.put("fireTicks", String.valueOf(fireTicks));
         map.put("allowFlight", String.valueOf(allowFlight));
         map.put("flying", String.valueOf(flying));
+        map.put("dataVersion", String.valueOf(dataVersion));
         return map;
     }
 
     public void updateAndSave(@NonNull Player player, @NonNull Sector currentSector, boolean preserveCoordinates) {
         updateFromPlayer(player, currentSector, preserveCoordinates);
-        UserProfileCache. save(this);
-        UserProfileRepository.addToCache(this);
+        this.dataVersion++;
+        UserProfileCache.save(this);
+        UserProfileCache.addToCache(this);
     }
 
 
@@ -192,8 +199,9 @@ public class UserProfile {
         this.z = loc.getZ();
         this.yaw = loc.getYaw();
         this.pitch = loc.getPitch();
+        this.dataVersion++;
         UserProfileCache.save(this);
-        UserProfileRepository.addToCache(this);
+        UserProfileCache.addToCache(this);
     }
 
     public Player getPlayer() {
@@ -203,49 +211,50 @@ public class UserProfile {
     public void setLastSectorTransfer(boolean redirecting) {
         this.lastSectorTransfer = redirecting ? System.currentTimeMillis() : 0L;
         UserProfileCache.save(this);
-        UserProfileRepository.addToCache(this);
+        UserProfileCache.addToCache(this);
     }
 
     public void activateTransferOffset() {
         this.transferOffsetUntil = System.currentTimeMillis() + 5000L;
         UserProfileCache.save(this);
-        UserProfileRepository.addToCache(this);
+        UserProfileCache.addToCache(this);
     }
 
+
     public void applyPlayerData() {
-        Player player = getPlayer();
-        if (player == null)
+        final Player player = this.getPlayer();
+        if (player == null) return;
+
+        final Sector current = PaperSector.getInstance().getSectorManager().getCurrentSector();
+        if (current == null) return;
+
+        if (!Bukkit.isPrimaryThread()) {
+            Bukkit.getScheduler().runTask(PaperSector.getInstance(), this::applyPlayerData);
             return;
-        Bukkit.getScheduler().runTask(PaperSector.getInstance(), () -> {
-            Sector current = PaperSector.getInstance().getSectorManager().getCurrentSector();
-            if (current == null)
-                return;
+        }
 
-            Location defaultLoc = new Location(player.getWorld(), 0, 70, 0);
+        final SectorType type = current.getType();
+        final Location spawn = new Location(player.getWorld(), 0.5, 70.0, 0.5);
 
-            switch (current.getType()) {
-                case QUEUE -> {
-                    if (player.teleport(defaultLoc)) {
-                        player.setGameMode(GameMode.ADVENTURE);
-                        Bukkit.getOnlinePlayers().forEach(online -> {
-                            if (!online.equals(player))
-                                online.hidePlayer(PaperSector.getInstance(), player);
-                            if (!online.equals(player))
-                                player.hidePlayer(PaperSector.getInstance(), online);
-                        });
-                    }
-                }
-                case NETHER, SPAWN -> {
-                    if (player.teleport(defaultLoc)) {
-                        loadPlayerData(player);
-                    }
-                }
-                default -> {
-                    teleportPlayerToStoredLocation(player);
-                    loadPlayerData(player);
-                }
+        if (type == SectorType.QUEUE) {
+            player.teleport(spawn);
+            player.setGameMode(GameMode.ADVENTURE);
+
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                if (online.equals(player)) continue;
+                online.hidePlayer(PaperSector.getInstance(), player);
+                player.hidePlayer(PaperSector.getInstance(), online);
             }
-        });
+            return;
+        }
+
+        if (type == SectorType.SPAWN || type == SectorType.NETHER) {
+            player.teleport(spawn);
+            this.loadPlayerData(player);
+            return;
+        }
+        this.loadPlayerData(player);
+        this.teleportPlayerToStoredLocation(player);
     }
 
     private void loadPlayerData(@NonNull Player player) {
@@ -256,25 +265,22 @@ public class UserProfile {
         player.setFireTicks(fireTicks);
         player.setAllowFlight(allowFlight);
         player.setFlying(flying);
-
         if (!playerInventoryData.isEmpty())
-            player.getInventory().setContents(PlayerDataSerializerUtil.deserializeItemStacksFromBase64(playerInventoryData));
-
+        player.getInventory().setContents(PlayerDataSerializerUtil.deserializeItemStacksFromBase64(playerInventoryData));
         if (!playerEnderChestData.isEmpty())
-            player.getEnderChest().setContents(PlayerDataSerializerUtil.deserializeItemStacksFromBase64(playerEnderChestData));
-
+        player.getEnderChest().setContents(PlayerDataSerializerUtil.deserializeItemStacksFromBase64(playerEnderChestData));
         player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
         player.addPotionEffects(PlayerDataSerializerUtil.deserializeEffects(playerEffectsData));
     }
 
-        private void teleportPlayerToStoredLocation(@NonNull Player player) {
+    private void teleportPlayerToStoredLocation(@NonNull Player player) {
         long now = System.currentTimeMillis();
         int protectionSeconds = 10;
         Location targetLoc = new Location(player.getWorld(), x, y, z, yaw, pitch);
 
         if (now < transferOffsetUntil) {
             Vector direction = targetLoc.getDirection().setY(0).normalize();
-            targetLoc = targetLoc.clone().add(direction.multiply(5.0));
+            targetLoc = targetLoc.clone().add(direction.multiply(6.0));
         }
 
         player.setInvulnerable(true);
@@ -293,12 +299,13 @@ public class UserProfile {
 
                 if (remaining % 20 == 0) {
                     int seconds = remaining / 20;
-                    player.sendActionBar(Component.text("🛡 Ochrona przed obrażeniami: " + seconds + "s")
-                            .color(NamedTextColor.YELLOW));
+                    player.sendActionBar(Component.text("🛡 Ochrona przed obrażeniami: " + seconds + "s").color(NamedTextColor.YELLOW));
                 }
 
                 remaining--;
             }
         }.runTaskTimer(PaperSector.getInstance(), 0, 1);
     }
+
 }
+

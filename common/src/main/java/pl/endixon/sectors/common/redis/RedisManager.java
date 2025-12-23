@@ -23,11 +23,8 @@ public class RedisManager {
     private RedisClient redisClient;
     private StatefulRedisConnection<String, String> connection;
     private StatefulRedisPubSubConnection<String, String> pubSubConnection;
-
-
     private RedisCommands<String, String> syncCommands;
     private RedisAsyncCommands<String, String> asyncCommands;
-
     private final Gson gson = new Gson();
     private final Set<String> onlinePlayers = Collections.synchronizedSet(new HashSet<>());
 
@@ -40,29 +37,18 @@ public class RedisManager {
                     .withDatabase(0)
                     .build();
 
-            DefaultClientResources resources = DefaultClientResources.builder()
-                    .ioThreadPoolSize(4)
-                    .build();
-
+            DefaultClientResources resources = DefaultClientResources.builder().ioThreadPoolSize(4).build();
             this.redisClient = RedisClient.create(resources, uri);
-
-            ClientOptions options = ClientOptions.builder()
-                    .autoReconnect(true)
-                    .publishOnScheduler(true)
-                    .build();
+            ClientOptions options = ClientOptions.builder().autoReconnect(true).publishOnScheduler(true).build();
             this.redisClient.setOptions(options);
-
             this.connection = redisClient.connect();
             this.syncCommands = connection.sync();
             this.asyncCommands = connection.async();
-
             this.pubSubConnection = redisClient.connectPubSub();
 
-            Logger.info("RedisManager został pomyślnie zainicjalizowany (Sync/Async).");
-
+            Logger.info("RedisManager initialized successfully (Sync/Async).");
         } catch (Exception e) {
-            Logger.info("Błąd inicjalizacji Redis: " + e.getMessage());
-            e.printStackTrace();
+            Logger.info("Redis initialization failed: " + e.getMessage());
         }
     }
 
@@ -77,43 +63,61 @@ public class RedisManager {
                             T packet = gson.fromJson(msg, type);
                             listener.handle(packet);
                         } catch (Exception e) {
-                            Logger.info("Błąd w PubSub listenerze: " + e.getMessage());
+                            Logger.info("PubSub listener error: " + e.getMessage());
                         }
                     }
                 }
             });
-
             pubSubConnection.async().subscribe(channel);
         } catch (Exception e) {
-            Logger.info("Błąd podczas subskrypcji Redis: " + e.getMessage());
+            Logger.info("Redis subscription failed: " + e.getMessage());
         }
     }
 
     public void publish(String channel, Packet packet) {
         if (asyncCommands == null) return;
-        String json = gson.toJson(packet);
-        asyncCommands.publish(channel, json);
+        asyncCommands.publish(channel, gson.toJson(packet));
     }
 
     public void hset(String key, Map<String, String> map) {
-        if (map == null || map.isEmpty() || asyncCommands == null) return;
-        asyncCommands.hset(key, map);
+        if (key == null || map == null || syncCommands == null) return;
+        try {
+            syncCommands.hset(key, map);
+        } catch (Exception e) {
+            Logger.info("Critical Sync HSET failure: " + e.getMessage());
+        }
+    }
+
+    public List<String> getKeys(String pattern) {
+        if (syncCommands == null) return Collections.emptyList();
+        try {
+            return syncCommands.keys(pattern);
+        } catch (Exception e) {
+            Logger.info("Redis getKeys failed for pattern " + pattern + ": " + e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    public String hget(String key, String field) {
+        if (key == null || field == null || syncCommands == null) return null;
+        try {
+            return syncCommands.hget(key, field);
+        } catch (Exception e) {
+            Logger.info("Redis hget failed for key " + key + ": " + e.getMessage());
+            return null;
+        }
     }
 
     public Map<String, String> hgetAll(String key) {
-        if (key == null || syncCommands == null) {
-            return Collections.emptyMap();
-        }
+        if (key == null || syncCommands == null) return Collections.emptyMap();
         try {
-            // Używamy natywnych komend synchronicznych - koniec z .async().get()!
             Map<String, String> result = syncCommands.hgetall(key);
             return (result == null) ? Collections.emptyMap() : result;
         } catch (Exception e) {
-            Logger.info("Redis hgetAll failed for key: " + key + " | " + e.getMessage());
+            Logger.info("Redis hgetAll failed for key " + key + ": " + e.getMessage());
             return Collections.emptyMap();
         }
     }
-
 
     public void addOnlinePlayer(String name) {
         if (name == null || name.isEmpty() || asyncCommands == null) return;

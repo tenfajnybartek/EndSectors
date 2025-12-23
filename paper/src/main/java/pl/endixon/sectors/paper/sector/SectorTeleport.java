@@ -1,22 +1,3 @@
-/*
- *
- *  EndSectors  Non-Commercial License
- *  (c) 2025 Endixon
- *
- *  Permission is granted to use, copy, and
- *  modify this software **only** for personal
- *  or educational purposes.
- *
- *  Commercial use, redistribution, claiming
- *  this work as your own, or copying code
- *  without explicit permission is strictly
- *  prohibited.
- *
- *  Visit https://github.com/Endixon/EndSectors
- *  for more info.
- *
- */
-
 package pl.endixon.sectors.paper.sector;
 
 import org.bukkit.Bukkit;
@@ -28,7 +9,6 @@ import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.event.SectorChangeEvent;
 import pl.endixon.sectors.paper.manager.SectorManager;
 import pl.endixon.sectors.paper.user.profile.UserProfile;
-import pl.endixon.sectors.paper.user.profile.UserProfileCache;
 import pl.endixon.sectors.paper.util.LoggerUtil;
 
 public class SectorTeleport {
@@ -62,23 +42,15 @@ public class SectorTeleport {
             }
 
             if (player.isInsideVehicle()) {
-                LoggerUtil.info(() -> String.format("[Transfer] Removing vehicle for %s", player.getName()));
                 player.leaveVehicle();
             }
 
             LoggerUtil.info(() -> String.format("[Transfer] Updating player data for %s", player.getName()));
-
-            if (!preserveCoordinates) {
-                user.updateAndSave(player, sector,false);
-
-            } else {
-                user.updateAndSave(player, sector,true);
-            }
+            user.updateAndSave(player, sector, preserveCoordinates);
 
             LoggerUtil.info(() -> String.format("[Transfer] Sending teleport packet for %s", player.getName()));
             PacketRequestTeleportSector packet = new PacketRequestTeleportSector(player.getName(), sector.getName());
             PaperSector.getInstance().getRedisService().publish(PacketChannel.PACKET_TELEPORT_TO_SECTOR, packet);
-
             long duration = System.currentTimeMillis() - startTime;
             LoggerUtil.info(() -> String.format("[Transfer] Teleport process finished for %s (ms: %d)", player.getName(), duration));
         });

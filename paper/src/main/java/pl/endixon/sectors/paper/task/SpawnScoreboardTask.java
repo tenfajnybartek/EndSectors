@@ -67,7 +67,7 @@ public class SpawnScoreboardTask extends BukkitRunnable {
 
 
     private Component parseLine(String line, Player player, Sector sector) {
-        double cpuLoad = CpuUtil.getProcessCpuLoad();
+        double cpuLoad = CpuUtil.getCpuLoad();
         long freeMem = Runtime.getRuntime().freeMemory() / 1024 / 1024;
         long maxMem = Runtime.getRuntime().maxMemory() / 1024 / 1024;
         String cpuText = cpuLoad < 0 ? "N/A" : String.format("%.2f", cpuLoad * 100);
