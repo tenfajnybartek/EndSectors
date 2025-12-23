@@ -7,15 +7,15 @@ public final class CpuUtil {
 
     private static final OperatingSystemMXBean OS_BEAN = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 
-    private CpuUtil() {
-    }
+    private CpuUtil() {}
 
     public static double getCpuLoad() {
-        double load = OS_BEAN.getCpuLoad();
-
-        if (load < 0) {
+        double systemLoad = OS_BEAN.getCpuLoad();
+        double processLoad = OS_BEAN.getProcessCpuLoad();
+        double load = Math.max(systemLoad, processLoad);
+        if (load <= 0) {
             return 0.0;
         }
-        return Math.round(load * 10000.0) / 100.0;
+        return load * 100.0;
     }
 }

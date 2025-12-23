@@ -33,6 +33,7 @@ public class SpawnScoreboardTask extends BukkitRunnable {
     public void run() {
         for (Player player : Bukkit.getOnlinePlayers()) {
             Sector current = sectorManager.getCurrentSector();
+            double currentCpu = CpuUtil.getCpuLoad();
 
             if (current == null || (current.getType() != SectorType.SPAWN && current.getType() != SectorType.NETHER && current.getType() != SectorType.END)) {
                 removeBoard(player);
@@ -43,21 +44,24 @@ public class SpawnScoreboardTask extends BukkitRunnable {
             String rawTitle = config.sectorTitles.getOrDefault(scoreboardKey, config.sectorTitles.getOrDefault("DEFAULT", "<red>EndSectors").replace("{sectorType}", current.getType().name()));
             board.updateTitle(chatUtil.toComponent(rawTitle));
             List<String> rawLines = config.scoreboard.getOrDefault(scoreboardKey, List.of());
-            List<Component> parsedLines = rawLines.stream().map(line -> parseLine(line, player, current)).toList();
+            List<Component> parsedLines = rawLines.stream()
+                    .map(line -> parseLine(line, player, current, currentCpu))
+                    .toList();
+
             board.updateLines(parsedLines);
         }
 
         boards.keySet().removeIf(uuid -> Bukkit.getPlayer(uuid) == null);
     }
 
-    private Component parseLine(String line, Player player, Sector sector) {
-        double cpuLoad = CpuUtil.getCpuLoad();
+    private Component parseLine(String line, Player player, Sector sector,double cpuLoad) {
 
         long totalMemory = Runtime.getRuntime().totalMemory() / 1024 / 1024;
         long freeMemory = Runtime.getRuntime().freeMemory() / 1024 / 1024;
         long maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024;
         long usedMemory = totalMemory - freeMemory;
 
+        String cpuFormatted = String.format("%.1f", cpuLoad);
 
         String replaced = line
                 .replace("{playerName}", player.getName())
@@ -65,7 +69,7 @@ public class SpawnScoreboardTask extends BukkitRunnable {
                 .replace("{tps}", sector.getTPSColored())
                 .replace("{onlineCount}", String.valueOf(sector.getPlayerCount()))
                 .replace("{ping}", String.valueOf(player.getPing()))
-                .replace("{cpu}", String.valueOf(cpuLoad))
+                .replace("{cpu}", cpuFormatted)
                 .replace("{usedRam}", String.valueOf(usedMemory))
                 .replace("{freeRam}", String.valueOf(freeMemory))
                 .replace("{maxRam}", String.valueOf(maxMemory));
