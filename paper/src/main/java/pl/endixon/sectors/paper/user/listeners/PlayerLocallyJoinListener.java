@@ -19,7 +19,9 @@
 
 package pl.endixon.sectors.paper.user.listeners;
 
+import java.awt.*;
 import java.time.Duration;
+
 import lombok.AllArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
@@ -47,6 +49,7 @@ public class PlayerLocallyJoinListener implements Listener {
         event.joinMessage(Component.empty());
         player.setCollidable(false);
 
+
         UserProfile user = UserProfileRepository.getUser(player).orElseGet(() -> new UserProfile(player));
 
         Sector currentSector = paperSector.getSectorManager().getCurrentSector();
@@ -65,11 +68,11 @@ public class PlayerLocallyJoinListener implements Listener {
             } else {
                 sendSectorTitle(player, currentSector);
                 user.applyPlayerData();
-
                 user.setLastSectorTransfer(false);
             }
 
     }
+
 
     private void sendSectorTitle(Player player, Sector sector) {
         Component title = Component.empty();

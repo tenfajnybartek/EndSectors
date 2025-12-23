@@ -236,9 +236,10 @@ public class UserProfile {
 
         final SectorType type = current.getType();
         final Location spawn = new Location(player.getWorld(), 0.5, 70.0, 0.5);
+        final Location queque = new Location(player.getWorld(), 0.5, 75.0, 0.5);
 
         if (type == SectorType.QUEUE) {
-            player.teleport(spawn);
+            player.teleport(queque);
             player.setGameMode(GameMode.ADVENTURE);
 
             for (Player online : Bukkit.getOnlinePlayers()) {

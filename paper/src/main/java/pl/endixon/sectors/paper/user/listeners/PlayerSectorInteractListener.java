@@ -20,6 +20,7 @@
 package pl.endixon.sectors.paper.user.listeners;
 
 import lombok.AllArgsConstructor;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -35,10 +36,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.event.player.PlayerBucketFillEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.*;
 import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.manager.SectorManager;
@@ -56,13 +54,15 @@ public class PlayerSectorInteractListener implements Listener {
     private final PaperSector PaperSector;
 
     @EventHandler
-    public void onCommand(org.bukkit.event.player.PlayerCommandPreprocessEvent event) {
+    public void onCommand(PlayerCommandPreprocessEvent event) {
+        Player player = event.getPlayer();
         Sector queue = PaperSector.getSectorManager().getCurrentSector();
 
-        if (queue != null && queue.getType() == SectorType.QUEUE) {
+        if (queue != null && queue.getType() == SectorType.QUEUE && !player.hasPermission("endsectors.admin")) {
             event.setCancelled(true);
         }
     }
+
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {

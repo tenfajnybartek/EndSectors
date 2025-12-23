@@ -24,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -45,6 +47,14 @@ import pl.endixon.sectors.paper.util.LoggerUtil;
 public class PlayerMoveListener implements Listener {
 
     private final PaperSector paperSector;
+
+
+
+
+
+
+
+
 
     @EventHandler
     public void onTeleport(PlayerTeleportEvent event) {
@@ -82,6 +92,8 @@ public class PlayerMoveListener implements Listener {
 
         Bukkit.getScheduler().runTask(paperSector, () -> processSectorTransfer(player, userProfile, current, targetSector));
     }
+
+
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {

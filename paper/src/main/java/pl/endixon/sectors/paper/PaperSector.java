@@ -48,7 +48,6 @@ public class PaperSector extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        this.getServer().getMessenger().registerOutgoingPluginChannel(this, "lunar:apollo");
 
         protocolManager = ProtocolLibrary.getProtocolManager();
         this.loadFiles();
@@ -132,6 +131,7 @@ public class PaperSector extends JavaPlugin {
                 new PlayerLoginListener(this),
                 new PlayerSectorInteractListener(sectorManager, this),
                 new PlayerLocallyJoinListener(this),
+
                 new PlayerPortalListener(this),
                 new PlayerTeleportListener(this),
                 new PlayerInventoryInteractListener(),

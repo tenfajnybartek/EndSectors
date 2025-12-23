@@ -9,7 +9,12 @@ repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.mikeprimm.com/")
+    maven {
+        name = "lunarclient"
+        url = uri("https://repo.lunarclient.dev")
+    }
 }
+
 
 java {
     toolchain {
@@ -33,6 +38,8 @@ dependencies {
     compileOnly("com.mojang:authlib:1.5.21")
     compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
     implementation("fr.mrmicky:fastboard:2.1.5")
+    compileOnly("com.lunarclient:apollo-api:1.2.1")
+    compileOnly("com.lunarclient:apollo-extra-adventure4:1.2.1")
 
 }
 
