@@ -1,13 +1,32 @@
+/*
+ *
+ *  EndSectors  Non-Commercial License
+ *  (c) 2025 Endixon
+ *
+ *  Permission is granted to use, copy, and
+ *  modify this software **only** for personal
+ *  or educational purposes.
+ *
+ *   Commercial use, redistribution, claiming
+ *  this work as your own, or copying code
+ *  without explicit permission is strictly
+ *  prohibited.
+ *
+ *  Visit https://github.com/Endixon/EndSectors
+ *  for more info.
+ *
+ */
+
 package pl.endixon.sectors.proxy.redis.listener;
 
 import pl.endixon.sectors.common.cache.UserFlagCache;
 import pl.endixon.sectors.common.packet.PacketListener;
 import pl.endixon.sectors.common.packet.object.PacketUserCheck;
 import pl.endixon.sectors.proxy.VelocitySectorPlugin;
-import pl.endixon.sectors.proxy.queue.Queue;
-import pl.endixon.sectors.proxy.queue.QueueManager;
+import pl.endixon.sectors.proxy.sector.SectorQueue;
+import pl.endixon.sectors.proxy.manager.QueueManager;
 import pl.endixon.sectors.proxy.manager.SectorManager;
-import pl.endixon.sectors.proxy.user.RedisUserService;
+import pl.endixon.sectors.proxy.user.profile.ProfileCache;
 import pl.endixon.sectors.proxy.util.LoggerUtil;
 import pl.endixon.sectors.common.sector.SectorData;
 
@@ -25,7 +44,7 @@ public class PacketUserCheckProxyListener implements PacketListener<PacketUserCh
         }
 
         final String username = packet.getUsername().toLowerCase();
-        final RedisUserService redisUserService = VelocitySectorPlugin.getInstance().getRedisUserService();
+        final ProfileCache profileCache = VelocitySectorPlugin.getInstance().getProfileCache();
         final UserFlagCache cache = UserFlagCache.getInstance();
 
         if (packet.getExists() == null || !packet.getExists()) {
@@ -35,7 +54,7 @@ public class PacketUserCheckProxyListener implements PacketListener<PacketUserCh
 
         cache.setExists(username, true);
 
-        String resolvedSector = this.resolveSector(username, cache, redisUserService);
+        String resolvedSector = this.resolveSector(username, cache, profileCache);
 
         if (resolvedSector == null) {
             resolvedSector = this.sectorManager.getRandomNonQueueSector()
@@ -43,7 +62,7 @@ public class PacketUserCheckProxyListener implements PacketListener<PacketUserCh
                     .orElse(null);
 
             if (resolvedSector != null) {
-                this.updateStorages(username, resolvedSector, cache, redisUserService);
+                this.updateStorages(username, resolvedSector, cache, profileCache);
             }
         }
 
@@ -53,14 +72,14 @@ public class PacketUserCheckProxyListener implements PacketListener<PacketUserCh
         }
 
         final String finalTarget = resolvedSector;
-        final Queue queue = this.queueManager.getMap().computeIfAbsent(finalTarget, Queue::new);
+        final SectorQueue sectorQueue = this.queueManager.getMap().computeIfAbsent(finalTarget, SectorQueue::new);
 
         VelocitySectorPlugin.getInstance().getServer()
                 .getPlayer(username)
-                .ifPresent(queue::addPlayer);
+                .ifPresent(sectorQueue::addPlayer);
     }
 
-    private String resolveSector(String username, UserFlagCache cache, RedisUserService redis) {
+    private String resolveSector(String username, UserFlagCache cache, ProfileCache redis) {
         final String cached = cache.getLastSector(username);
         if (this.isValid(cached)) {
             return cached;
@@ -78,7 +97,7 @@ public class PacketUserCheckProxyListener implements PacketListener<PacketUserCh
         return sector != null && !sector.isBlank() && !sector.trim().equalsIgnoreCase(UNKNOWN_VAL);
     }
 
-    private void updateStorages(String username, String sector, UserFlagCache cache, RedisUserService redis) {
+    private void updateStorages(String username, String sector, UserFlagCache cache, ProfileCache redis) {
         cache.setLastSector(username, sector);
         redis.setSectorName(username, sector);
     }

@@ -17,22 +17,29 @@ public class SectorData implements Serializable {
     private final String world;
     private final SectorType type;
     private final Corner center;
-
-    private boolean online;
-    private double tps;
-    private int playerCount;
-    private int maxPlayers;
-
+    private volatile boolean online;
+    private volatile double tps;
+    private volatile int playerCount;
+    private volatile int maxPlayers;
 
     @JsonCreator
-    public SectorData(@JsonProperty("name") String name, @JsonProperty("firstCorner") Corner firstCorner, @JsonProperty("secondCorner") Corner secondCorner, @JsonProperty("world") String world, @JsonProperty("type") SectorType type) {
+    public SectorData(@JsonProperty("name") String name,
+                      @JsonProperty("firstCorner") Corner firstCorner,
+                      @JsonProperty("secondCorner") Corner secondCorner,
+                      @JsonProperty("world") String world,
+                      @JsonProperty("type") SectorType type) {
         this.name = name;
         this.firstCorner = firstCorner;
         this.secondCorner = secondCorner;
         this.world = world;
         this.type = type;
-        this.center = new Corner(firstCorner.getPosX() + (secondCorner.getPosX() - firstCorner.getPosX()) / 2, 0, firstCorner.getPosZ() + (secondCorner.getPosZ() - firstCorner.getPosZ()) / 2);
+        this.center = new Corner(
+                firstCorner.getPosX() + (secondCorner.getPosX() - firstCorner.getPosX()) / 2,
+                0,
+                firstCorner.getPosZ() + (secondCorner.getPosZ() - firstCorner.getPosZ()) / 2
+        );
     }
-
-
 }
+
+
+

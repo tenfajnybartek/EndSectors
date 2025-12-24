@@ -48,14 +48,6 @@ public class PlayerMoveListener implements Listener {
 
     private final PaperSector paperSector;
 
-
-
-
-
-
-
-
-
     @EventHandler
     public void onTeleport(PlayerTeleportEvent event) {
         Player player = event.getPlayer();
@@ -92,8 +84,6 @@ public class PlayerMoveListener implements Listener {
 
         Bukkit.getScheduler().runTask(paperSector, () -> processSectorTransfer(player, userProfile, current, targetSector));
     }
-
-
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {

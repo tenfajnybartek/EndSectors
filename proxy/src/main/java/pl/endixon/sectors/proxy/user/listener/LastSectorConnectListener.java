@@ -1,4 +1,23 @@
-package pl.endixon.sectors.proxy.listener;
+/*
+ *
+ *  EndSectors  Non-Commercial License
+ *  (c) 2025 Endixon
+ *
+ *  Permission is granted to use, copy, and
+ *  modify this software **only** for personal
+ *  or educational purposes.
+ *
+ *   Commercial use, redistribution, claiming
+ *  this work as your own, or copying code
+ *  without explicit permission is strictly
+ *  prohibited.
+ *
+ *  Visit https://github.com/Endixon/EndSectors
+ *  for more info.
+ *
+ */
+
+package pl.endixon.sectors.proxy.user.listener;
 
 import com.google.inject.Inject;
 import com.velocitypowered.api.event.Subscribe;
@@ -10,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 import pl.endixon.sectors.common.packet.PacketChannel;
 import pl.endixon.sectors.common.packet.object.PacketUserCheck;
 import pl.endixon.sectors.proxy.VelocitySectorPlugin;
-import pl.endixon.sectors.proxy.queue.QueueManager;
+import pl.endixon.sectors.proxy.manager.QueueManager;
 
 public class LastSectorConnectListener {
 

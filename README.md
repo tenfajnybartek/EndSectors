@@ -35,7 +35,7 @@ Check out an **interactive sector map example**: [Sectors Generator](https://osk
 - 🚪 **Smooth teleportation** between sectors on border crossing
 - 🔄 **Real-time player data synchronization** (inventory, enderchest, gamemode, fly status, etc.)
 - 💬 **Global chat** synchronized across all sectors
-- 🎯 **Advanced sector queue system** – players are sent to their last sector or a random one for load balancing
+- 🎯 **Advanced sector sectorQueue system** – players are sent to their last sector or a random one for load balancing
 - ⚡ **Plug-and-play** – configure JSON and sector management works automatically
 
 ---

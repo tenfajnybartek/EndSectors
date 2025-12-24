@@ -24,11 +24,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pl.endixon.sectors.paper.SectorsAPI;
-
 import pl.endixon.sectors.paper.user.profile.UserProfile;
 import pl.endixon.sectors.tools.inventory.HomeWindow;
 import pl.endixon.sectors.tools.user.profile.PlayerProfile;
-import pl.endixon.sectors.tools.user.profile.PlayerProfileRepository;
 import pl.endixon.sectors.tools.user.profile.ProfileCache;
 import pl.endixon.sectors.tools.utils.MessagesUtil;
 

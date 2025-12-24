@@ -1,3 +1,22 @@
+/*
+ *
+ * EndSectors – Non-Commercial License
+ * (c) 2025 Endixon
+ *
+ * Permission is granted to use, copy, and
+ * modify this software **only** for personal
+ * or educational purposes.
+ *
+ * Commercial use, redistribution, claiming
+ * this work as your own, or copying code
+ * without explicit permission is strictly
+ * prohibited.
+ *
+ * Visit https://github.com/Endixon/EndSectors
+ * for more info.
+ *
+ */
+
 package pl.endixon.sectors.common.util;
 
 import java.util.regex.Matcher;
@@ -10,9 +29,6 @@ public class ChatUtil {
     private static final String COLOR_MARK = "§c";
     private static final String COLOR_LOGGER = "§6";
     private static final String COLOR_LOGGER_MARK = "§c";
-    private static final String COLOR_TPS_GREEN = "§a";
-    private static final String COLOR_TPS_YELLOW = "§e";
-    private static final String COLOR_TPS_RED = "§c";
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
 
     public static String fixColors(String message) {

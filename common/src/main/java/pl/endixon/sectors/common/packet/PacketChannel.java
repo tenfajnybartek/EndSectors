@@ -22,7 +22,6 @@ package pl.endixon.sectors.common.packet;
 public interface PacketChannel {
 
     String PACKET_CONFIGURATION_REQUEST = "PacketConfigurationRequest";
-    String PACKET_TELEPORT_HOME = "PacketTeleportHome";
     String PACKET_BROADCAST_MESSAGE = "PacketBroadcastMessage";
     String PACKET_SEND_MESSAGE_TO_PLAYER = "PacketSendMessageToPlayer";
     String PACKET_BROADCAST_TITLE = "PacketBroadcastTitle";
@@ -31,7 +30,6 @@ public interface PacketChannel {
     String PACKET_TELEPORT_TO_SECTOR = "TeleportToSector";
     String PACKET_SECTOR_CONNECTED = "PacketSectorConnected";
     String PACKET_SECTOR_DISCONNECTED = "PacketSectorDisconnected";
-    String PACKET_SECTOR_INFO_QUEUE = "PacketSectorInfoQueue";
     String PACKET_EXECUTE_COMMAND = "PacketExecuteCommand";
     String PACKET_PLAYER_INFO_REQUEST = "PacketPlayerInfoRequest";
     String PACKET_SECTOR_CHAT_BROADCAST = "PacketSectorChatBroadcast";

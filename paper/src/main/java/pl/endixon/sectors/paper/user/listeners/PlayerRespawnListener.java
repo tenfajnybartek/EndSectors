@@ -32,7 +32,6 @@ import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.user.profile.UserProfile;
 import pl.endixon.sectors.paper.user.profile.UserProfileRepository;
-import pl.endixon.sectors.paper.util.ChatAdventureUtil;
 import pl.endixon.sectors.paper.util.MessagesUtil;
 
 @AllArgsConstructor

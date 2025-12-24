@@ -1,4 +1,23 @@
-package pl.endixon.sectors.proxy.queue.runnable;
+/*
+ *
+ *  EndSectors  Non-Commercial License
+ *  (c) 2025 Endixon
+ *
+ *  Permission is granted to use, copy, and
+ *  modify this software **only** for personal
+ *  or educational purposes.
+ *
+ *   Commercial use, redistribution, claiming
+ *  this work as your own, or copying code
+ *  without explicit permission is strictly
+ *  prohibited.
+ *
+ *  Visit https://github.com/Endixon/EndSectors
+ *  for more info.
+ *
+ */
+
+package pl.endixon.sectors.proxy.runnable;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
@@ -8,8 +27,8 @@ import net.kyori.adventure.title.Title;
 import pl.endixon.sectors.common.sector.SectorData;
 import pl.endixon.sectors.common.util.Logger;
 import pl.endixon.sectors.proxy.VelocitySectorPlugin;
-import pl.endixon.sectors.proxy.queue.Queue;
-import pl.endixon.sectors.proxy.queue.QueueManager;
+import pl.endixon.sectors.proxy.sector.SectorQueue;
+import pl.endixon.sectors.proxy.manager.QueueManager;
 import pl.endixon.sectors.proxy.manager.SectorManager;
 
 import java.util.ArrayList;
@@ -29,17 +48,17 @@ public class QueueRunnable implements Runnable {
     private final QueueManager queueManager = VelocitySectorPlugin.getInstance().getQueueManager();
     private final SectorManager sectorManager = VelocitySectorPlugin.getInstance().getSectorManager();
 
-    private static final int MAX_RELEASE_PER_TICK = 3;
+    private static final int MAX_RELEASE_PER_TICK = 20;
 
     @Override
     public void run() {
-        for (final Queue queue : this.queueManager.getMap().values()) {
-            this.processQueue(queue);
+        for (final SectorQueue sectorQueue : this.queueManager.getMap().values()) {
+            this.processQueue(sectorQueue);
         }
     }
 
-    private void processQueue(final Queue queue) {
-        final List<Player> allPlayers = queue.getPlayers();
+    private void processQueue(final SectorQueue sectorQueue) {
+        final List<Player> allPlayers = sectorQueue.getPlayers();
         if (allPlayers.isEmpty()) {
             return;
         }
@@ -49,7 +68,7 @@ public class QueueRunnable implements Runnable {
             return;
         }
 
-        final String sectorName = queue.getSector();
+        final String sectorName = sectorQueue.getSector();
         final SectorData sectorData = this.sectorManager.getSectorData(sectorName);
         final boolean online = (sectorData != null && sectorData.isOnline());
         final List<Player> sortedQueue = this.sortQueueByPriority(allPlayers);
@@ -70,26 +89,35 @@ public class QueueRunnable implements Runnable {
     }
 
     private void processPlayersInQueue(final List<Player> sortedQueue, final List<Player> originalList, final String sectorName, final SectorData sectorData, final boolean online) {
+        if (!online || sectorData == null) {
+            this.handleOfflineSector(sortedQueue, sectorName);
+            return;
+        }
 
         int releasedThisTick = 0;
         final int totalInQueue = sortedQueue.size();
         final List<Player> toRemoveFromQueue = new ArrayList<>();
 
-        int virtualOccupiedSlots = (sectorData != null) ? sectorData.getPlayerCount() : 0;
-        int maxSlots = (sectorData != null) ? sectorData.getMaxPlayers() : 0;
+
+        int currentCount = sectorData.getPlayerCount();
+        final int maxSlots = sectorData.getMaxPlayers();
 
         for (int i = 0; i < totalInQueue; i++) {
             final Player player = sortedQueue.get(i);
             final int positionInQueue = i + 1;
-            boolean isFull = virtualOccupiedSlots >= maxSlots;
 
-            if (online && !isFull && releasedThisTick < MAX_RELEASE_PER_TICK) {
-                this.sendPlayerToSector(player, sectorName, toRemoveFromQueue);
+            final boolean isFull = currentCount >= maxSlots;
+
+            if (!isFull && releasedThisTick < MAX_RELEASE_PER_TICK) {
+                this.sendPlayerToSector(player, sectorName);
+                toRemoveFromQueue.add(player);
                 releasedThisTick++;
-                virtualOccupiedSlots++;
+                currentCount++;
+                sectorData.setPlayerCount(currentCount);
+
                 continue;
             }
-            this.dispatchTitle(player, sectorName, online, positionInQueue, totalInQueue, isFull);
+            this.dispatchTitle(player, sectorName, true, positionInQueue, totalInQueue, isFull);
         }
 
         if (!toRemoveFromQueue.isEmpty()) {
@@ -97,11 +125,18 @@ public class QueueRunnable implements Runnable {
         }
     }
 
-    private void sendPlayerToSector(final Player player, final String sectorName, final List<Player> toRemove) {
+    private void sendPlayerToSector(final Player player, final String sectorName) {
         this.proxyServer.getServer(sectorName).ifPresent(server -> {
-            Logger.info(String.format("[Queue] Release: %s -> %s", player.getUsername(), sectorName));
+            Logger.info(String.format("[SectorQueue] Release: %s -> %s", player.getUsername(), sectorName));
+            player.resetTitle();
             player.createConnectionRequest(server).fireAndForget();
         });
+    }
+
+    private void handleOfflineSector(final List<Player> players, final String sectorName) {
+        for (int i = 0; i < players.size(); i++) {
+            this.dispatchTitle(players.get(i), sectorName, false, i + 1, players.size(), false);
+        }
     }
 
     private List<Player> sortQueueByPriority(final List<Player> players) {

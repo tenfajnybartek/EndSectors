@@ -17,13 +17,13 @@
  *
  */
 
-package pl.endixon.sectors.proxy.listener;
+package pl.endixon.sectors.proxy.user.listener;
 
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.DisconnectEvent;
 import com.velocitypowered.api.proxy.Player;
 import pl.endixon.sectors.proxy.VelocitySectorPlugin;
-import pl.endixon.sectors.proxy.queue.Queue;
+import pl.endixon.sectors.proxy.sector.SectorQueue;
 
 public class DisconnectEventHandler {
 
@@ -31,8 +31,8 @@ public class DisconnectEventHandler {
     public void onPlayerDisconnect(DisconnectEvent event) {
         Player player = event.getPlayer();
 
-        for (Queue queue : VelocitySectorPlugin.getInstance().getQueueManager().getMap().values()) {
-            queue.getPlayers().removeIf(p -> p.getUsername().equalsIgnoreCase(player.getUsername()));
+        for (SectorQueue sectorQueue : VelocitySectorPlugin.getInstance().getQueueManager().getMap().values()) {
+            sectorQueue.getPlayers().removeIf(p -> p.getUsername().equalsIgnoreCase(player.getUsername()));
         }
     }
 }

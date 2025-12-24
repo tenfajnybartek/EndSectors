@@ -44,13 +44,13 @@ import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.common.util.Corner;
 import pl.endixon.sectors.proxy.command.SectorsCommand;
 import pl.endixon.sectors.proxy.config.ConfigCreator;
-import pl.endixon.sectors.proxy.listener.LastSectorConnectListener;
+import pl.endixon.sectors.proxy.user.listener.LastSectorConnectListener;
 import pl.endixon.sectors.proxy.manager.SectorManager;
-import pl.endixon.sectors.proxy.manager.TeleportationManager;
-import pl.endixon.sectors.proxy.queue.QueueManager;
-import pl.endixon.sectors.proxy.queue.runnable.QueueRunnable;
+import pl.endixon.sectors.proxy.manager.QueueManager;
+import pl.endixon.sectors.proxy.runnable.QueueRunnable;
 import pl.endixon.sectors.proxy.redis.listener.*;
-import pl.endixon.sectors.proxy.user.RedisUserService;
+import pl.endixon.sectors.proxy.user.listener.ProxyPingListener;
+import pl.endixon.sectors.proxy.user.profile.ProfileCache;
 import pl.endixon.sectors.proxy.util.LoggerUtil;
 
 @Plugin(id = "endsectors-proxy", name = "EndSectorsProxy", version = "1.0")
@@ -63,11 +63,10 @@ public class VelocitySectorPlugin {
     private final ProxyServer server;
     private final Path dataDirectory;
     private SectorManager sectorManager;
-    private RedisUserService redisUserService;
+    private ProfileCache profileCache;
 
     public final RedisManager redisManager = new RedisManager();
     private QueueManager QueueManager;
-    private TeleportationManager teleportationManager;
 
     @Inject
     public VelocitySectorPlugin(ProxyServer server, @DataDirectory Path dataDirectory) {
@@ -79,8 +78,8 @@ public class VelocitySectorPlugin {
         return redisManager;
     }
 
-    public RedisUserService getRedisUserService() {
-        return redisUserService;
+    public ProfileCache getProfileCache() {
+        return profileCache;
     }
 
     @Subscribe
@@ -89,8 +88,7 @@ public class VelocitySectorPlugin {
         LoggerUtil.info("Starting EndSectors-Proxy...");
         System.setProperty("io.netty.transport.noNative", "true");
         this.sectorManager = new SectorManager();
-        this.teleportationManager = new TeleportationManager();
-        this.redisUserService = new RedisUserService(this);
+        this.profileCache = new ProfileCache(this);
         this.QueueManager = new QueueManager();
         this.loadSectors();
         this.initRedisManager();
@@ -210,6 +208,7 @@ public class VelocitySectorPlugin {
 
     private void initListeners() {
         server.getEventManager().register(this, new LastSectorConnectListener(this));
+        server.getEventManager().register(this, new ProxyPingListener());
 
         server.getEventManager().register(this, new Object() {
             @Subscribe

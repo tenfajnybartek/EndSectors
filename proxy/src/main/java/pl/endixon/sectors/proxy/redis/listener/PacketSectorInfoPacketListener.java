@@ -23,7 +23,7 @@ import pl.endixon.sectors.common.packet.PacketListener;
 import pl.endixon.sectors.common.packet.object.PacketSectorInfo;
 import pl.endixon.sectors.common.sector.SectorData;
 import pl.endixon.sectors.proxy.VelocitySectorPlugin;
-import pl.endixon.sectors.proxy.util.LoggerUtil;
+
 
 
 public class PacketSectorInfoPacketListener implements PacketListener<PacketSectorInfo> {

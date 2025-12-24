@@ -19,22 +19,16 @@
 
 package pl.endixon.sectors.proxy.manager;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.velocitypowered.api.proxy.Player;
+import pl.endixon.sectors.proxy.sector.SectorQueue;
+import pl.endixon.sectors.proxy.sector.SectorQueueRegistry;
 
-public class TeleportationManager {
+import java.util.Optional;
 
-    private final Set<String> pending = new HashSet<>();
 
-    public void addPending(String playerName) {
-        pending.add(playerName);
-    }
+public class QueueManager extends SectorQueueRegistry<String, SectorQueue> {
 
-    public void removePending(String playerName) {
-        pending.remove(playerName);
-    }
-
-    public boolean isPending(String playerName) {
-        return pending.contains(playerName);
+    public Optional<SectorQueue> findQueueByPlayer(Player player) {
+        return this.getMap().values().stream().filter(sectorQueue -> sectorQueue.hasPlayer(player)).findFirst();
     }
 }
