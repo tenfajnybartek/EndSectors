@@ -65,9 +65,7 @@ public class QueueRunnable implements Runnable {
             return player.getCurrentServer().map(server -> {
                 final String currentServerName = server.getServerInfo().getName();
                 return !currentServerName.equalsIgnoreCase(QUEUE_SERVER_NAME);
-            }).orElseGet(() -> {
-                return false;
-            });
+            }).orElse(false);
         });
     }
 
