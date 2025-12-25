@@ -33,6 +33,7 @@ dependencies {
     compileOnly("net.kyori:adventure-text-minimessage:4.25.0")
     compileOnly("com.mojang:authlib:1.5.21")
     implementation("org.mongodb:mongo-java-driver:3.12.14")
+    implementation("io.nats:jnats:2.20.0")
 }
 
 tasks.named<ShadowJar>("shadowJar") {

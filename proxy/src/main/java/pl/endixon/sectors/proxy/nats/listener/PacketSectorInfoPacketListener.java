@@ -17,7 +17,7 @@
  *
  */
 
-package pl.endixon.sectors.proxy.redis.listener;
+package pl.endixon.sectors.proxy.nats.listener;
 
 import pl.endixon.sectors.common.packet.PacketListener;
 import pl.endixon.sectors.common.packet.object.PacketSectorInfo;
@@ -33,20 +33,14 @@ public class PacketSectorInfoPacketListener implements PacketListener<PacketSect
 
         final String targetSector = packet.getSector();
 
-        SectorData sector = VelocitySectorPlugin.getInstance()
-                .getSectorManager()
-                .getSectorData(targetSector);
+        SectorData sector = VelocitySectorPlugin.getInstance().getSectorManager().getSectorData(targetSector);
 
         if (sector == null) {
             return;
         }
-
         sector.setTps(packet.getTps());
         sector.setPlayerCount(packet.getPlayerCount());
         sector.setMaxPlayers(packet.getMaxPlayers());
         sector.setOnline(packet.isStatus());
-
-
-
     }
 }

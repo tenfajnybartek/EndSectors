@@ -69,7 +69,7 @@ public class SectorTeleport {
 
             LoggerUtil.info(() -> String.format("[Transfer] Sending teleport packet for %s", player.getName()));
             PacketRequestTeleportSector packet = new PacketRequestTeleportSector(player.getName(), sector.getName());
-            PaperSector.getInstance().getRedisService().publish(PacketChannel.PACKET_TELEPORT_TO_SECTOR, packet);
+            PaperSector.getInstance().getNatsManager().publish(PacketChannel.PACKET_TELEPORT_TO_SECTOR.getSubject(), packet);
             long duration = System.currentTimeMillis() - startTime;
             LoggerUtil.info(() -> String.format("[Transfer] Teleport process finished for %s (ms: %d)", player.getName(), duration));
         });

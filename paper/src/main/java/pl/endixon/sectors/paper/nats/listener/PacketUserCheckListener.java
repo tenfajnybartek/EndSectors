@@ -17,12 +17,14 @@
  *
  */
 
-package pl.endixon.sectors.paper.redis.listener;
+package pl.endixon.sectors.paper.nats.listener;
 
 import pl.endixon.sectors.common.packet.PacketChannel;
 import pl.endixon.sectors.common.packet.PacketListener;
 import pl.endixon.sectors.common.packet.object.PacketUserCheck;
+import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.paper.PaperSector;
+import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.user.profile.UserProfile;
 import pl.endixon.sectors.paper.user.profile.UserProfileRepository;
 
@@ -32,11 +34,17 @@ public class PacketUserCheckListener implements PacketListener<PacketUserCheck> 
 
     @Override
     public void handle(PacketUserCheck packet) {
+        final Sector currentSector = PaperSector.getInstance().getSectorManager().getCurrentSector();
         String username = packet.getUsername().toLowerCase();
         Optional<UserProfile> user = UserProfileRepository.getUser(username);
         boolean exists = user.isPresent();
         String sector = user.map(UserProfile::getSectorName).orElse(null);
         PacketUserCheck response = new PacketUserCheck(username, exists, sector);
-        PaperSector.getInstance().getRedisManager().publish(PacketChannel.USER_CHECK_RESPONSE, response);
+
+        if (currentSector == null || currentSector.getType() != SectorType.QUEUE) {
+            return;
+        }
+
+        PaperSector.getInstance().getNatsManager().publish(PacketChannel.USER_CHECK_RESPONSE.getSubject(), response);
     }
 }

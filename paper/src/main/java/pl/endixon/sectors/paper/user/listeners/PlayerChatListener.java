@@ -55,6 +55,6 @@ public class PlayerChatListener implements Listener {
         String plainMessage = PlainTextComponentSerializer.plainText().serialize(messageComponent);
 
         PacketSectorChatBroadcast packet = new PacketSectorChatBroadcast(player.getName(), plainMessage);
-        paperSector.getRedisManager().publish(PacketChannel.PACKET_SECTOR_CHAT_BROADCAST, packet);
+        paperSector.getNatsManager().publish(PacketChannel.PACKET_SECTOR_CHAT_BROADCAST.getSubject(), packet);
     }
 }

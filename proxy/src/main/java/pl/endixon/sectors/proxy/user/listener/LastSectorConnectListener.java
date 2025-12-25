@@ -57,7 +57,7 @@ public class LastSectorConnectListener {
         String username = player.getUsername();
         scheduler.schedule(() -> {
             PacketUserCheck packet = new PacketUserCheck(username);
-            plugin.getRedisManager().publish(PacketChannel.USER_CHECK_REQUEST, packet);
+            plugin.getNatsManager().publish(PacketChannel.USER_CHECK_REQUEST.getSubject(), packet);
         }, 250, TimeUnit.MILLISECONDS);
     }
 }

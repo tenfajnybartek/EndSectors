@@ -17,13 +17,12 @@
  *
  */
 
-package pl.endixon.sectors.paper.redis.listener;
+package pl.endixon.sectors.paper.nats.listener;
 
 import pl.endixon.sectors.common.packet.PacketListener;
 import pl.endixon.sectors.paper.PaperSector;
-import pl.endixon.sectors.paper.redis.packet.PacketSectorInfo;
+import pl.endixon.sectors.paper.nats.packet.PacketSectorInfo;
 import pl.endixon.sectors.paper.sector.Sector;
-import pl.endixon.sectors.paper.util.LoggerUtil;
 
 public class PacketSectorInfoPacketListener implements PacketListener<PacketSectorInfo> {
 

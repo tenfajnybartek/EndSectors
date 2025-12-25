@@ -19,8 +19,10 @@
  */
 package pl.endixon.sectors.common.packet.object;
 
+import lombok.Getter;
 import pl.endixon.sectors.common.packet.Packet;
 
+@Getter
 public class PacketUserCheck implements Packet {
 
     private final String username;
@@ -41,15 +43,4 @@ public class PacketUserCheck implements Packet {
         this.lastSector = lastSector;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public Boolean getExists() {
-        return exists;
-    }
-
-    public String getLastSector() {
-        return lastSector;
-    }
 }

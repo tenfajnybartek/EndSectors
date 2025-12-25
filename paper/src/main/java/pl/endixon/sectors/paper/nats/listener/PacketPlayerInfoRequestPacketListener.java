@@ -17,14 +17,14 @@
  *
  */
 
-package pl.endixon.sectors.paper.redis.listener;
+package pl.endixon.sectors.paper.nats.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import pl.endixon.sectors.common.packet.PacketListener;
 import pl.endixon.sectors.paper.PaperSector;
-import pl.endixon.sectors.paper.redis.packet.PacketPlayerInfoRequest;
+import pl.endixon.sectors.paper.nats.packet.PacketPlayerInfoRequest;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.user.profile.UserProfileRepository;
 import pl.endixon.sectors.paper.util.LoggerUtil;

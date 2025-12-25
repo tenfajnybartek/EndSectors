@@ -17,7 +17,8 @@
  *
  */
 
-package pl.endixon.sectors.proxy.redis.listener;
+package pl.endixon.sectors.proxy.nats.listener;
+
 
 import pl.endixon.sectors.common.packet.PacketListener;
 import pl.endixon.sectors.common.packet.object.PacketConfiguration;
@@ -54,6 +55,6 @@ public class PacketConfigurationRequestPacketListener implements PacketListener<
 
         final PacketConfiguration responsePacket = new PacketConfiguration(sectorsData.toArray(new SectorData[0]));
 
-        VelocitySectorPlugin.getInstance().getRedisService().publish(targetSector, responsePacket);
+        VelocitySectorPlugin.getInstance().getNatsManager().publish(targetSector, responsePacket);
     }
 }

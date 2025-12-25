@@ -19,8 +19,10 @@
 
 package pl.endixon.sectors.common.packet.object;
 
+import lombok.Getter;
 import pl.endixon.sectors.common.packet.Packet;
 
+@Getter
 public class PacketSectorChatBroadcast implements Packet {
 
     private final String senderName;
@@ -31,11 +33,4 @@ public class PacketSectorChatBroadcast implements Packet {
         this.message = message;
     }
 
-    public String getSenderName() {
-        return senderName;
-    }
-
-    public String getMessage() {
-        return message;
-    }
 }

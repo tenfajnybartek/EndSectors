@@ -17,7 +17,7 @@
  *
  */
 
-package pl.endixon.sectors.paper.redis.listener;
+package pl.endixon.sectors.paper.nats.listener;
 
 import org.bukkit.Bukkit;
 import pl.endixon.sectors.common.packet.PacketListener;

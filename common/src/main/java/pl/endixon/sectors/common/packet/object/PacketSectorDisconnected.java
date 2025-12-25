@@ -19,8 +19,10 @@
 
 package pl.endixon.sectors.common.packet.object;
 
+import lombok.Getter;
 import pl.endixon.sectors.common.packet.Packet;
 
+@Getter
 public class PacketSectorDisconnected implements Packet {
 
     private final String sector;
@@ -29,7 +31,4 @@ public class PacketSectorDisconnected implements Packet {
         this.sector = sector;
     }
 
-    public String getSector() {
-        return sector;
-    }
 }

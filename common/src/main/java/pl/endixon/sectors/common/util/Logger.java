@@ -27,10 +27,6 @@ public class Logger {
         System.out.println(ChatUtil.fixColorsLogger(PREFIX + "§f" + object));
     }
 
-    public static void warn(Object object) {
-        System.out.println(ChatUtil.fixColorsLogger(PREFIX + "§e" + object));
-    }
-
     public static void error(Object object) {
         System.err.println(ChatUtil.fixColorsLogger(PREFIX + "§c" + object));
     }

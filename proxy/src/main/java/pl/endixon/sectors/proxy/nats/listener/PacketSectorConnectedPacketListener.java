@@ -17,7 +17,7 @@
  *
  */
 
-package pl.endixon.sectors.proxy.redis.listener;
+package pl.endixon.sectors.proxy.nats.listener;
 
 import pl.endixon.sectors.common.packet.PacketListener;
 import pl.endixon.sectors.common.packet.object.PacketSectorConnected;

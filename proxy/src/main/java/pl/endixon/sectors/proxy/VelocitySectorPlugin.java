@@ -38,17 +38,18 @@ import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import pl.endixon.sectors.common.packet.PacketChannel;
 import pl.endixon.sectors.common.packet.object.*;
+import pl.endixon.sectors.common.nats.NatsManager;
 import pl.endixon.sectors.common.redis.RedisManager;
 import pl.endixon.sectors.common.sector.SectorData;
 import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.common.util.Corner;
 import pl.endixon.sectors.proxy.command.SectorsCommand;
 import pl.endixon.sectors.proxy.config.ConfigCreator;
+import pl.endixon.sectors.proxy.nats.listener.*;
 import pl.endixon.sectors.proxy.user.listener.LastSectorConnectListener;
 import pl.endixon.sectors.proxy.manager.SectorManager;
 import pl.endixon.sectors.proxy.manager.QueueManager;
 import pl.endixon.sectors.proxy.runnable.QueueRunnable;
-import pl.endixon.sectors.proxy.redis.listener.*;
 import pl.endixon.sectors.proxy.user.listener.ProxyPingListener;
 import pl.endixon.sectors.proxy.user.profile.ProfileCache;
 import pl.endixon.sectors.proxy.util.LoggerUtil;
@@ -66,6 +67,8 @@ public class VelocitySectorPlugin {
     private ProfileCache profileCache;
 
     public final RedisManager redisManager = new RedisManager();
+    public final NatsManager natsManager = new NatsManager();
+
     private QueueManager QueueManager;
 
     @Inject
@@ -92,6 +95,7 @@ public class VelocitySectorPlugin {
         this.QueueManager = new QueueManager();
         this.loadSectors();
         this.initRedisManager();
+        this.initNatsManager();
         this.initListeners();
         this.initCommands();
         this.getServer().getScheduler().buildTask(this, new QueueRunnable()).repeat(2, TimeUnit.SECONDS).schedule();
@@ -193,18 +197,67 @@ public class VelocitySectorPlugin {
 
     private void initRedisManager() {
         this.redisManager.initialize("127.0.0.1", 6379, "");
-        this.redisManager.subscribe(PacketChannel.PACKET_CONFIGURATION_REQUEST, new PacketConfigurationRequestPacketListener(), PacketConfigurationRequest.class);
-        this.redisManager.subscribe(PacketChannel.PACKET_BROADCAST_MESSAGE, new PacketBroadcastMessagePacketListener(), PacketBroadcastMessage.class);
-        this.redisManager.subscribe(PacketChannel.PACKET_SEND_MESSAGE_TO_PLAYER, new PacketSendMessageToPlayerPacketListener(), PacketSendMessageToPlayer.class);
-        this.redisManager.subscribe(PacketChannel.PACKET_BROADCAST_TITLE, new PacketBroadcastTitlePacketListener(), PacketBroadcastTitle.class);
-        this.redisManager.subscribe(PacketChannel.USER_CHECK_RESPONSE, new PacketUserCheckProxyListener(), PacketUserCheck.class);
-        this.redisManager.subscribe(PacketChannel.PACKET_TELEPORT_TO_SECTOR, new TeleportToSectorListener(), PacketRequestTeleportSector.class);
-        this.redisManager.subscribe(PacketChannel.PACKET_SECTOR_CONNECTED, new PacketSectorConnectedPacketListener(), PacketSectorConnected.class);
-        this.redisManager.subscribe(PacketChannel.PACKET_SECTOR_DISCONNECTED, new PacketSectorDisconnectedPacketListener(), PacketSectorDisconnected.class);
-        this.redisManager.subscribe(PacketChannel.PACKET_SECTOR_INFO, new PacketSectorInfoPacketListener(), PacketSectorInfo.class);
-
         LoggerUtil.info("RedisManager initialized.");
     }
+
+
+    private void initNatsManager() {
+        this.natsManager.initialize(
+                "nats://127.0.0.1:4222",
+                "proxy"
+        );
+        LoggerUtil.info("NatsManager initialized.");
+
+
+        this.natsManager.subscribe(
+                PacketChannel.PACKET_CONFIGURATION_REQUEST.getSubject(),
+                new PacketConfigurationRequestPacketListener(),
+                PacketConfigurationRequest.class
+        );
+
+        this.natsManager.subscribe(
+                PacketChannel.PACKET_BROADCAST_MESSAGE.getSubject(),
+                new PacketBroadcastMessagePacketListener(),
+                PacketBroadcastMessage.class
+        );
+
+        this.natsManager.subscribe(
+                PacketChannel.PACKET_SEND_MESSAGE_TO_PLAYER.getSubject(),
+                new PacketSendMessageToPlayerPacketListener(),
+                PacketSendMessageToPlayer.class
+        );
+
+        this.natsManager.subscribe(
+                PacketChannel.USER_CHECK_RESPONSE.getSubject(),
+                new PacketUserCheckProxyListener(),
+                PacketUserCheck.class
+        );
+
+        this.natsManager.subscribe(
+                PacketChannel.PACKET_TELEPORT_TO_SECTOR.getSubject(),
+                new TeleportToSectorListener(),
+                PacketRequestTeleportSector.class
+        );
+
+        this.natsManager.subscribe(
+                PacketChannel.PACKET_SECTOR_CONNECTED.getSubject(),
+                new PacketSectorConnectedPacketListener(),
+                PacketSectorConnected.class
+        );
+
+        this.natsManager.subscribe(
+                PacketChannel.PACKET_SECTOR_DISCONNECTED.getSubject(),
+                new PacketSectorDisconnectedPacketListener(),
+                PacketSectorDisconnected.class
+        );
+
+        this.natsManager.subscribe(
+                PacketChannel.PACKET_SECTOR_INFO.getSubject(),
+                new PacketSectorInfoPacketListener(),
+                PacketSectorInfo.class
+        );
+    }
+
 
     private void initListeners() {
         server.getEventManager().register(this, new LastSectorConnectListener(this));

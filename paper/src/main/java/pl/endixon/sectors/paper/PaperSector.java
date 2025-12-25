@@ -29,18 +29,18 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import pl.endixon.sectors.common.packet.PacketChannel;
 import pl.endixon.sectors.common.packet.object.*;
+import pl.endixon.sectors.common.nats.NatsManager;
 import pl.endixon.sectors.common.redis.RedisManager;
+import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.paper.command.ChannelCommand;
 import pl.endixon.sectors.paper.command.SectorCommand;
 import pl.endixon.sectors.paper.config.ConfigLoader;
 import pl.endixon.sectors.paper.config.MessageLoader;
-
 import pl.endixon.sectors.paper.manager.SectorManager;
-import pl.endixon.sectors.paper.redis.listener.*;
-import pl.endixon.sectors.paper.redis.packet.PacketExecuteCommand;
-import pl.endixon.sectors.paper.redis.packet.PacketPlayerInfoRequest;
-import pl.endixon.sectors.paper.redis.packet.PacketSectorInfo;
-import pl.endixon.sectors.paper.sector.Sector;
+import pl.endixon.sectors.paper.nats.listener.*;
+import pl.endixon.sectors.paper.nats.packet.PacketExecuteCommand;
+import pl.endixon.sectors.paper.nats.packet.PacketPlayerInfoRequest;
+import pl.endixon.sectors.paper.nats.packet.PacketSectorInfo;
 import pl.endixon.sectors.paper.sector.SectorTeleport;
 import pl.endixon.sectors.paper.task.*;
 import pl.endixon.sectors.paper.user.listeners.*;
@@ -55,7 +55,7 @@ public class PaperSector extends JavaPlugin {
     private ProtocolManager protocolManager;
     private SectorManager sectorManager;
     public final RedisManager redisManager = new RedisManager();
-    private boolean inited = false;
+    public final NatsManager natsManager = new NatsManager();
     private final SectorTeleport sectorTeleport = new SectorTeleport(this);
     private final SendSectorInfoTask sectorInfoTask = new SendSectorInfoTask(this);
     private ConfigLoader configuration;
@@ -65,34 +65,30 @@ public class PaperSector extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-
         protocolManager = ProtocolLibrary.getProtocolManager();
         this.loadFiles();
-        this.initManager(configuration);
-        this.redisManager.publish(PacketChannel.PACKET_CONFIGURATION_REQUEST, new PacketConfigurationRequest(this.getSectorManager().getCurrentSectorName()));
-
+        this.initRedisManager();
+        this.initNatsManager(configuration);
+        this.natsManager.publish(PacketChannel.PACKET_CONFIGURATION_REQUEST.getSubject(), new PacketConfigurationRequest(this.getSectorManager().getCurrentSectorName()));
         this.initListeners();
         this.initCommands();
         this.scheduleTasks(configuration);
-
         new SectorsAPI(this);
         this.loadAllPlayers();
-
         LoggerUtil.info("EndSectors enabled successfully.");
     }
 
 
     public void loadFiles() {
-        LoggerUtil.info("Loading system configurations...");
         this.configuration = ConfigLoader.load(getDataFolder());
         this.messageLoader = MessageLoader.load(getDataFolder());
-        LoggerUtil.info("Configuration and Messages synchronized.");
     }
 
     @Override
     public void onDisable() {
         PacketSectorDisconnected packet = new PacketSectorDisconnected(this.getSectorManager().getCurrentSectorName());
-        this.redisManager.publish(PacketChannel.PACKET_SECTOR_DISCONNECTED, packet);
+        this.natsManager.publish(PacketChannel.PACKET_SECTOR_DISCONNECTED.getSubject(), packet);
+        this.natsManager.shutdown();
         this.redisManager.shutdown();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -100,55 +96,82 @@ public class PaperSector extends JavaPlugin {
         }
     }
 
-    public void init() {
-        Sector currentSector = sectorManager.getCurrentSector();
-        String currentSectorName = sectorManager.getCurrentSectorName();
-
-        if (currentSector == null) {
-            LoggerUtil.info("Current sector is NULL! Make sure that the sector name '" + currentSectorName + "' matches the one defined in the proxy plugin configuration and in velocity.toml.");
-            Bukkit.shutdown();
-            return;
-        }
-
-        LoggerUtil.info("Loaded " + sectorManager.getSectors().size() + " sectors!");
-        LoggerUtil.info("Current sector: " + currentSectorName);
-
-        if (!inited) {
-            inited = true;
-            Bukkit.getScheduler().runTaskTimerAsynchronously(this, sectorInfoTask, 0L, 20L * 5);
-        }
-        redisManager.publish(PacketChannel.PACKET_SECTOR_CONNECTED, new PacketSectorConnected(currentSectorName));
-    }
 
     private void loadAllPlayers() {
         UserProfileCache.warmup();
     }
 
-    private void initManager(ConfigLoader config) {
-        LoggerUtil.info("Initializing managers...");
-        this.sectorManager = new SectorManager(this, config.currentSector);
+    private void initRedisManager() {
         this.redisManager.initialize("127.0.0.1", 6379, "");
-
-        this.redisManager.subscribe(config.currentSector, new PacketConfigurationPacketListener(), PacketConfiguration.class);
-        this.redisManager.subscribe(PacketChannel.PACKET_EXECUTE_COMMAND, new PacketExecuteCommandPacketListener(), PacketExecuteCommand.class);
-        this.redisManager.subscribe(PacketChannel.PACKET_PLAYER_INFO_REQUEST, new PacketPlayerInfoRequestPacketListener(), PacketPlayerInfoRequest.class);
-        this.redisManager.subscribe(PacketChannel.PACKET_SECTOR_CHAT_BROADCAST, new PacketSectorChatBroadcastPacketListener(), PacketSectorChatBroadcast.class);
-        this.redisManager.subscribe(PacketChannel.PACKET_SECTOR_INFO, new PacketSectorInfoPacketListener(), PacketSectorInfo.class);
-        this.redisManager.subscribe(PacketChannel.USER_CHECK_REQUEST, new PacketUserCheckListener(), PacketUserCheck.class);
-        this.redisManager.subscribe(PacketChannel.PACKET_SECTOR_CONNECTED, new PacketSectorConnectedPacketListener(), PacketSectorConnected.class);
-        this.redisManager.subscribe(PacketChannel.PACKET_SECTOR_DISCONNECTED, new PacketSectorDisconnectedPacketListener(), PacketSectorDisconnected.class);
-
-        LoggerUtil.info("Managers initialized successfully.");
+        LoggerUtil.info("RedisManager initialized.");
     }
 
-    private void initListeners() {
+    private void initNatsManager(ConfigLoader config) {
+        this.sectorManager = new SectorManager(this, config.currentSector);
+        this.natsManager.initialize(
+                "nats://127.0.0.1:4222",
+                config.currentSector
+        );
+        LoggerUtil.info("NatsManager initialized for sector: " + config.currentSector);
+        this.natsManager.subscribe(
+                config.currentSector,
+                new PacketConfigurationPacketListener(),
+                PacketConfiguration.class
+        );
+
+        this.natsManager.subscribe(
+                PacketChannel.PACKET_EXECUTE_COMMAND.getSubject(),
+                new PacketExecuteCommandPacketListener(),
+                PacketExecuteCommand.class
+        );
+
+        this.natsManager.subscribe(
+                PacketChannel.PACKET_PLAYER_INFO_REQUEST.getSubject(),
+                new PacketPlayerInfoRequestPacketListener(),
+                PacketPlayerInfoRequest.class
+        );
+
+        this.natsManager.subscribe(
+                PacketChannel.PACKET_SECTOR_CHAT_BROADCAST.getSubject(),
+                new PacketSectorChatBroadcastPacketListener(),
+                PacketSectorChatBroadcast.class
+        );
+
+        this.natsManager.subscribe(
+                PacketChannel.PACKET_SECTOR_INFO.getSubject(),
+                new PacketSectorInfoPacketListener(),
+                PacketSectorInfo.class
+        );
+
+        this.natsManager.subscribe(
+                PacketChannel.PACKET_SECTOR_CONNECTED.getSubject(),
+                new PacketSectorConnectedPacketListener(),
+                PacketSectorConnected.class
+        );
+
+        this.natsManager.subscribe(
+                PacketChannel.PACKET_SECTOR_DISCONNECTED.getSubject(),
+                new PacketSectorDisconnectedPacketListener(),
+                PacketSectorDisconnected.class
+        );
+
+
+        if (SectorType.isQueueSector(config.currentSector)) {
+            this.natsManager.subscribe(
+                    PacketChannel.USER_CHECK_REQUEST.getSubject(),
+                    new PacketUserCheckListener(),
+                    PacketUserCheck.class
+            );
+        }
+    }
+
+        private void initListeners() {
         List<Listener> listeners = List.of(
                 new PlayerRespawnListener(this),
                 new PlayerDisconnectListener(),
                 new PlayerLoginListener(this),
                 new PlayerSectorInteractListener(sectorManager, this),
                 new PlayerLocallyJoinListener(this),
-
                 new PlayerPortalListener(this),
                 new PlayerTeleportListener(this),
                 new PlayerInventoryInteractListener(),
@@ -167,9 +190,6 @@ public class PaperSector extends JavaPlugin {
         if (config.scoreboardEnabled) {
             new SpawnScoreboardTask(sectorManager, config).runTaskTimer(this, 0L, 20L);
         }
-
-       // new FakeWorldBorderShrinkTask(sectorManager, 1000, 50, 200L).runTaskTimer(this, 0L, 1L);
-
         new ProtocolLibWorldBorderTask(sectorManager).runTaskTimer(this, 20L, 20L);
         new BorderActionBarTask(this).runTaskTimer(this, 20L, 20L);
         new SendInfoPlayerTask(this).runTaskTimer(this, 12000L, 12000L);

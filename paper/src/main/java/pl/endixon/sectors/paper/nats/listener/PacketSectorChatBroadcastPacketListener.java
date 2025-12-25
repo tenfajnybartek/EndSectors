@@ -17,7 +17,7 @@
  *
  */
 
-package pl.endixon.sectors.paper.redis.listener;
+package pl.endixon.sectors.paper.nats.listener;
 
 import net.kyori.adventure.text.Component;
 import pl.endixon.sectors.common.packet.PacketListener;

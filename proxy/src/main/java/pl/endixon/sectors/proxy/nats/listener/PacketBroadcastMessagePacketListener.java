@@ -17,40 +17,33 @@
  *
  */
 
-package pl.endixon.sectors.proxy.redis.listener;
+package pl.endixon.sectors.proxy.nats.listener;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.title.Title;
 import pl.endixon.sectors.common.packet.PacketListener;
-import pl.endixon.sectors.common.packet.object.PacketBroadcastTitle;
+import pl.endixon.sectors.common.packet.object.PacketBroadcastMessage;
 import pl.endixon.sectors.proxy.VelocitySectorPlugin;
 
-import java.time.Duration;
-
-public class PacketBroadcastTitlePacketListener implements PacketListener<PacketBroadcastTitle> {
+public class PacketBroadcastMessagePacketListener implements PacketListener<PacketBroadcastMessage> {
 
     @Override
-    public void handle(final PacketBroadcastTitle packet) {
+    public void handle(PacketBroadcastMessage packet) {
         final ProxyServer server = VelocitySectorPlugin.getInstance().getServer();
         if (server == null) {
             return;
         }
 
-        final Component title = Component.text(packet.getTitle());
-        final Component subtitle = Component.text(packet.getSubTitle());
+        final String rawMessage = packet.getMessage();
+        if (rawMessage == null || rawMessage.isEmpty()) {
+            return;
+        }
 
-        final Title.Times times = Title.Times.times(
-                Duration.ofMillis(packet.getFadeIn()),
-                Duration.ofMillis(packet.getStay()),
-                Duration.ofMillis(packet.getFadeOut())
-        );
-
-        final Title adventureTitle = Title.title(title, subtitle, times);
+        final Component broadcastComponent = Component.text(rawMessage);
 
         for (final Player player : server.getAllPlayers()) {
-            player.showTitle(adventureTitle);
+            player.sendMessage(broadcastComponent);
         }
     }
 }

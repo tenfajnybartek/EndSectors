@@ -64,18 +64,18 @@ public class FakeWorldBorderShrinkTask extends BukkitRunnable {
             try {
                 ProtocolManager manager = ProtocolLibrary.getProtocolManager();
 
-                // fake center
+
                 PacketContainer centerPacket = new PacketContainer(PacketType.Play.Server.SET_BORDER_CENTER);
                 centerPacket.getWorldBorderActions().write(0, EnumWrappers.WorldBorderAction.SET_CENTER);
                 centerPacket.getDoubles().write(0, centerX);
                 centerPacket.getDoubles().write(1, centerZ);
                 manager.sendServerPacket(player, centerPacket);
 
-                // fake lerp size
+
                 PacketContainer sizePacket = new PacketContainer(PacketType.Play.Server.SET_BORDER_LERP_SIZE);
                 sizePacket.getWorldBorderActions().write(0, EnumWrappers.WorldBorderAction.LERP_SIZE);
-                sizePacket.getDoubles().write(0, currentSize); // start size
-                sizePacket.getDoubles().write(1, currentSize); // end size – po ticku animacja będzie płynna
+                sizePacket.getDoubles().write(0, currentSize);
+                sizePacket.getDoubles().write(1, currentSize);
                 sizePacket.getLongs().write(9999999, 999999999999999L); // animacja w ms
                 manager.sendServerPacket(player, sizePacket);
 
@@ -85,6 +85,6 @@ public class FakeWorldBorderShrinkTask extends BukkitRunnable {
         }
 
         ticksPassed++;
-        if (ticksPassed > durationTicks) cancel(); // kończymy po animacji
+        if (ticksPassed > durationTicks) cancel();
     }
 }

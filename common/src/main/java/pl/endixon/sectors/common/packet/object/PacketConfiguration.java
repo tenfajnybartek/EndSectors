@@ -19,9 +19,11 @@
 
 package pl.endixon.sectors.common.packet.object;
 
+import lombok.Getter;
 import pl.endixon.sectors.common.packet.Packet;
 import pl.endixon.sectors.common.sector.SectorData;
 
+@Getter
 public class PacketConfiguration implements Packet {
 
     private final SectorData[] sectorsData;
@@ -30,7 +32,4 @@ public class PacketConfiguration implements Packet {
         this.sectorsData = sectorsData;
     }
 
-    public SectorData[] getSectorsData() {
-        return sectorsData;
-    }
 }

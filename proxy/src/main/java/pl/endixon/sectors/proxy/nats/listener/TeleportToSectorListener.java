@@ -17,7 +17,7 @@
  *
  */
 
-package pl.endixon.sectors.proxy.redis.listener;
+package pl.endixon.sectors.proxy.nats.listener;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;

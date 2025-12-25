@@ -26,7 +26,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
     implementation("com.fasterxml.jackson.core:jackson-core:2.15.2")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.15.2")
-
+    implementation("io.nats:jnats:2.20.0")
     compileOnly("com.mojang:authlib:1.5.21")
     implementation("org.mongodb:mongo-java-driver:3.12.14")
 }

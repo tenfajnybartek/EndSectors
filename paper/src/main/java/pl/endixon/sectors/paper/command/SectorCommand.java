@@ -31,7 +31,7 @@ import pl.endixon.sectors.common.redis.RedisManager;
 import pl.endixon.sectors.paper.PaperSector;
 import pl.endixon.sectors.paper.inventory.SectorShowWindow;
 import pl.endixon.sectors.paper.manager.SectorManager;
-import pl.endixon.sectors.paper.redis.packet.PacketExecuteCommand;
+import pl.endixon.sectors.paper.nats.packet.PacketExecuteCommand;
 import pl.endixon.sectors.paper.user.profile.UserProfile;
 import pl.endixon.sectors.paper.user.profile.UserProfileRepository;
 import pl.endixon.sectors.paper.util.LoggerUtil;
@@ -71,8 +71,8 @@ public class SectorCommand implements CommandExecutor {
 
             case "border" -> {
                 sender.sendMessage(MessagesUtil.BORDER_REFRESHED.get());
-                this.plugin.getRedisManager().publish(
-                        PacketChannel.PACKET_CONFIGURATION_REQUEST,
+                this.plugin.getNatsManager().publish(
+                        PacketChannel.PACKET_CONFIGURATION_REQUEST.getSubject(),
                         new PacketConfigurationRequest(sm.getCurrentSectorName())
                 );
                 LoggerUtil.info("Requesting new sector configuration from Proxy (triggered by " + sender.getName() + ")");
@@ -93,7 +93,7 @@ public class SectorCommand implements CommandExecutor {
                     return true;
                 }
                 String commandToSend = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-                redis.publish(PacketChannel.PACKET_EXECUTE_COMMAND, new PacketExecuteCommand(commandToSend));
+                plugin.getNatsManager().publish(PacketChannel.PACKET_EXECUTE_COMMAND.getSubject(), new PacketExecuteCommand(commandToSend));
                 sender.sendMessage(MessagesUtil.COMMAND_BROADCASTED.get());
             }
 

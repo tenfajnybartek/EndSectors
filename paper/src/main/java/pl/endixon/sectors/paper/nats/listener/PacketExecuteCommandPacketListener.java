@@ -17,13 +17,13 @@
  *
  */
 
-package pl.endixon.sectors.paper.redis.listener;
+package pl.endixon.sectors.paper.nats.listener;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
 import pl.endixon.sectors.common.packet.PacketListener;
 import pl.endixon.sectors.paper.PaperSector;
-import pl.endixon.sectors.paper.redis.packet.PacketExecuteCommand;
+import pl.endixon.sectors.paper.nats.packet.PacketExecuteCommand;
 
 public class PacketExecuteCommandPacketListener implements PacketListener<PacketExecuteCommand> {
 

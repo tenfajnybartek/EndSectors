@@ -17,7 +17,7 @@
  *
  */
 
-package pl.endixon.sectors.paper.redis.packet;
+package pl.endixon.sectors.paper.nats.packet;
 
 import lombok.Getter;
 import pl.endixon.sectors.common.packet.Packet;

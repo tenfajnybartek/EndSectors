@@ -17,25 +17,18 @@
  *
  */
 
-package pl.endixon.sectors.common.packet.object;
+package pl.endixon.sectors.paper.nats.packet;
 
+import lombok.Getter;
 import pl.endixon.sectors.common.packet.Packet;
 
-public class UserRequestPacket implements Packet {
+@Getter
+public class PacketExecuteCommand implements Packet {
 
-    private final String uuid;
-    private final String requestId;
+    private final String command;
 
-    public UserRequestPacket(String uuid, String requestId) {
-        this.uuid = uuid;
-        this.requestId = requestId;
+    public PacketExecuteCommand(String command) {
+        this.command = command;
     }
 
-    public String getUuid() {
-        return uuid;
-    }
-
-    public String getRequestId() {
-        return requestId;
-    }
 }

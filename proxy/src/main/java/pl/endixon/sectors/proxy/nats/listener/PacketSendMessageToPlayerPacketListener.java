@@ -17,33 +17,29 @@
  *
  */
 
-package pl.endixon.sectors.proxy.redis.listener;
+package pl.endixon.sectors.proxy.nats.listener;
 
-import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.Component;
 import pl.endixon.sectors.common.packet.PacketListener;
-import pl.endixon.sectors.common.packet.object.PacketBroadcastMessage;
+import pl.endixon.sectors.common.packet.object.PacketSendMessageToPlayer;
 import pl.endixon.sectors.proxy.VelocitySectorPlugin;
 
-public class PacketBroadcastMessagePacketListener implements PacketListener<PacketBroadcastMessage> {
+public class PacketSendMessageToPlayerPacketListener implements PacketListener<PacketSendMessageToPlayer> {
 
     @Override
-    public void handle(PacketBroadcastMessage packet) {
+    public void handle(PacketSendMessageToPlayer packet) {
         final ProxyServer server = VelocitySectorPlugin.getInstance().getServer();
         if (server == null) {
             return;
         }
 
-        final String rawMessage = packet.getMessage();
-        if (rawMessage == null || rawMessage.isEmpty()) {
+        final String playerName = packet.getPlayerName();
+        if (playerName == null) {
             return;
         }
 
-        final Component broadcastComponent = Component.text(rawMessage);
-
-        for (final Player player : server.getAllPlayers()) {
-            player.sendMessage(broadcastComponent);
-        }
+        server.getPlayer(playerName).ifPresent(player -> player.sendMessage(Component.text(packet.getMessage()))
+        );
     }
 }

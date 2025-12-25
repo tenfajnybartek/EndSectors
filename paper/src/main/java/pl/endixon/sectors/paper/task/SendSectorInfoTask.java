@@ -23,8 +23,7 @@ import org.bukkit.Bukkit;
 import pl.endixon.sectors.common.packet.PacketChannel;
 import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.paper.PaperSector;
-import pl.endixon.sectors.paper.manager.SectorManager;
-import pl.endixon.sectors.paper.redis.packet.PacketSectorInfo;
+import pl.endixon.sectors.paper.nats.packet.PacketSectorInfo;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.util.TpsUtil;
 
@@ -50,7 +49,7 @@ public class SendSectorInfoTask implements Runnable {
         float tps = (float) TpsUtil.getTPS();
         PacketSectorInfo info = new PacketSectorInfo(sector.getName(), status, tps, online, max);
 
-        paperSector.getRedisManager().publish(PacketChannel.PACKET_SECTOR_INFO, info);
+        paperSector.getNatsManager().publish(PacketChannel.PACKET_SECTOR_INFO.getSubject(), info);
     }
 
 }

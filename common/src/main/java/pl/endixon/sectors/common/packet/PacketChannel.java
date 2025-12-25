@@ -19,19 +19,33 @@
 
 package pl.endixon.sectors.common.packet;
 
-public interface PacketChannel {
+import lombok.Getter;
 
-    String PACKET_CONFIGURATION_REQUEST = "PacketConfigurationRequest";
-    String PACKET_BROADCAST_MESSAGE = "PacketBroadcastMessage";
-    String PACKET_SEND_MESSAGE_TO_PLAYER = "PacketSendMessageToPlayer";
-    String PACKET_BROADCAST_TITLE = "PacketBroadcastTitle";
-    String USER_CHECK_REQUEST = "USER_CHECK_REQUEST";
-    String USER_CHECK_RESPONSE = "USER_CHECK_RESPONSE";
-    String PACKET_TELEPORT_TO_SECTOR = "TeleportToSector";
-    String PACKET_SECTOR_CONNECTED = "PacketSectorConnected";
-    String PACKET_SECTOR_DISCONNECTED = "PacketSectorDisconnected";
-    String PACKET_EXECUTE_COMMAND = "PacketExecuteCommand";
-    String PACKET_PLAYER_INFO_REQUEST = "PacketPlayerInfoRequest";
-    String PACKET_SECTOR_CHAT_BROADCAST = "PacketSectorChatBroadcast";
-    String PACKET_SECTOR_INFO = "PacketSectorInfo";
+@Getter
+public enum PacketChannel {
+
+    PACKET_CONFIGURATION_REQUEST("packet.configuration.request"),
+    PACKET_BROADCAST_MESSAGE("packet.broadcast.message"),
+    PACKET_SEND_MESSAGE_TO_PLAYER("packet.send.message.player"),
+    PACKET_BROADCAST_TITLE("packet.broadcast.title"),
+
+    USER_CHECK_REQUEST("user.check.request"),
+    USER_CHECK_RESPONSE("user.check.response"),
+
+    PACKET_TELEPORT_TO_SECTOR("packet.teleport.sector"),
+    PACKET_SECTOR_CONNECTED("packet.sector.connected"),
+    PACKET_SECTOR_DISCONNECTED("packet.sector.disconnected"),
+
+    PACKET_EXECUTE_COMMAND("packet.execute.command"),
+    PACKET_PLAYER_INFO_REQUEST("packet.player.info.request"),
+    PACKET_SECTOR_CHAT_BROADCAST("packet.sector.chat.broadcast"),
+    PACKET_SECTOR_INFO("packet.sector.info");
+
+    private final String subject;
+
+    PacketChannel(String subject) {
+        this.subject = subject;
+    }
+
 }
+
