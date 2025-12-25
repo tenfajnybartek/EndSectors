@@ -35,10 +35,7 @@ import pl.endixon.sectors.common.packet.Packet;
 import pl.endixon.sectors.common.packet.PacketListener;
 import pl.endixon.sectors.common.util.LoggerUtil;
 
-/**
- * Manager responsible for NATS infrastructure operations.
- * Real coding, no one-liners, just solid enterprise logic.
- */
+
 public final class NatsManager {
 
     private final Gson gson = new Gson();
@@ -51,9 +48,12 @@ public final class NatsManager {
                     .server(url)
                     .connectionName(connectionName)
                     .maxReconnects(-1)
-                    .reconnectWait(Duration.ofSeconds(2))
-                    .connectionTimeout(Duration.ofSeconds(5))
+                    .reconnectWait(Duration.ofSeconds(10))
+                    .connectionTimeout(Duration.ofSeconds(10))
                     .errorListener(new NatsErrorListener())
+                    .connectionListener((conn, type) -> {
+                        LoggerUtil.info("NATS Connection Event: " + type);
+                    })
                     .build();
 
             this.connection = Nats.connect(options);
@@ -100,7 +100,7 @@ public final class NatsManager {
     public void shutdown() {
         try {
             if (this.connection != null) {
-                this.connection.drain(Duration.ofSeconds(5)); // Grzeczne dokończenie wysyłki
+                this.connection.drain(Duration.ofSeconds(5));
                 this.connection.close();
             }
 
