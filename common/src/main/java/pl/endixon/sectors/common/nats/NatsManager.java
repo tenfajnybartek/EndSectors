@@ -39,7 +39,7 @@ import pl.endixon.sectors.common.util.LoggerUtil;
 public final class NatsManager {
 
     private final Gson gson = new Gson();
-    private final ExecutorService processingExecutor = Executors.newFixedThreadPool(4); // Dostosuj do potrzeb
+    private final ExecutorService processingExecutor = Executors.newFixedThreadPool(4);
     private Connection connection;
 
     public void initialize(String url, String connectionName) {
