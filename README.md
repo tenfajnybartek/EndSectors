@@ -2,57 +2,63 @@
 
 **EndSectors** — experimental Minecraft sector framework for **Paper 1.24.1** with **NATS & Redis** 🗄️⚡
 
-EndSectors splits a large Minecraft world into multiple **sectors** running on a single Paper server.  
-Players move seamlessly between sectors, chat globally, and have their data synced in real-time.
+EndSectors allows you to run a single **Minecraft world** across multiple **Spigot servers**, each representing a **sector**.  
+All sectors are connected via **Velocity**, giving players the feeling of one seamless world.  
+
+- Each sector has its own **boundaries** (default 10k per axis)  
+- Players can move seamlessly between sectors  
+- Player data (inventory, gamemode, enderchest, etc.) is synced in real-time via **Redis**  
+- Inter-server messaging and packets are handled by **NATS**  
 
 🎬 **See it in action:** [YouTube Demo](https://www.youtube.com/watch?v=U_wk1nABo_M)  
 Check out an **interactive sector map example**: [Sectors Generator](https://oski646.github.io/sectors-generator/)
 
 > [!WARNING]
-> This project is **experimental** and **not production-ready**.  
-> Intended for learning and testing sector-based world mechanics.
+> This project is **experimental** and **not intended for production use**.  
+> It is designed for testing and learning sector-based world mechanics.
 
 ---
 
-## 🔹 About
+## 🔹 Architecture
 
-- **NATS** handles inter-server messaging and packet communication.  
-- **Redis** stores player data (inventory, stats, etc.), no longer used for messaging.  
-- Built for experimentation, education, and testing sector mechanics.  
-- All code is original and tailored for sector-based Minecraft worlds.
+- **Velocity proxy** connects all Spigot servers (sectors) together  
+- **Spigot sectors** each run a part of the world  
+- **NATS** handles messaging between sectors (packet system)  
+- **Redis** stores and syncs player data (no longer used for messaging)
 
 ---
 
 ## ⚙️ Requirements
 
-- Minecraft 1.20+ (tested on PaperMC 1.24.1)  
-- Redis (player data cache)  
+- PaperMC / Spigot 1.20+ (tested on 1.24.1)  
+- Velocity proxy  
+- Redis for player data caching  
 - NATS server for messaging  
 
 ---
 
 ## ✨ Features
 
-- 🚪 **Seamless teleportation** across sectors on border crossing  
-- 🔄 **Real-time player data sync** (inventory, enderchest, gamemode, fly status, etc.)  
-- 💬 **Global chat** synchronized across sectors  
-- 🎯 **Sector queue system** – players are sent to last known sector or load-balanced sector  
-- ⚡ **Plug-and-play** – sector configuration via JSON, automatic management  
+- 🚪 **Seamless teleportation** between sectors  
+- 🔄 **Real-time player data sync** across sectors  
+- 💬 **Global chat** across all sectors  
+- 🎯 **Sector queue system** – handles load balancing and last known sector for players  
+- ⚡ **Plug-and-play** – configure JSON and sector management is automatic  
 
 ---
 
 ## 🛠️ Quick Start
 
-1. Install **Paper 1.20+** (tested on 1.24.1)  
-2. Start a **NATS server** and configure `config.json`  
-3. Configure **Redis** for player data caching  
-4. Define your sectors in JSON  
-5. Launch the server – **EndSectors** handles teleportation, syncing, and queues automatically  
+1. Install **Paper 1.20+** on each sector server  
+2. Set up **Velocity** as the proxy  
+3. Configure **Redis** for player data  
+4. Start a **NATS server** for messaging  
+5. Define sectors in JSON and launch – EndSectors handles syncing, teleportation, and queues automatically  
 
 ---
 
 ## 📌 TODO
 
-- Improve sector synchronization and messaging reliability  
-- Enhance performance for high player counts  
+- Improve messaging reliability between sectors  
+- Optimize performance for large player counts  
 - Add optional experimental features for sector behavior  
