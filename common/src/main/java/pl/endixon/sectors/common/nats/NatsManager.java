@@ -3,21 +3,47 @@
  * EndSectors – Non-Commercial License
  * (c) 2025 Endixon
  *
+ * Permission is granted to use, copy, and
+ * modify this software **only** for personal
+ * or educational purposes.
+ *
+ * Commercial use, redistribution, claiming
+ * this work as your own, or copying code
+ * without explicit permission is strictly
+ * prohibited.
+ *
+ * Visit https://github.com/Endixon/EndSectors
+ * for more info.
+ *
  */
 
 package pl.endixon.sectors.common.nats;
 
 import com.google.gson.Gson;
-import io.nats.client.*;
+import io.nats.client.Connection;
+import io.nats.client.Dispatcher;
+import io.nats.client.Nats;
+import io.nats.client.Options;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import pl.endixon.sectors.common.nats.listener.NatsErrorListener;
 import pl.endixon.sectors.common.packet.Packet;
 import pl.endixon.sectors.common.packet.PacketListener;
 import pl.endixon.sectors.common.util.LoggerUtil;
 
+/**
+ * Manager responsible for NATS infrastructure operations.
+ * Real coding, no one-liners, just solid enterprise logic.
+ */
 public final class NatsManager {
 
-    private Connection connection;
     private final Gson gson = new Gson();
+    private final ExecutorService processingExecutor = Executors.newFixedThreadPool(4); // Dostosuj do potrzeb
+    private Connection connection;
 
     public void initialize(String url, String connectionName) {
         try {
@@ -27,26 +53,31 @@ public final class NatsManager {
                     .maxReconnects(-1)
                     .reconnectWait(Duration.ofSeconds(2))
                     .connectionTimeout(Duration.ofSeconds(5))
+                    .errorListener(new NatsErrorListener())
                     .build();
 
             this.connection = Nats.connect(options);
-        } catch (Exception e) {
-            LoggerUtil.error("NATS initialization failed: " + e.getMessage());
+            LoggerUtil.info("NATS connection established: " + connectionName);
+        } catch (Exception exception) {
+            LoggerUtil.error("NATS initialization failed: " + exception.getMessage());
         }
     }
 
-    public <T extends Packet> void subscribe(String subject, PacketListener<T> listener, Class<T> type) {
+    public <T extends Packet> void subscribe(String subject, PacketListener<T> listener, Class<T> packetType) {
         if (this.connection == null) {
+            LoggerUtil.warn("Cannot subscribe, connection is null.");
             return;
         }
-
         Dispatcher dispatcher = this.connection.createDispatcher(msg -> {
-            try {
-                T packet = gson.fromJson(new String(msg.getData()), type);
-                listener.handle(packet);
-            } catch (Exception e) {
-                LoggerUtil.error("NATS listener error on subject " + subject + ": " + e.getMessage());
-            }
+            this.processingExecutor.submit(() -> {
+                try {
+                    String json = new String(msg.getData(), StandardCharsets.UTF_8);
+                    T packet = this.gson.fromJson(json, packetType);
+                    listener.handle(packet);
+                } catch (Exception exception) {
+                    LoggerUtil.error("Error processing packet on subject " + subject + ": " + exception.getMessage());
+                }
+            });
         });
 
         dispatcher.subscribe(subject);
@@ -59,20 +90,26 @@ public final class NatsManager {
         }
 
         try {
-            this.connection.publish(subject, gson.toJson(packet).getBytes());
-        } catch (Exception e) {
-            LoggerUtil.error("NATS publish failed for subject " + subject + ": " + e.getMessage());
+            byte[] data = this.gson.toJson(packet).getBytes(StandardCharsets.UTF_8);
+            this.connection.publish(subject, data);
+        } catch (Exception exception) {
+            LoggerUtil.error("NATS publish failed for subject " + subject + ": " + exception.getMessage());
         }
     }
 
     public void shutdown() {
         try {
             if (this.connection != null) {
+                this.connection.drain(Duration.ofSeconds(5)); // Grzeczne dokończenie wysyłki
                 this.connection.close();
             }
-        } catch (InterruptedException e) {
-            LoggerUtil.error("Error while closing NATS connection: " + e.getMessage());
-            Thread.currentThread().interrupt();
+
+            this.processingExecutor.shutdown();
+            if (!this.processingExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
+                this.processingExecutor.shutdownNow();
+            }
+        } catch (Exception exception) {
+            LoggerUtil.error("Error during NATS shutdown: " + exception.getMessage());
         }
     }
 }
