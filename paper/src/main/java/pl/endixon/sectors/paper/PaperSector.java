@@ -40,16 +40,16 @@ public class PaperSector extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        Common.initInstance();
         this.loadFiles();
         this.protocolManager = ProtocolLibrary.getProtocolManager();
         this.sectorManager = new SectorManager(this, configuration.currentSector);
-        Common.initInstance();
         Common.getInstance().initializeRedis("127.0.0.1", 6379, "");
         Common.getInstance().initializeNats("nats://127.0.0.1:4222", configuration.currentSector);
-        Common.getInstance().getNatsManager().publish(PacketChannel.PACKET_CONFIGURATION_REQUEST.getSubject(), new PacketConfigurationRequest(sectorManager.getCurrentSectorName()));
         this.initNatsSubscriptions(configuration);
-        this.initListeners();
+        Common.getInstance().getNatsManager().publish(PacketChannel.PACKET_CONFIGURATION_REQUEST.getSubject(), new PacketConfigurationRequest(sectorManager.getCurrentSectorName()));
         this.initCommands();
+        this.initListeners();
         this.scheduleTasks(configuration);
         this.loadAllPlayers();
         new SectorsAPI(this);
@@ -75,6 +75,8 @@ public class PaperSector extends JavaPlugin {
     private void loadAllPlayers() {
         UserProfileCache.warmup();
     }
+
+
 
     private void initNatsSubscriptions(ConfigLoader config) {
         var nats = Common.getInstance().getNatsManager();
