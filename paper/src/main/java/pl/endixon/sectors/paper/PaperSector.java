@@ -44,6 +44,7 @@ public class PaperSector extends JavaPlugin {
         this.loadFiles();
         this.protocolManager = ProtocolLibrary.getProtocolManager();
         this.sectorManager = new SectorManager(this, configuration.currentSector);
+        this.sectorTeleport = new SectorTeleport(this);
         Common.getInstance().initializeRedis("127.0.0.1", 6379, "");
         Common.getInstance().initializeNats("nats://127.0.0.1:4222", configuration.currentSector);
         this.initNatsSubscriptions(configuration);

@@ -118,15 +118,17 @@ public class PlayerPortalListener implements Listener {
 
         boolean inTransfer = userProfile.getLastSectorTransfer() > 0;
         if (System.currentTimeMillis() < userProfile.getTransferOffsetUntil() && !inTransfer) {
-            long remaining = userProfile.getTransferOffsetUntil() - System.currentTimeMillis();
+            long remainingSeconds = Math.max(0, (userProfile.getTransferOffsetUntil() - System.currentTimeMillis()) / 1000 + 1);
+
             player.showTitle(Title.title(
                     MessagesUtil.SECTOR_ERROR_TITLE.get(),
-                    MessagesUtil.TITLE_WAIT_TIME.get("{SECONDS}", String.valueOf(remaining / 1000 + 1)),
+                    MessagesUtil.TITLE_WAIT_TIME.get("{SECONDS}", String.valueOf(remainingSeconds)),
                     Title.Times.times(
                             Duration.ofMillis(500),
                             Duration.ofMillis(2000),
                             Duration.ofMillis(500))
             ));
+
             currentSector.knockBorder(player, config.knockBorderForce);
             return;
         }
