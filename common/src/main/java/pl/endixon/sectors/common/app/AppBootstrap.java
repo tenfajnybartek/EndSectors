@@ -33,6 +33,7 @@ public final class AppBootstrap {
         Common.initInstance();
         Common app = Common.getInstance();
         AppLogger logger = app.getLogger();
+        AppConfig config = loadConfig(logger);
         app.setAppBootstrap(true);
 
         logger.info("  ");
@@ -59,7 +60,7 @@ public final class AppBootstrap {
             logger.info("  ");
             logger.info(">> [3/5] Activating Sniffer Responder...");
             logger.info("  ");
-            app.getFlowLogger().enable(true);
+            app.getFlowLogger().enable(config.isFlowLoggerEnabled());
 
             logger.info("  ");
             logger.info(">> [4/5] Activating Heartbeat Responder...");
@@ -67,9 +68,9 @@ public final class AppBootstrap {
             app.startHeartbeat();
 
             logger.info("  ");
-            logger.info(">> [5/5] Starting Resource Monitor (RAM & CPU) every 5 minutes...");
+            logger.info(">> [5/5] Starting Resource Monitor (RAM & CPU)");
             logger.info("  ");
-            startResourceMonitor(5 * 60 * 1000);
+            startResourceMonitor(config.getResourceMonitorInterval());
 
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -162,4 +163,26 @@ public final class AppBootstrap {
         lettuceLogger.setLevel(Level.OFF);
     }
 
+    private static AppConfig loadConfig(AppLogger logger) {
+        java.io.File configFile = new java.io.File("config.json");
+        com.google.gson.Gson gson = new com.google.gson.GsonBuilder().setPrettyPrinting().create();
+
+        try {
+            if (!configFile.exists()) {
+                AppConfig defaultConfig = new AppConfig();
+                try (java.io.FileWriter writer = new java.io.FileWriter(configFile)) {
+                    gson.toJson(defaultConfig, writer);
+                }
+                logger.info(">> Created default config.json");
+                return defaultConfig;
+            }
+
+            try (java.io.FileReader reader = new java.io.FileReader(configFile)) {
+                return gson.fromJson(reader, AppConfig.class);
+            }
+        } catch (Exception e) {
+            logger.error("Could not load config.json, using defaults: " + e.getMessage());
+            return new AppConfig();
+        }
+    }
 }
