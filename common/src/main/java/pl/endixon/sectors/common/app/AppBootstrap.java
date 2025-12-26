@@ -2,16 +2,19 @@ package pl.endixon.sectors.common.app;
 
 import pl.endixon.sectors.common.Common;
 import pl.endixon.sectors.common.util.AppLogger;
-
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class AppBootstrap {
 
     public static void main(String[] args) {
+        suppressLettuceLogging();
         Common.initInstance();
         Common app = Common.getInstance();
         AppLogger logger = app.getLogger();
+
 
         logger.info("  ");
         logger.info("  ");
@@ -134,6 +137,12 @@ public final class AppBootstrap {
 
         monitorThread.setDaemon(true);
         monitorThread.start();
+    }
+
+
+    public static void suppressLettuceLogging() {
+        Logger lettuceLogger = Logger.getLogger("io.lettuce");
+        lettuceLogger.setLevel(Level.OFF);
     }
 
 }
