@@ -25,22 +25,29 @@ public final class AppBootstrap {
         try {
             app.setAppBootstrap(true);
 
-            logger.info(">> [1/4] Connecting to NATS Infrastructure...");
+            logger.info(">> [1/5] Connecting to NATS Infrastructure...");
             logger.info("  ");
             app.initializeNats("nats://127.0.0.1:4222", "common-app");
 
             logger.info("  ");
-            logger.info(">> [2/4] Activating Sniffer Responder...");
+            logger.info(">> [2/5] Connecting to Redis...");
+            logger.info("  ");
+            app.initializeRedis("127.0.0.1", 6379, "");
+            logger.info("  ");
+
+
+            logger.info("  ");
+            logger.info(">> [3/5] Activating Sniffer Responder...");
             logger.info("  ");
             app.getFlowLogger().enable(true);
 
             logger.info("  ");
-            logger.info(">> [3/4] Activating Heartbeat Responder...");
+            logger.info(">> [4/5] Activating Heartbeat Responder...");
             logger.info("  ");
             app.startHeartbeat();
 
             logger.info("  ");
-            logger.info(">> [4/4] Starting Resource Monitor (RAM & CPU) every 5 minutes...");
+            logger.info(">> [5/5] Starting Resource Monitor (RAM & CPU) every 5 minutes...");
             logger.info("  ");
             startResourceMonitor(5 * 60 * 1000);
 
