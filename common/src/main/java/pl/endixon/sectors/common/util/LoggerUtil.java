@@ -1,69 +1,55 @@
-/*
- *
- *  EndSectors  Non-Commercial License
- *  (c) 2025 Endixon
- *
- *  Permission is granted to use, copy, and
- *  modify this software **only** for personal
- *  or educational purposes.
- *
- *   Commercial use, redistribution, claiming
- *  this work as your own, or copying code
- *  without explicit permission is strictly
- *  prohibited.
- *
- *  Visit https://github.com/Endixon/EndSectors
- *  for more info.
- *
- */
-
 package pl.endixon.sectors.common.util;
 
-import org.slf4j.LoggerFactory;
-
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.function.Supplier;
 
 public final class LoggerUtil {
 
-    private static final org.slf4j.Logger LOGGER =
-            LoggerFactory.getLogger("EndSectors-Common");
+    private static final String PREFIX = "EndSectors-Common";
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-    private LoggerUtil() {
+    private LoggerUtil() {}
+
+    private static String timestamp() {
+        return LocalTime.now().format(TIME_FORMAT);
     }
 
     public static void info(String message) {
-        LOGGER.info(message);
-    }
-
-    public static void info(String message, Throwable throwable) {
-        LOGGER.info(message, throwable);
+        System.out.printf("[%s] [INFO] %s - %s%n", timestamp(), PREFIX, message);
     }
 
     public static void warn(String message) {
-        LOGGER.warn(message);
+        System.out.printf("[%s] [WARN] %s - %s%n", timestamp(), PREFIX, message);
     }
 
     public static void error(String message) {
-        LOGGER.error(message);
-    }
-
-    public static void error(String message, Throwable throwable) {
-        LOGGER.error(message, throwable);
+        System.err.printf("[%s] [ERROR] %s - %s%n", timestamp(), PREFIX, message);
     }
 
     public static void debug(String message) {
-        LOGGER.debug(message);
+        System.out.printf("[%s] [DEBUG] %s - %s%n", timestamp(), PREFIX, message);
     }
 
     public static void info(Supplier<String> supplier) {
-        LOGGER.info(supplier.get());
-    }
-
-    public static void info(String message, Object... args) {
-        LOGGER.info(message, args);
+        System.out.printf("[%s] [INFO]  %s - %s%n", timestamp(), PREFIX, supplier.get());
     }
 
     public static void debug(Supplier<String> supplier) {
-        LOGGER.debug(supplier.get());
+        System.out.printf("[%s] [DEBUG] %s - %s%n", timestamp(), PREFIX, supplier.get());
+    }
+
+    public static void info(String message, Object... args) {
+        System.out.printf("[%s] [INFO] %s - %s%n", timestamp(), PREFIX, String.format(message, args));
+    }
+
+    public static void error(String message, Throwable throwable) {
+        System.err.printf("[%s] [ERROR] %s - %s%n", timestamp(), PREFIX, message);
+        throwable.printStackTrace(System.err);
+    }
+
+    public static void info(String message, Throwable throwable) {
+        System.out.printf("[%s] [INFO] %s - %s%n", timestamp(), PREFIX, message);
+        throwable.printStackTrace(System.out);
     }
 }

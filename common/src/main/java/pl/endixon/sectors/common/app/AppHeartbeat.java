@@ -1,3 +1,22 @@
+/*
+ *
+ * EndSectors – Non-Commercial License
+ * (c) 2025 Endixon
+ *
+ * Permission is granted to use, copy, and
+ * modify this software **only** for personal
+ * or educational purposes.
+ *
+ * Commercial use, redistribution, claiming
+ * this work as your own, or copying code
+ * without explicit permission is strictly
+ * prohibited.
+ *
+ * Visit https://github.com/Endixon/EndSectors
+ * for more info.
+ *
+ */
+
 package pl.endixon.sectors.common.app;
 
 import pl.endixon.sectors.common.Common;
@@ -17,22 +36,20 @@ public final class AppHeartbeat {
         this.natsManager = natsManager;
     }
 
-
     public void start() {
         this.running = true;
         this.natsManager.subscribe(SUBJECT_PING, this::handlePing, PacketHeartbeat.class);
         Common.getInstance().getLogger().info("AppHeartbeat service is now ACTIVE (Responder Mode).");
     }
 
-
     private void handlePing(PacketHeartbeat packet) {
         if (!this.running || packet == null) {
             return;
         }
+        Common.getInstance().getLogger().info("[HEARTBEAT] Health check received from: " + packet.getMessage());
         PacketHeartbeat pong = new PacketHeartbeat("PONG: " + packet.getMessage(), true);
         this.natsManager.publish(SUBJECT_PONG, pong);
     }
-
 
     public void broadcastEmergencyStop(String reason) {
         PacketHeartbeat deathSignal = new PacketHeartbeat("CRITICAL_STOP: " + reason, false);
@@ -41,12 +58,12 @@ public final class AppHeartbeat {
     }
 
     public void stop() {
-        if (!this.running) return;
-
+        if (!this.running) {
+            return;
+        }
         this.running = false;
         PacketHeartbeat shutdownSignal = new PacketHeartbeat("SHUTDOWN_CLEAN", false);
         this.natsManager.publish(SUBJECT_PONG, shutdownSignal);
-
         Common.getInstance().getLogger().info("AppHeartbeat service stopped gracefully.");
     }
 }

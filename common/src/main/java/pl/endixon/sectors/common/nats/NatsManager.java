@@ -31,13 +31,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
 import pl.endixon.sectors.common.Common;
 import pl.endixon.sectors.common.nats.listener.NatsErrorListener;
 import pl.endixon.sectors.common.packet.Packet;
 import pl.endixon.sectors.common.packet.PacketListener;
 import pl.endixon.sectors.common.util.LoggerUtil;
-
 
 public final class NatsManager {
 
@@ -81,13 +79,7 @@ public final class NatsManager {
                 try {
                     String json = new String(msg.getData(), StandardCharsets.UTF_8);
                     T packet = this.gson.fromJson(json, packetType);
-
-                    if (isApp()) {
-                        Common.getInstance().getFlowLogger().logIncoming(subject, packet);
-                    }
-
                     listener.handle(packet);
-
                 } catch (Exception exception) {
                     LoggerUtil.error("Error processing packet on subject " + subject + ": " + exception.getMessage());
                 }
@@ -98,27 +90,45 @@ public final class NatsManager {
         dispatchers.put(subject, dispatcher);
     }
 
+
+
+    public void enableNetworkSniffer() {
+        if (this.connection == null) {
+            Common.getInstance().getLogger().warn("Cannot enable sniffer - NATS not connected.");
+            return;
+        }
+
+        Dispatcher snifferDispatcher = this.connection.createDispatcher(msg -> {
+
+            String subject = msg.getSubject();
+
+            if (subject.contains("heartbeat")) {
+                return;
+            }
+
+            String json = new String(msg.getData(), StandardCharsets.UTF_8);
+
+            if (isApp()) {
+                Common.getInstance().getFlowLogger().logSniffedPacket(subject, json);
+            }
+        });
+
+        snifferDispatcher.subscribe(">");
+        Common.getInstance().getLogger().info("NATS Network Sniffer activated on channel '>'");
+    }
+
     public void publish(String subject, Packet packet) {
         if (this.connection == null) {
             LoggerUtil.error("NATS not initialized, cannot publish.");
             return;
         }
-
         try {
-
-            if (isApp()) {
-                Common.getInstance().getFlowLogger().logOutgoing(subject, packet);
-            }
-
             byte[] data = this.gson.toJson(packet).getBytes(StandardCharsets.UTF_8);
             this.connection.publish(subject, data);
-
         } catch (Exception exception) {
             LoggerUtil.error("NATS publish failed for subject " + subject + ": " + exception.getMessage());
         }
     }
-
-
 
     public void shutdown() {
         try {

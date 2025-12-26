@@ -25,7 +25,6 @@ import io.nats.client.ErrorListener;
 import io.nats.client.JetStreamSubscription;
 import pl.endixon.sectors.common.util.LoggerUtil;
 
-
 public final class NatsErrorListener implements ErrorListener {
 
     @Override

@@ -4,10 +4,10 @@ import lombok.Getter;
 import lombok.Setter;
 import pl.endixon.sectors.common.app.AppHeartbeat;
 import pl.endixon.sectors.common.nats.NatsManager;
-import pl.endixon.sectors.common.packet.PacketFlowLogger;
 import pl.endixon.sectors.common.redis.RedisManager;
 import pl.endixon.sectors.common.util.AppLogger;
-import pl.endixon.sectors.common.util.ConsoleAppLogger; // Twoja nowa klasa
+import pl.endixon.sectors.common.util.ConsoleAppLogger;
+import pl.endixon.sectors.common.util.PacketFlowLoggerUtil;
 
 @Getter
 public final class Common {
@@ -16,7 +16,7 @@ public final class Common {
 
     private final RedisManager redisManager;
     private final NatsManager natsManager;
-    private final PacketFlowLogger flowLogger;
+    private final PacketFlowLoggerUtil flowLogger;
     private final AppHeartbeat heartbeat;
     private final AppLogger logger;
 
@@ -31,7 +31,7 @@ public final class Common {
         this.logger = new ConsoleAppLogger("EndSectors-Common");
         this.redisManager = new RedisManager();
         this.natsManager = new NatsManager();
-        this.flowLogger = new PacketFlowLogger();
+        this.flowLogger = new PacketFlowLoggerUtil();
         this.heartbeat = new AppHeartbeat(natsManager);
     }
 
