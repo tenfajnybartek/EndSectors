@@ -9,6 +9,7 @@ All sectors are connected via **Velocity**, giving players the feeling of one se
 - Players can move seamlessly between sectors
 - Player data (inventory, gamemode, enderchest, etc.) is synced in real-time via **Redis**
 - Inter-server messaging and packets are handled by **NATS**
+- **Common service** coordinates proxy and sectors, handles core logic, and ensures proper communication
 
 🎬 **See it in action:** [YouTube Demo](https://www.youtube.com/watch?v=U_wk1nABo_M)  
 Check out an **interactive sector map example**: [Sectors Generator](https://oski646.github.io/sectors-generator/)
@@ -21,16 +22,17 @@ Check out an **interactive sector map example**: [Sectors Generator](https://osk
 
 ## 🔹 Architecture
 
-- **Common service** – central application that coordinates proxy and sector servers, handles core logic, and ensures proper communication.
-- **Velocity proxy** connects all Spigot servers (sectors) together.
-- **Spigot sectors** each run a part of the world.
-- **NATS** handles messaging between sectors (packet system).
-- **Redis** stores and syncs player data (no longer used for messaging).
+- **Common service** – central application that coordinates proxy and sector servers, handles core logic, and ensures proper communication
+- **Velocity proxy** connects all Spigot servers (sectors) together
+- **Spigot sectors** each run a part of the world
+- **NATS** handles messaging between sectors (packet system)
+- **Redis** stores and syncs player data
 
 ---
 
 ## ⚙️ Requirements
 
+- **Common service** – must be running before proxy or sectors
 - PaperMC / Spigot 1.20+ (tested on 1.24.1)
 - Velocity proxy
 - Redis for player data caching
