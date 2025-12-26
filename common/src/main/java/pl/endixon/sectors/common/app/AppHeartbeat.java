@@ -29,7 +29,6 @@ public final class AppHeartbeat {
         if (!this.running || packet == null) {
             return;
         }
-        Common.getInstance().getLogger().info("[HEARTBEAT] Health check received from: " + packet.getMessage());
         PacketHeartbeat pong = new PacketHeartbeat("PONG: " + packet.getMessage(), true);
         this.natsManager.publish(SUBJECT_PONG, pong);
     }

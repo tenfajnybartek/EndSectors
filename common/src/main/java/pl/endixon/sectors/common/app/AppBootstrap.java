@@ -1,6 +1,9 @@
 package pl.endixon.sectors.common.app;
 
 import pl.endixon.sectors.common.Common;
+import pl.endixon.sectors.common.packet.PacketChannel;
+import pl.endixon.sectors.common.packet.object.*;
+import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.common.util.AppLogger;
 
 public final class AppBootstrap {
@@ -17,6 +20,7 @@ public final class AppBootstrap {
 
         try {
             app.setAppBootstrap(true);
+            app.getFlowLogger().enable();
 
             logger.info(">> [1/3] Connecting to NATS Infrastructure...");
             app.initializeNats("nats://127.0.0.1:4222", "common-app");
@@ -24,11 +28,10 @@ public final class AppBootstrap {
             logger.info(">> [2/3] Activating Heartbeat Responder...");
             app.startHeartbeat();
 
-            logger.info(">> [3/3] Enabling Traffic Monitoring...");
-            app.getFlowLogger().enable();
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 logger.warn("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 logger.warn("   SHUTDOWN SIGNAL - CLEANING UP...     ");
+
                 if (app.getHeartbeat() != null) {
                     app.getHeartbeat().stop();
                 }
@@ -42,6 +45,7 @@ public final class AppBootstrap {
             logger.info(">>> Common App is READY and LISTENING   ");
             logger.info(">>> System is stable and operational.   ");
             logger.info("----------------------------------------");
+
             Thread.currentThread().join();
 
         } catch (Exception exception) {
@@ -53,11 +57,11 @@ public final class AppBootstrap {
             if (app.getHeartbeat() != null) {
                 app.getHeartbeat().broadcastEmergencyStop(exception.getMessage());
             }
-
             exception.printStackTrace();
-            try { Thread.sleep(200);
-            }
-            catch (InterruptedException ignored) {}
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException ignored) {}
+
             System.exit(1);
         }
     }

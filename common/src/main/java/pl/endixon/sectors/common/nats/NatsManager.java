@@ -46,6 +46,10 @@ public final class NatsManager {
     private final Map<String, Dispatcher> dispatchers = new ConcurrentHashMap<>();
     private Connection connection;
 
+    private static boolean isApp() {
+        return Common.getInstance().isAppBootstrap();
+    }
+
     public void initialize(String url, String connectionName) {
         try {
             Options options = new Options.Builder()
@@ -77,11 +81,12 @@ public final class NatsManager {
                 try {
                     String json = new String(msg.getData(), StandardCharsets.UTF_8);
                     T packet = this.gson.fromJson(json, packetType);
-                    listener.handle(packet);
 
-                    if(Common.getInstance().isAppBootstrap()) {
+                    if (isApp()) {
                         Common.getInstance().getFlowLogger().logIncoming(subject, packet);
                     }
+
+                    listener.handle(packet);
 
                 } catch (Exception exception) {
                     LoggerUtil.error("Error processing packet on subject " + subject + ": " + exception.getMessage());
@@ -100,13 +105,13 @@ public final class NatsManager {
         }
 
         try {
-            byte[] data = this.gson.toJson(packet).getBytes(StandardCharsets.UTF_8);
-            this.connection.publish(subject, data);
 
-
-            if (Common.getInstance().isAppBootstrap()) {
+            if (isApp()) {
                 Common.getInstance().getFlowLogger().logOutgoing(subject, packet);
             }
+
+            byte[] data = this.gson.toJson(packet).getBytes(StandardCharsets.UTF_8);
+            this.connection.publish(subject, data);
 
         } catch (Exception exception) {
             LoggerUtil.error("NATS publish failed for subject " + subject + ": " + exception.getMessage());
