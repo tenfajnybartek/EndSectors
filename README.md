@@ -105,12 +105,16 @@ This section explains how to link the physical server map with individual sector
 
 > [!IMPORTANT]
 > **🔗 The "Name Trinity" Rule**
-> The sector name MUST be identical in three places for the system to link correctly:
-> 1. **`velocity.toml`** (The server name registered in Velocity)
-> 2. **`proxy/config.json`** (The key in the sectors map)
+> The sector name MUST be identical in **three places** for the system to link correctly:
+> 1. **`velocity.toml`** (The server name registered in Velocity's `[servers]` section)
+> 2. **`proxy/config.json`** (The **JSON Key** inside the `sectors` object)
 > 3. **`paper/config.json`** (The `currentSector` value)
 >
-> If you name your server `spawn_1` in Velocity, you must use `"currentSector": "spawn_1"` in the Paper config!
+> **Example:**
+> If you define `spawn_1 = "127.0.0.1:30001"` in `velocity.toml`, you must ensure:
+> * Proxy Config has: `"sectors": { "SPAWN": { "spawn_1": { ... } } }`
+> * Paper Config has: `"currentSector": "spawn_1"`
+> * 
 
 ### 1. Proxy Configuration (The Map Layout)
 Located in: `plugins/EndSectorsProxy/config.json`
