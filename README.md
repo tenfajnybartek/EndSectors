@@ -356,16 +356,16 @@ Handles entry point interactions. Notice the structured `motd` section allowing 
       "",
       "§fPrzewidywany czas powrotu: §aKilka minut",
       "§eDziękujemy za cierpliwość!",
-      "§6§lDiscord Support: §f[https://dsc.gg/endsectors](https://dsc.gg/endsectors)"
+      "§6§lDiscord Support: §fhttps://dsc.gg/endsectors"
     ],
     "PROXY_MOTD": [
       "<bold><gradient:#2afcff:#00bfff>ENDSECTORS</gradient></bold> <gray>•</gray> <gradient:#ffe259:#ffa751>FRAMEWORK</gradient>",
-      "<gradient:#fffa65:#f79c4c>Support Discord: [https://dsc.gg/endsectors](https://dsc.gg/endsectors)</gradient>"
+      "<gradient:#fffa65:#f79c4c>Support Discord: https://dsc.gg/endsectors</gradient>"
     ],
     "PROXY_HOVER": [
       "§b§lENDSECTORS FRAMEWORK",
       "§7Status systemu: §aONLINE",
-      "§7Support Discord: §6[https://dsc.gg/endsectors](https://dsc.gg/endsectors)",
+      "§7Support Discord: §6https://dsc.gg/endsectors",
       "",
       "§7Aktywne sektory: §a{ACTIVE_SECTORS}",
       "§7Gracze online: §a{ONLINE_PLAYERS}",
@@ -374,7 +374,7 @@ Handles entry point interactions. Notice the structured `motd` section allowing 
     ],
     "EMERGENCY_MOTD": [
       "<bold><gradient:#ff4b2b:#ff416c>ENDSECTORS</gradient></bold> <gray>•</gray> <gradient:#ffe259:#ffa751>PRACE KONSERWACYJNE</gradient>",
-      "<gradient:#fffa65:#f79c4c>Discord Support: [https://dsc.gg/endsectors](https://dsc.gg/endsectors)</gradient>"
+      "<gradient:#fffa65:#f79c4c>Discord Support: https://dsc.gg/endsectors</gradient>"
     ]
   }
 }
@@ -384,47 +384,81 @@ Handles entry point interactions. Notice the structured `motd` section allowing 
 
 ```json
 {
-"messages": {
-"SHOW_GUI_TITLE": "<#ff7f11>Lista sektorów",
-"CHANNEL_GUI_TITLE": "<#60a5fa>Lista kanałów",
-"SECTOR_CONNECTED_MESSAGE": "<#ff5555>Połączono się na sektor <#f5c542>{SECTOR}",
-"BORDER_MESSAGE": "<#f5c542>Zbliżasz się do granicy sektora <#4ade80>{SECTOR} <#7dd3fc>{DISTANCE}m",
-"GLOBAL_ONLINE": "<#38bdf8>» <#94a3b8>Online <#38bdf8>({SIZE})<#94a3b8>: <#38bdf8>{PLAYERS}",
-"PLAYER_ONLINE_STATUS": "<#38bdf8>» <#94a3b8>Gracz <#38bdf8>{NICK} <#94a3b8>jest obecnie: <#38bdf8>{STATUS}",
-"PROTECTION_ACTIONBAR": "<#facc15>🛡 Ochrona przed obrażeniami: <#ffffff>{SECONDS}s",
-"TITLE_WAIT_TIME": "<#ef4444>Musisz odczekać {SECONDS}s przed ponowną zmianą sektora",
-"PLACE_BORDER_DISTANCE_MESSAGE": "<#ef4444>Nie możesz stawiać bloków przy granicy sektora!",
-"BREAK_BORDER_DISTANCE_MESSAGE": "<#ef4444>Nie możesz niszczyć bloków przy granicy sektora!",
-"playerDataNotFoundMessage": "<#ef4444>Profil użytkownika nie został znaleziony!",
-"spawnSectorNotFoundMessage": "<#ef4444>Nie odnaleziono dostępnego sektora spawn",
-"sectorIsOfflineMessage": "<#ef4444>Sektor jest wyłączony!",
-"NO_PERMISSION": "<red>Brak uprawnień!",
-"RELOAD_SUCCESS": "<#38bdf8>» <#38bdf8>Konfiguracja została pomyślnie przeładowana."
-},
-"messagesLore": {
-"CHANNEL_LORE_FORMAT": [
-"",
-"<#9ca3af>Online: <#4ade80>{ONLINE}",
-"<#9ca3af>TPS: {TPS}",
-"<#9ca3af>Ostatnia aktualizacja: <#4ade80>{UPDATE}s",
-"",
-"{STATUS}"
-],
-"HELP_MENU": [
-" ",
-"  <#38bdf8><b>POMOC</b>",
-"  <#38bdf8>/sector reload <#94a3b8>» Przeładowuje konfigurację",
-"  <#38bdf8>/sector border <#94a3b8>» Synchronizuje granice sektorów",
-"  <#38bdf8>/sector show <#94a3b8>» Wyświetla listę sektorów",
-" "
-],
-"INSPECT_FORMAT": [
-" ",
-"  <#38bdf8><b>INFORMACJE O GRACZU</b>",
-"  <#94a3b8>Nick: <#38bdf8>{NICK}",
-"  <#94a3b8>Sektor: <#38bdf8>{SECTOR}",
-"  <#94a3b8>Poziom: <#38bdf8>{LVL} <#94a3b8>({EXP} XP)",
-" "
-  ]
- }
+  "messages": {
+    "SHOW_GUI_TITLE": "<#ff7f11>Lista sektorów",
+    "playerDataNotFoundMessage": "<#ef4444>Profil użytkownika nie został znaleziony!",
+    "CHANNEL_GUI_TITLE": "<#60a5fa>Lista kanałów",
+    "SPECIFY_NICKNAME": "<#38bdf8>» Poprawne użycie: <#38bdf8>/sector {SUB}",
+    "PLACE_BORDER_DISTANCE_MESSAGE": "<#ef4444>Nie możesz stawiać bloków przy granicy sektora!",
+    "SECTOR_FULL_SUBTITLE": "<#ef4444>Sektor jest pełen graczy!",
+    "BREAK_BORDER_DISTANCE_MESSAGE": "<#ef4444>Nie możesz niszczyć bloków przy granicy sektora!",
+    "spawnSectorNotFoundMessage": "<#ef4444>Nie odnaleziono dostępnego sektora spawn",
+    "SECTOR_CONNECTED_MESSAGE": "<#ff5555>Połączono się na sektor <#f5c542>{SECTOR}",
+    "SECTOR_ERROR_TITLE": "<#ff5555>Błąd",
+    "SectorNotFoundMessage": "<#ef4444>Brak dostępnych sektorów",
+    "CHANNEL_CLICK_TO_CONNECT": "<#facc15>Kliknij, aby się połączyć",
+    "GLOBAL_ONLINE": "<#38bdf8>» <#94a3b8>Online <#38bdf8>({SIZE})<#94a3b8>: <#38bdf8>{PLAYERS}",
+    "BORDER_MESSAGE": "<#f5c542>Zbliżasz się do granicy sektora <#4ade80>{SECTOR} <#7dd3fc>{DISTANCE}m",
+    "sectorIsOfflineMessage": "<#ef4444>Sektor jest wyłączony!",
+    "PLAYER_NOT_FOUND_DB": "<red>Gracz nie został znaleziony w bazie danych",
+    "NO_PERMISSION": "<red>Brak uprawnień!",
+    "ONLY_IN_SPAWN_MESSAGE": "<#ef4444>Tej komendy możesz użyć tylko na sektorze SPAWN!",
+    "SHOW_STATUS_OFFLINE": "<#ef4444>Offline",
+    "PROTECTION_ACTIONBAR": "<#facc15>🛡 Ochrona przed obrażeniami: <#ffffff>{SECONDS}s",
+    "SECTOR_DISABLED_SUBTITLE": "<#ef4444>Ten sektor jest aktualnie wyłączony",
+    "playerAlreadyConnectedMessage": "<#ef4444>Jesteś już połączony z tym kanałem",
+    "PLAYER_ONLINE_STATUS": "<#38bdf8>» <#94a3b8>Gracz <#38bdf8>{NICK} <#94a3b8>jest obecnie: <#38bdf8>{STATUS}",
+    "CHANNEL_ITEM_NAME": "<gray>Kanal <green>{SECTOR}",
+    "CHANNEL_OFFLINE": "<#ef4444>Kanał jest offline",
+    "RELOAD_SUCCESS": "<#38bdf8>» <#38bdf8>Konfiguracja została pomyślnie przeładowana.",
+    "SHOW_ITEM_NAME": "<#4ade80>Sektor <#facc15>{SECTOR}",
+    "SHOW_STATUS_ONLINE": "<#4ade80>Online",
+    "UNKNOWN_OPTION": "<#38bdf8>» Nieznana opcja <#94a3b8>Sprawdź pomoc pod <#38bdf8>/sector",
+    "CURRENT_SECTOR": "<#38bdf8>» <#94a3b8>Aktualny sektor: <#38bdf8>{SECTOR}",
+    "USAGE_EXECUTE": "<#38bdf8>» Poprawne użycie: <#38bdf8>/sector execute <komenda>",
+    "BORDER_REFRESHED": "<#38bdf8>» <#38bdf8>Granice sektorów zostały zsynchronizowane.",
+    "COMMAND_BROADCASTED": "<#38bdf8>» <#38bdf8>Komenda została wysłana do wszystkich sektorów",
+    "CHANNEL_CURRENT": "<#facc15>Znajdujesz się na tym kanale",
+    "TITLE_WAIT_TIME": "<#ef4444>Musisz odczekać {SECONDS}s przed ponowną zmianą sektora"
+  },
+  "messagesLore": {
+    "CHANNEL_LORE_FORMAT": [
+      "",
+      "<#9ca3af>Online: <#4ade80>{ONLINE}",
+      "<#9ca3af>TPS: {TPS}",
+      "<#9ca3af>Ostatnia aktualizacja: <#4ade80>{UPDATE}s",
+      "",
+      "{STATUS}"
+    ],
+    "HELP_MENU": [
+      " ",
+      "  <#38bdf8><b>POMOC</b>",
+      "  <#38bdf8>/sector reload <#94a3b8>» Przeładowuje konfigurację",
+      "  <#38bdf8>/sector border <#94a3b8>» Synchronizuje granice sektorów",
+      "  <#38bdf8>/sector where <#94a3b8>» Sprawdza aktualny sektor",
+      "  <#38bdf8>/sector show <#94a3b8>» Wyświetla listę sektorów",
+      "  <#38bdf8>/sector who <#94a3b8>» Wyświetla listę graczy online globalnie",
+      "  <#38bdf8>/sector execute <#94a3b8>» Wykonuje komendę na wszystkich sektorach",
+      "  <#38bdf8>/sector inspect <#94a3b8>» Wyświetla szczegółowe informacje o graczu",
+      " "
+    ],
+    "INSPECT_FORMAT": [
+      " ",
+      "  <#38bdf8><b>INFORMACJE O GRACZU</b>",
+      "  <#94a3b8>Nick: <#38bdf8>{NICK}",
+      "  <#94a3b8>Sektor: <#38bdf8>{SECTOR}",
+      "  <#94a3b8>Poziom: <#38bdf8>{LVL} <#94a3b8>({EXP} XP)",
+      "  <#94a3b8>Ostatni transfer: <#38bdf8>{LAST}",
+      "  <#94a3b8>Cooldown: <#38bdf8>{COOLDOWN}s",
+      " "
+    ],
+    "SHOW_LORE_FORMAT": [
+      "",
+      "<#9ca3af>Status: {STATUS}",
+      "<#9ca3af>TPS: {TPS}",
+      "<#9ca3af>Online: <#7dd3fc>{COUNT}/{MAX}",
+      "<#9ca3af>Zapełnienie: <#fbbf24>{PERCENT}%",
+      "<#9ca3af>Ostatnia aktualizacja: <#a78bfa>{UPDATE}s"
+    ]
+  }
 }
