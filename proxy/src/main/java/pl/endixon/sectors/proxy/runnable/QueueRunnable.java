@@ -1,22 +1,3 @@
-/*
- *
- *  EndSectors  Non-Commercial License
- *  (c) 2025 Endixon
- *
- *  Permission is granted to use, copy, and
- *  modify this software **only** for personal
- *  or educational purposes.
- *
- *   Commercial use, redistribution, claiming
- *  this work as your own, or copying code
- *  without explicit permission is strictly
- *  prohibited.
- *
- *  Visit https://github.com/Endixon/EndSectors
- *  for more info.
- *
- */
-
 package pl.endixon.sectors.proxy.runnable;
 
 import com.velocitypowered.api.proxy.Player;
@@ -25,7 +6,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.title.Title;
 import pl.endixon.sectors.common.sector.SectorData;
-
 import pl.endixon.sectors.common.util.LoggerUtil;
 import pl.endixon.sectors.proxy.VelocitySectorPlugin;
 import pl.endixon.sectors.proxy.sector.SectorQueue;
@@ -36,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 
 public class QueueRunnable implements Runnable {
 
@@ -65,6 +44,7 @@ public class QueueRunnable implements Runnable {
         }
 
         this.cleanupQueue(allPlayers);
+
         if (allPlayers.isEmpty()) {
             return;
         }
@@ -73,7 +53,7 @@ public class QueueRunnable implements Runnable {
         final SectorData sectorData = this.sectorManager.getSectorData(sectorName);
         final boolean online = (sectorData != null && sectorData.isOnline());
         final List<Player> sortedQueue = this.sortQueueByPriority(allPlayers);
-        this.processPlayersInQueue(sortedQueue, allPlayers, sectorName, sectorData, online);
+        this.processPlayersInQueue(sortedQueue, sectorName, sectorData, online);
     }
 
     private void cleanupQueue(final List<Player> players) {
@@ -89,7 +69,7 @@ public class QueueRunnable implements Runnable {
         });
     }
 
-    private void processPlayersInQueue(final List<Player> sortedQueue, final List<Player> originalList, final String sectorName, final SectorData sectorData, final boolean online) {
+    private void processPlayersInQueue(final List<Player> sortedQueue, final String sectorName, final SectorData sectorData, final boolean online) {
         if (!online || sectorData == null) {
             this.handleOfflineSector(sortedQueue, sectorName);
             return;
@@ -97,8 +77,6 @@ public class QueueRunnable implements Runnable {
 
         int releasedThisTick = 0;
         final int totalInQueue = sortedQueue.size();
-        final List<Player> toRemoveFromQueue = new ArrayList<>();
-
 
         int currentCount = sectorData.getPlayerCount();
         final int maxSlots = sectorData.getMaxPlayers();
@@ -106,30 +84,28 @@ public class QueueRunnable implements Runnable {
         for (int i = 0; i < totalInQueue; i++) {
             final Player player = sortedQueue.get(i);
             final int positionInQueue = i + 1;
-
             final boolean isFull = currentCount >= maxSlots;
 
             if (!isFull && releasedThisTick < MAX_RELEASE_PER_TICK) {
                 this.sendPlayerToSector(player, sectorName);
-                toRemoveFromQueue.add(player);
                 releasedThisTick++;
                 currentCount++;
                 sectorData.setPlayerCount(currentCount);
 
                 continue;
             }
-            this.dispatchTitle(player, sectorName, true, positionInQueue, totalInQueue, isFull);
-        }
 
-        if (!toRemoveFromQueue.isEmpty()) {
-            originalList.removeAll(toRemoveFromQueue);
+            this.dispatchTitle(player, sectorName, true, positionInQueue, totalInQueue, isFull);
         }
     }
 
     private void sendPlayerToSector(final Player player, final String sectorName) {
         this.proxyServer.getServer(sectorName).ifPresent(server -> {
-            player.resetTitle();
-            player.createConnectionRequest(server).fireAndForget();
+            player.createConnectionRequest(server).connect().thenAccept(result -> {
+                if (result.isSuccessful()) {
+                    player.resetTitle();
+                }
+            });
         });
     }
 
@@ -143,17 +119,11 @@ public class QueueRunnable implements Runnable {
         final List<Player> admins = new ArrayList<>();
         final List<Player> vips = new ArrayList<>();
         final List<Player> regulars = new ArrayList<>();
-
         for (final Player p : players) {
-            if (p.hasPermission("queue.admin")) {
-                admins.add(p);
-            } else if (p.hasPermission("queue.vip")) {
-                vips.add(p);
-            } else {
-                regulars.add(p);
-            }
+            if (p.hasPermission("queue.admin")) admins.add(p);
+            else if (p.hasPermission("queue.vip")) vips.add(p);
+            else regulars.add(p);
         }
-
         final List<Player> sorted = new ArrayList<>(admins.size() + vips.size() + regulars.size());
         sorted.addAll(admins);
         sorted.addAll(vips);
@@ -168,17 +138,8 @@ public class QueueRunnable implements Runnable {
     }
 
     private Component buildSubtitle(final String sector, final boolean online, final int pos, final int total, final boolean full) {
-        if (!online) {
-            return MM.deserialize("<gradient:#ff4b2b:#ff416c>Sektor <white>" + sector + "</white> jest obecnie <bold>OFFLINE</bold></gradient>");
-        }
-
-        if (full) {
-            return MM.deserialize("<gradient:#f8ff00:#f8ff00>Sektor <white>" + sector + "</white> jest <bold>PELNY</bold></gradient> <gray>(" + pos + "/" + total + ")</gray>");
-        }
-
-        return MM.deserialize("<gradient:#e0e0e0:#ffffff>Twoja pozycja: </gradient>" +
-                "<gradient:#00d2ff:#3a7bd5><bold>" + pos + "</bold></gradient>" +
-                "<white><bold> / </bold></white>" +
-                "<gradient:#3a7bd5:#00d2ff>" + total + "</gradient>");
+        if (!online) return MM.deserialize("<gradient:#ff4b2b:#ff416c>Sektor <white>" + sector + "</white> jest obecnie <bold>OFFLINE</bold></gradient>");
+        if (full) return MM.deserialize("<gradient:#f8ff00:#f8ff00>Sektor <white>" + sector + "</white> jest <bold>PELNY</bold></gradient> <gray>(" + pos + "/" + total + ")</gray>");
+        return MM.deserialize("<gradient:#e0e0e0:#ffffff>Twoja pozycja: </gradient><gradient:#00d2ff:#3a7bd5><bold>" + pos + "</bold></gradient><white><bold> / </bold></white><gradient:#3a7bd5:#00d2ff>" + total + "</gradient>");
     }
 }
