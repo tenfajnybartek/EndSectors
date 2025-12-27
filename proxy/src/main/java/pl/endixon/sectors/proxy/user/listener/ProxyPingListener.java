@@ -10,11 +10,12 @@ import pl.endixon.sectors.common.sector.SectorData;
 import pl.endixon.sectors.proxy.VelocitySectorPlugin;
 import pl.endixon.sectors.proxy.manager.SectorManager;
 import pl.endixon.sectors.proxy.util.CpuUtil;
-import pl.endixon.sectors.proxy.util.LoggerUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+//todo w config wszystko
 
 public final class ProxyPingListener {
 
@@ -46,8 +47,9 @@ public final class ProxyPingListener {
         final Component motd = MINI_MESSAGE.deserialize(
                 "<bold><gradient:#2afcff:#00bfff>ENDSECTORS</gradient></bold> <gray>•</gray> " +
                         "<gradient:#ffe259:#ffa751>FRAMEWORK</gradient>\n" +
-                        "<gray>Status systemu: </gray><gradient:#56ab2f:#a8e063>ONLINE</gradient>"
+                        "<gradient:#fffa65:#f79c4c>Support Discord: https://dsc.gg/endsectors</gradient>"
         );
+
 
         final List<ServerPing.SamplePlayer> hover = new ArrayList<>();
         final double cpuLoad = CpuUtil.getCpuLoad();
@@ -55,13 +57,14 @@ public final class ProxyPingListener {
         final String cpuColor = (cpuLoad >= 70.0) ? "§c" : (cpuLoad >= 40.0) ? "§e" : "§a";
 
         hover.add(this.createSample("§b§lENDSECTORS FRAMEWORK"));
-        hover.add(this.createSample("§7Status systemu: §eTESTOWY"));
+        hover.add(this.createSample("§7Status systemu: §aONLINE"));
+        hover.add(this.createSample("§7Support Discord: §6https://dsc.gg/endsectors"));
+
         hover.add(this.createSample(""));
         hover.add(this.createSample("§7Aktywne sektory: §a" + activeSectors));
         hover.add(this.createSample("§7Gracze online: §a" + proxyOnline));
-        hover.add(this.createSample(""));
-        hover.add(this.createSample("§e§l» KLIKNIJ ABY PRZETESTOWAĆ SYSTEM «"));
         hover.add(this.createSample("§7Obciążenie CPU: " + cpuColor + formattedCpu));
+        hover.add(this.createSample(""));
 
         final ServerPing.Builder builder = event.getPing().asBuilder()
                 .description(motd)
@@ -76,8 +79,9 @@ public final class ProxyPingListener {
         final Component emergencyMotd = MINI_MESSAGE.deserialize(
                 "<bold><gradient:#ff4b2b:#ff416c>ENDSECTORS</gradient></bold> <gray>•</gray> " +
                         "<gradient:#ffe259:#ffa751>PRACE KONSERWACYJNE</gradient>\n" +
-                        "<gray>Status: </gray><red>Trwa optymalizacja infrastruktury. Zapraszamy wkrótce!</red>"
+                        "<gradient:#fffa65:#f79c4c>Discord Support: https://dsc.gg/endsectors</gradient>\n"
         );
+
 
         final List<ServerPing.SamplePlayer> emergencyHover = new ArrayList<>();
         emergencyHover.add(this.createSample("§6§lDODATKOWE INFORMACJE"));
@@ -86,6 +90,7 @@ public final class ProxyPingListener {
         emergencyHover.add(this.createSample(""));
         emergencyHover.add(this.createSample("§fPrzewidywany czas powrotu: §aKilka minut"));
         emergencyHover.add(this.createSample("§eDziękujemy za cierpliwość!"));
+        emergencyHover.add(this.createSample("§6§lDiscord Support: §fhttps://dsc.gg/endsectors"));
 
         final ServerPing.Builder builder = event.getPing().asBuilder()
                 .description(emergencyMotd)
