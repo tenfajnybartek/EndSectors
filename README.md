@@ -320,3 +320,111 @@ Since Common is a standalone application, it reads the configuration directly fr
   "natsUrl": "nats://127.0.0.1:4222",
   "natsConnectionName": "common-service"
 }
+```
+
+## 💬 Localization & Messages
+
+We treat text seriously. **Hardcoded strings are strictly forbidden**.
+EndSectors embraces the **Separation of Concerns** principle:
+* **Proxy Messages:** Global network notifications, MOTD, queue status, and connection handling.
+* **Paper Messages:** Chat formatting, action bars, titles, GUIs, and interaction feedback.
+
+### 🎨 Format Support
+We support **MiniMessage** (gradients, hex colors `<#RRGGBB>`, hover events) to make your server look like a AAA title.
+* Docs: [MiniMessage Viewer](https://webui.advntr.dev/)
+
+---
+
+### 1. Proxy Configuration (`plugins/endsectors-proxy/message.json`)
+Handles entry point interactions. Notice the structured `motd` section allowing for complex server list formatting.
+
+```json
+{
+  "messages": {
+    "QUEUE_OFFLINE": "<gradient:#ff4b2b:#ff416c>Sektor <white>{SECTOR}</white> jest obecnie <bold>OFFLINE</bold></gradient> <gray>({POS}/{TOTAL})</gray>",
+    "DISCONNECT_MESSAGE": "<red>Połączenie z infrastrukturą zostało przerwane.\n<gray>Trwa próba przywrócenia usług...",
+    "EMERGENCY_KICK": "<bold><gradient:#ff4b2b:#ff416c>ENDSECTORS</gradient></bold><br><br><gray>Obecnie trwają <gradient:#ffe259:#ffa751>PRACE KONSERWACYJNE</gradient>.<br><gray>Zapraszamy ponownie za kilka minut!<br><br><dark_gray>Status: <red>Tryb Optymalizacji",
+    "QUEUE_TITLE": "<gradient:#00d2ff:#3a7bd5><bold>KOLEJKA</bold></gradient>",
+    "QUEUE_FULL": "<gradient:#f8ff00:#f8ff00>Sektor <white>{SECTOR}</white> jest <bold>PELNY</bold></gradient> <gray>({POS}/{TOTAL})</gray>",
+    "QUEUE_POSITION": "<gradient:#e0e0e0:#ffffff>Twoja pozycja: </gradient><gradient:#00d2ff:#3a7bd5><bold>{pos}</bold></gradient><white><bold> / </bold></white><gradient:#3a7bd5:#00d2ff>{total}</gradient>"
+  },
+  "motd": {
+    "EMERGENCY_HOVER": [
+      "§6§lDODATKOWE INFORMACJE",
+      "§7Aktualnie przeprowadzamy §eplanowane §7prace",
+      "§7nad wydajnością naszych systemów.",
+      "",
+      "§fPrzewidywany czas powrotu: §aKilka minut",
+      "§eDziękujemy za cierpliwość!",
+      "§6§lDiscord Support: §f[https://dsc.gg/endsectors](https://dsc.gg/endsectors)"
+    ],
+    "PROXY_MOTD": [
+      "<bold><gradient:#2afcff:#00bfff>ENDSECTORS</gradient></bold> <gray>•</gray> <gradient:#ffe259:#ffa751>FRAMEWORK</gradient>",
+      "<gradient:#fffa65:#f79c4c>Support Discord: [https://dsc.gg/endsectors](https://dsc.gg/endsectors)</gradient>"
+    ],
+    "PROXY_HOVER": [
+      "§b§lENDSECTORS FRAMEWORK",
+      "§7Status systemu: §aONLINE",
+      "§7Support Discord: §6[https://dsc.gg/endsectors](https://dsc.gg/endsectors)",
+      "",
+      "§7Aktywne sektory: §a{ACTIVE_SECTORS}",
+      "§7Gracze online: §a{ONLINE_PLAYERS}",
+      "§7Obciążenie CPU: {CPU}",
+      ""
+    ],
+    "EMERGENCY_MOTD": [
+      "<bold><gradient:#ff4b2b:#ff416c>ENDSECTORS</gradient></bold> <gray>•</gray> <gradient:#ffe259:#ffa751>PRACE KONSERWACYJNE</gradient>",
+      "<gradient:#fffa65:#f79c4c>Discord Support: [https://dsc.gg/endsectors](https://dsc.gg/endsectors)</gradient>"
+    ]
+  }
+}
+```
+### 2. Paper Configuration (plugins/EndSectors/message.json)
+   Handles in-game feedback, GUIs, and command responses.
+
+```json
+{
+"messages": {
+"SHOW_GUI_TITLE": "<#ff7f11>Lista sektorów",
+"CHANNEL_GUI_TITLE": "<#60a5fa>Lista kanałów",
+"SECTOR_CONNECTED_MESSAGE": "<#ff5555>Połączono się na sektor <#f5c542>{SECTOR}",
+"BORDER_MESSAGE": "<#f5c542>Zbliżasz się do granicy sektora <#4ade80>{SECTOR} <#7dd3fc>{DISTANCE}m",
+"GLOBAL_ONLINE": "<#38bdf8>» <#94a3b8>Online <#38bdf8>({SIZE})<#94a3b8>: <#38bdf8>{PLAYERS}",
+"PLAYER_ONLINE_STATUS": "<#38bdf8>» <#94a3b8>Gracz <#38bdf8>{NICK} <#94a3b8>jest obecnie: <#38bdf8>{STATUS}",
+"PROTECTION_ACTIONBAR": "<#facc15>🛡 Ochrona przed obrażeniami: <#ffffff>{SECONDS}s",
+"TITLE_WAIT_TIME": "<#ef4444>Musisz odczekać {SECONDS}s przed ponowną zmianą sektora",
+"PLACE_BORDER_DISTANCE_MESSAGE": "<#ef4444>Nie możesz stawiać bloków przy granicy sektora!",
+"BREAK_BORDER_DISTANCE_MESSAGE": "<#ef4444>Nie możesz niszczyć bloków przy granicy sektora!",
+"playerDataNotFoundMessage": "<#ef4444>Profil użytkownika nie został znaleziony!",
+"spawnSectorNotFoundMessage": "<#ef4444>Nie odnaleziono dostępnego sektora spawn",
+"sectorIsOfflineMessage": "<#ef4444>Sektor jest wyłączony!",
+"NO_PERMISSION": "<red>Brak uprawnień!",
+"RELOAD_SUCCESS": "<#38bdf8>» <#38bdf8>Konfiguracja została pomyślnie przeładowana."
+},
+"messagesLore": {
+"CHANNEL_LORE_FORMAT": [
+"",
+"<#9ca3af>Online: <#4ade80>{ONLINE}",
+"<#9ca3af>TPS: {TPS}",
+"<#9ca3af>Ostatnia aktualizacja: <#4ade80>{UPDATE}s",
+"",
+"{STATUS}"
+],
+"HELP_MENU": [
+" ",
+"  <#38bdf8><b>POMOC</b>",
+"  <#38bdf8>/sector reload <#94a3b8>» Przeładowuje konfigurację",
+"  <#38bdf8>/sector border <#94a3b8>» Synchronizuje granice sektorów",
+"  <#38bdf8>/sector show <#94a3b8>» Wyświetla listę sektorów",
+" "
+],
+"INSPECT_FORMAT": [
+" ",
+"  <#38bdf8><b>INFORMACJE O GRACZU</b>",
+"  <#94a3b8>Nick: <#38bdf8>{NICK}",
+"  <#94a3b8>Sektor: <#38bdf8>{SECTOR}",
+"  <#94a3b8>Poziom: <#38bdf8>{LVL} <#94a3b8>({EXP} XP)",
+" "
+  ]
+ }
+}
