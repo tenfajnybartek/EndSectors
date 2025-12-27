@@ -74,25 +74,25 @@ public class MessageLoader {
         m.put("SECTOR_DISABLED_SUBTITLE", "<#ef4444>Ten sektor jest aktualnie wyłączony");
 
         m.put("BORDER_MESSAGE", "<#f5c542>Zbliżasz się do granicy sektora <#4ade80>{SECTOR} <#7dd3fc>{DISTANCE}m");
-        m.put("BORDER_REFRESHED", "<#2563eb><b>BORDER</b> <#e5e7eb>» <#22c55e>Wysłano żądanie synchronizacji granic do Proxy.");
+        m.put("BORDER_REFRESHED", "<#38bdf8>» <#38bdf8>Granice sektorów zostały zsynchronizowane.");
         m.put("BREAK_BORDER_DISTANCE_MESSAGE", "<#ef4444>Nie możesz niszczyć bloków przy granicy sektora!");
         m.put("PLACE_BORDER_DISTANCE_MESSAGE", "<#ef4444>Nie możesz stawiać bloków przy granicy sektora!");
 
-        m.put("RELOAD_SUCCESS", "<#2563eb><b>SYSTEM</b> <#e5e7eb>» <#22c55e>Konfiguracja i wiadomości zostały przeładowane!");
+        m.put("RELOAD_SUCCESS", "<#38bdf8>» <#38bdf8>Konfiguracja została pomyślnie przeładowana.");
         m.put("NO_PERMISSION", "<red>Brak uprawnień!");
-        m.put("UNKNOWN_OPTION", "<#ef4444>Nieznana opcja. Użyj /sector, aby uzyskać pomoc.");
+        m.put("UNKNOWN_OPTION", "<#38bdf8>» Nieznana opcja <#94a3b8>Sprawdź pomoc pod <#38bdf8>/sector");
 
         m.put("TITLE_WAIT_TIME", "<#ef4444>Musisz odczekać {SECONDS}s przed ponowną zmianą sektora");
         m.put("PROTECTION_ACTIONBAR", "<#facc15>🛡 Ochrona przed obrażeniami: <#ffffff>{SECONDS}s");
 
-        m.put("CURRENT_SECTOR", "<#e5e7eb>Aktualny sektor: <#06b6d4>{SECTOR}");
-        m.put("USAGE_EXECUTE", "<#ef4444>Błąd: <#06b6d4>/sector execute <komenda>");
-        m.put("COMMAND_BROADCASTED", "<#0ea5e9>Komenda została wysłana do wszystkich sektorów.");
-        m.put("SPECIFY_NICKNAME", "<#ef4444>Podaj nick: <#06b6d4>/sector {SUB}");
+        m.put("CURRENT_SECTOR", "<#38bdf8>» <#94a3b8>Aktualny sektor: <#38bdf8>{SECTOR}");
+        m.put("USAGE_EXECUTE", "<#38bdf8>» Poprawne użycie: <#38bdf8>/sector execute <komenda>");
+        m.put("COMMAND_BROADCASTED", "<#38bdf8>» <#38bdf8>Komenda została wysłana do wszystkich sektorów");
+        m.put("SPECIFY_NICKNAME", "<#38bdf8>» Poprawne użycie: <#38bdf8>/sector {SUB}");
 
-        m.put("PLAYER_ONLINE_STATUS", "<#e5e7eb>Gracz <#06b6d4>{NICK} <#e5e7eb>jest: {STATUS}");
-        m.put("GLOBAL_ONLINE", "<#e5e7eb>Globalnie online (<#06b6d4>{SIZE}<#e5e7eb>): <#06b6d4>{PLAYERS}");
-        m.put("PLAYER_NOT_FOUND_DB", "<red>Gracz nie został znaleziony w bazie danych ani cache.");
+        m.put("PLAYER_ONLINE_STATUS", "<#38bdf8>» <#94a3b8>Gracz <#38bdf8>{NICK} <#94a3b8>jest obecnie: <#38bdf8>{STATUS}");
+        m.put("GLOBAL_ONLINE", "<#38bdf8>» <#94a3b8>Online <#38bdf8>({SIZE})<#94a3b8>: <#38bdf8>{PLAYERS}");
+        m.put("PLAYER_NOT_FOUND_DB", "<red>Gracz nie został znaleziony w bazie danych");
 
         m.put("playerAlreadyConnectedMessage", "<#ef4444>Jesteś już połączony z tym kanałem");
         m.put("sectorIsOfflineMessage", "<#ef4444>Sektor jest wyłączony!");
@@ -134,27 +134,27 @@ public class MessageLoader {
         ));
 
         l.put("INSPECT_FORMAT", List.of(
-                "<#2563eb>      INFORMACJE O GRACZU",
-                " <#e5e7eb>Nick: <#06b6d4>{NICK}",
-                " <#e5e7eb>Sektor: <#0ea5e9>{SEKTOR}",
-                " <#e5e7eb>Tryb gry: <#06b6d4>{GM}",
-                " <#e5e7eb>Poziom: <#06b6d4>{LVL}",
-                " <#e5e7eb>Doświadczenie: <#06b6d4>{EXP}",
-                " <#e5e7eb>Ostatni transfer: <#06b6d4>{LAST}",
-                " <#e5e7eb>Cooldown: <#06b6d4>{COOLDOWN}",
+                " ",
+                "  <#38bdf8><b>INFORMACJE O GRACZU</b>",
+                "  <#94a3b8>Nick: <#38bdf8>{NICK}",
+                "  <#94a3b8>Sektor: <#38bdf8>{SECTOR}",
+                "  <#94a3b8>Poziom: <#38bdf8>{LVL} <#94a3b8>({EXP} XP)",
+                "  <#94a3b8>Ostatni transfer: <#38bdf8>{LAST}",
+                "  <#94a3b8>Cooldown: <#38bdf8>{COOLDOWN}s",
                 " "
         ));
 
         l.put("HELP_MENU", List.of(
-                "<#2563eb>────────── <#0ea5e9><b>POMOC SEKTORY</b> <#2563eb>──────────",
-                "<#0ea5e9>/sector reload <#e5e7eb>- <#06b6d4>Przeładowanie konfiguracji",
-                "<#0ea5e9>/sector border <#e5e7eb>- <#06b6d4>Synchronizacja granic sektorów",
-                "<#0ea5e9>/sector where <#e5e7eb>- <#06b6d4>Aktualny sektor",
-                "<#0ea5e9>/sector show <#e5e7eb>- <#06b6d4>Lista sektorów",
-                "<#0ea5e9>/sector who <#e5e7eb>- <#06b6d4>Lista online graczy",
-                "<#0ea5e9>/sector execute <#e5e7eb><komenda> - <#06b6d4>Wykonaj globalną komendę",
-                "<#0ea5e9>/sector inspect <#e5e7eb><nick> - <#06b6d4>Podgląd gracza",
-                "<#2563eb>──────────────────────────────────"
+                " ",
+                "  <#38bdf8><b>POMOC</b>",
+                "  <#38bdf8>/sector reload <#94a3b8>» Przeładowuje konfigurację",
+                "  <#38bdf8>/sector border <#94a3b8>» Synchronizuje granice sektorów",
+                "  <#38bdf8>/sector where <#94a3b8>» Sprawdza aktualny sektor",
+                "  <#38bdf8>/sector show <#94a3b8>» Wyświetla listę sektorów",
+                "  <#38bdf8>/sector who <#94a3b8>» Wyświetla listę graczy online globalnie",
+                "  <#38bdf8>/sector execute <#94a3b8>» Wykonuje komendę na wszystkich sektorach",
+                "  <#38bdf8>/sector inspect <#94a3b8>» Wyświetla szczegółowe informacje o graczu",
+                " "
         ));
 
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
