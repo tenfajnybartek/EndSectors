@@ -93,7 +93,7 @@ The system must be launched in this strict order to establish connections correc
 
 * **🧠 Smart Border Handover** – The system calculates player position relative to sector boundaries. Crossing a line triggers an instant, seamless transfer to the neighbor server.
 * **💾 Atomic Data Sync** – Inventory, HP, Food, Enderchest, and Potion Effects are synchronized via Redis. No item duplication or rollback glitches.
-* **📢 Synchronized Chat** – Chat is global. A message sent on `sector_north` is instantly visible on `sector_south`.
+* **📢 Synchronized Chat** – Chat is global. A message sent on `spawn_1` is instantly visible on `spawn_2`.
 * **⚖️ Queue & Load Balancing** – If a sector is full, players are queued globally. The system also remembers the player's last known sector.
 * **🛡️ Fail-Safe Protocol** – If the **Common App** loses connection, all sectors execute an emergency shutdown to prevent data desynchronization.
 
