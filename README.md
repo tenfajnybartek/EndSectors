@@ -472,3 +472,9 @@ Handles entry point interactions. Notice the structured `motd` section allowing 
     ]
   }
 }
+
+```
+---
+### 🤝 Contributing
+Feel free to open an **Issue** if you find a bug or a **Pull Request** if you want to improve the logic. 
+Special thanks to all testers!
