@@ -19,14 +19,9 @@
 
 package pl.endixon.sectors.tools.config;
 
-import com.fasterxml.jackson.core.util.DefaultIndenter;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-
 import lombok.Getter;
 import lombok.Setter;
 import pl.endixon.sectors.tools.utils.LoggerUtil;
@@ -38,7 +33,7 @@ public class MessageLoader {
     public Map<String, String> messages = new HashMap<>();
     public Map<String, List<String>> messagesLore = new HashMap<>();
 
-    private static final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public static MessageLoader load(File dataFolder) {
         try {
@@ -50,7 +45,7 @@ public class MessageLoader {
 
             if (file.exists()) {
                 try (Reader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
-                    return mapper.readValue(reader, MessageLoader.class);
+                    return gson.fromJson(reader, MessageLoader.class);
                 } catch (IOException e) {
                     LoggerUtil.info("Error while parsing messages.json, rolling back to defaults: " + e.getMessage());
                     return createDefault();
@@ -58,10 +53,7 @@ public class MessageLoader {
             } else {
                 MessageLoader defaultMessages = createDefault();
                 try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
-                    DefaultPrettyPrinter printer = new DefaultPrettyPrinter();
-                    printer.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
-
-                    mapper.writer(printer).writeValue(writer, defaultMessages);
+                    gson.toJson(defaultMessages, writer);
                     LoggerUtil.info("Default messages.json has been generated successfully.");
                 } catch (IOException e) {
                     LoggerUtil.info("Failed to save default messages.json: " + e.getMessage());

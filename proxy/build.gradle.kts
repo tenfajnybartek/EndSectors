@@ -22,8 +22,6 @@ java {
 
 dependencies {
     implementation(project(":common"))
-    implementation("io.javalin:javalin:5.6.1")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
     compileOnly("com.velocitypowered:velocity-api:3.1.1")
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
@@ -32,7 +30,6 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     compileOnly("net.kyori:adventure-text-minimessage:4.25.0")
     compileOnly("com.mojang:authlib:1.5.21")
-    implementation("org.mongodb:mongo-java-driver:3.12.14")
     implementation("io.nats:jnats:2.20.0")
 }
 
