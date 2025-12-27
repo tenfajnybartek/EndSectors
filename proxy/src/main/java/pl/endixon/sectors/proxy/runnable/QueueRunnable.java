@@ -120,9 +120,13 @@ public class QueueRunnable implements Runnable {
         final List<Player> vips = new ArrayList<>();
         final List<Player> regulars = new ArrayList<>();
         for (final Player p : players) {
-            if (p.hasPermission("queue.admin")) admins.add(p);
-            else if (p.hasPermission("queue.vip")) vips.add(p);
-            else regulars.add(p);
+            if (p.hasPermission("queue.admin")) {
+                admins.add(p);
+            } else if (p.hasPermission("queue.vip")) {
+                vips.add(p);
+            } else {
+                regulars.add(p);
+            }
         }
         final List<Player> sorted = new ArrayList<>(admins.size() + vips.size() + regulars.size());
         sorted.addAll(admins);
@@ -138,8 +142,15 @@ public class QueueRunnable implements Runnable {
     }
 
     private Component buildSubtitle(final String sector, final boolean online, final int pos, final int total, final boolean full) {
-        if (!online) return MM.deserialize("<gradient:#ff4b2b:#ff416c>Sektor <white>" + sector + "</white> jest obecnie <bold>OFFLINE</bold></gradient>");
-        if (full) return MM.deserialize("<gradient:#f8ff00:#f8ff00>Sektor <white>" + sector + "</white> jest <bold>PELNY</bold></gradient> <gray>(" + pos + "/" + total + ")</gray>");
+        if (!online) {
+            return MM.deserialize("<gradient:#ff4b2b:#ff416c>Sektor <white>" + sector + "</white> jest obecnie <bold>OFFLINE</bold></gradient> <gray>(" + pos + "/" + total + ")</gray>");
+        }
+
+        if (full) {
+            return MM.deserialize("<gradient:#f8ff00:#f8ff00>Sektor <white>" + sector + "</white> jest <bold>PELNY</bold></gradient> <gray>(" + pos + "/" + total + ")</gray>");
+        }
+
         return MM.deserialize("<gradient:#e0e0e0:#ffffff>Twoja pozycja: </gradient><gradient:#00d2ff:#3a7bd5><bold>" + pos + "</bold></gradient><white><bold> / </bold></white><gradient:#3a7bd5:#00d2ff>" + total + "</gradient>");
     }
+
 }
