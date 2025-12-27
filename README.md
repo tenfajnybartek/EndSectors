@@ -329,6 +329,16 @@ EndSectors embraces the **Separation of Concerns** principle:
 * **Proxy Messages:** Global network notifications, MOTD, queue status, and connection handling.
 * **Paper Messages:** Chat formatting, action bars, titles, GUIs, and interaction feedback.
 
+### 🌍 Language Support
+By default, all configuration files ship with **Polish (PL)** messages.
+However, since the system is fully externalized to JSON:
+1.  **You can translate it** to English (or any other language) manually by editing the `message.json` files.
+2.  **Roadmap:** We are working on out-of-the-box multi-language support (switching locales via config).
+
+> [!NOTE]
+> For now, if you want English messages, simply replace the values in the JSON structure.
+> *Nie musisz uczyć się polskiego, żeby używać tego pluginu (ale warto).*
+
 ### 🎨 Format Support
 We support **MiniMessage** (gradients, hex colors `<#RRGGBB>`, hover events) to make your server look like a AAA title.
 * Docs: [MiniMessage Viewer](https://webui.advntr.dev/)
