@@ -46,6 +46,14 @@ All sectors are connected via **Velocity**, giving players the feeling of one se
 - **NATS** – The high-speed transport layer responsible for **all packet communication** between services.
 - **Redis** – Strictly used for **data storage** and synchronizing player state (inventory, enderchest, stats).
 
+> [!IMPORTANT]
+> **🌍 Map Consistency is Critical**
+> For the illusion of a single world to work, **all sector servers MUST use the exact same world map** (identical `world` folder).
+> 
+> **Example:** If you have a fully built spawn on `spawn_1`, you must upload **this exact world folder** to all surrounding sectors (`w1`, `n1`, `s1`, `e1`).
+> The terrain and builds at the border must perfectly match across all instances. Do not try to split the map file manually.
+
+
 ---
 
 ## 💬 Discord Support
