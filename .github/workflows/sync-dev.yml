@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-
+      -
 jobs:
   reset-dev:
     runs-on: ubuntu-latest
