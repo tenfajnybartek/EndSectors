@@ -24,7 +24,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20-R0.1-SNAPSHOT")
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
-    implementation("io.lettuce:lettuce-core:7.2.0.RELEASE")
+    implementation("io.lettuce:lettuce-core:7.2.1.RELEASE")
     implementation("org.mongodb:mongo-java-driver:3.12.14")
     compileOnly("com.mojang:authlib:1.5.21")
     compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
