@@ -18,6 +18,7 @@
 
 <hr>
 
+
 **EndSectors** — professional Minecraft sector framework for **Paper 1.21.4** with **NATS & Redis** 🗄️⚡
 
 EndSectors allows you to run a single **Minecraft world** across multiple **Spigot servers**, each representing a **sector**.  
