@@ -54,6 +54,10 @@ jobs:
         with:
           tag_name: v${{ needs.build.outputs.release_version }}
           name: Release ${{ needs.build.outputs.release_version }}
-          files: "release-artifacts/**/*.jar"
+          files: |
+            release-artifacts/**/*.jar
+            !release-artifacts/**/*-javadoc.jar
+            !release-artifacts/**/*-sources.jar
+            !release-artifacts/**/*-plain.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
