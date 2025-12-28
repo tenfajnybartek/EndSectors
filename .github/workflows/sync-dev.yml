@@ -1,4 +1,4 @@
-name: Auto sync dev with main
+name: Auto Sync Dev with Main
 
 on:
   push:
@@ -6,10 +6,12 @@ on:
       - main
 
 jobs:
-  sync:
+  sync-dev:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repo
+
+      - name: Checkout repository
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
