@@ -393,6 +393,7 @@ Handles entry point interactions. Notice the structured `motd` section allowing 
 ### 2. Paper Configuration (plugins/EndSectors/message.json)
 Handles in-game feedback, GUIs, and command responses.
 
+
 ```json
 {
   "messages": {
