@@ -25,7 +25,7 @@ jobs:
 
       - name: Set version output
         id: set_version
-        run: echo "VERSION=$(./gradlew -q printVersion | head -n 1 | sed 's/-SNAPSHOT//')" >> $GITHUB_OUTPUT
+        run: echo "VERSION=$(./gradlew -q project.version | head -n 1 | sed 's/-SNAPSHOT//')" >> $GITHUB_OUTPUT
 
       - name: Build all modules
         run: ./gradlew clean build --no-daemon
@@ -50,11 +50,11 @@ jobs:
           path: release-artifacts
 
       - name: Cleanup unwanted JARs
-
         run: |
           find release-artifacts -type f -name "*-javadoc.jar" -delete
           find release-artifacts -type f -name "*-sources.jar" -delete
           find release-artifacts -type f -name "*-plain.jar" -delete
+          find release-artifacts -type f -name "*-base.jar" -delete
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

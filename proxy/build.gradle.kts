@@ -2,19 +2,18 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     java
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.github.goooler.shadow") version "8.1.8"
 }
 
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
-    maven("https://oss.sonatype.org/content/groups/public/")
+    maven("https://repo.mikeprimm.com/")
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
     withSourcesJar()
     withJavadocJar()
@@ -33,39 +32,41 @@ dependencies {
     implementation("io.nats:jnats:2.24.1")
 }
 
+tasks.jar {
+    archiveFileName.set("EndSectors-proxy-base.jar")
+    enabled = true
+}
+
+tasks.named<Jar>("sourcesJar") {
+    archiveFileName.set("EndSectors-proxy-sources.jar")
+}
+
+tasks.named<Jar>("javadocJar") {
+    archiveFileName.set("EndSectors-proxy-javadoc.jar")
+}
+
+
 tasks.named<ShadowJar>("shadowJar") {
     mergeServiceFiles()
     archiveClassifier.set("")
-    minimize()
+    archiveFileName.set("EndSectors-proxy.jar")
+    exclude("META-INF/**")
     dependencies {
         exclude(dependency("net.bytebuddy:.*"))
     }
 
-    relocate("io.netty", "pl.endixon.sectors.shadow.netty") {
-        include("io.netty.**")
-    }
-
-    exclude("META-INF/**")
-    exclude(
-        "**/org/bukkit/**",
-        "**/io/papermc/**",
-        "**/net/md_5/bungee/**",
-        "**/pl/endixon/sectors/paper/**"
-    )
+    minimize()
 }
-
 
 
 tasks.build {
     dependsOn(tasks.named("shadowJar"))
 }
+
 tasks.assemble {
     dependsOn(tasks.named("shadowJar"))
 }
 
-tasks.named<JavaCompile>("compileJava") {
-    dependsOn(":common:shadowJar")
-}
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
