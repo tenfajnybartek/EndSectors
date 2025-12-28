@@ -1,12 +1,26 @@
 version: 2
 updates:
   - package-ecosystem: "gradle"
-    directory: "/"          
+    directory: "/"     
     schedule:
-      interval: "weekly"   
-    commit-message:
-      prefix: "deps"       
-    open-pull-requests-limit: 5
-    ignore:
-      - dependency-name: "org.springframework.boot"  
-        versions: ["<3.0.0"]
+      interval: "weekly"
+
+  - package-ecosystem: "gradle"
+    directory: "/common"   
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "gradle"
+    directory: "/proxy"  
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "gradle"
+    directory: "/paper" 
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "gradle"
+    directory: "/tools" 
+    schedule:
+      interval: "weekly"
