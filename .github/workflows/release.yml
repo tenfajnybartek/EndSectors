@@ -63,7 +63,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.build.outputs.release_version }}
-          name: v${{ needs.build.outputs.release_version }} - ${{ github.event.head_commit.message }}
+          name: Release v${{ needs.build.outputs.release_version }}
           body: ${{ github.event.head_commit.message }}
           files: "release-artifacts/**/*.jar"
           draft: false
