@@ -4,28 +4,23 @@ updates:
     directory: "/"     
     schedule:
       interval: "daily"
-    automerge: true
 
   - package-ecosystem: "gradle"
     directory: "/common"   
     schedule:
       interval: "daily"
-    automerge: true
 
   - package-ecosystem: "gradle"
     directory: "/proxy"  
     schedule:
       interval: "daily"
-    automerge: true
 
   - package-ecosystem: "gradle"
     directory: "/paper" 
     schedule:
       interval: "daily"
-    automerge: true
 
   - package-ecosystem: "gradle"
     directory: "/tools" 
     schedule:
       interval: "daily"
-    automerge: true
