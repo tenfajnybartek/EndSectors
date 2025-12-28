@@ -42,32 +42,6 @@ public class Corner implements Serializable {
         this(posX, 0, posZ);
     }
 
-    public Corner() {
-    }
-
-    public int getPosX() {
-        return posX;
-    }
-
-    public void setPosX(int posX) {
-        this.posX = posX;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public int getPosZ() {
-        return posZ;
-    }
-
-    public void setPosZ(int posZ) {
-        this.posZ = posZ;
-    }
 
     @Override
     public String toString() {
