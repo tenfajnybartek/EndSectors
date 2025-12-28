@@ -60,6 +60,7 @@ The project consists of 4 artifacts. You must install and configure them in the 
 
 ### 📦 Module List
 
+
 | Module | Filename | Role |
 | :--- | :--- | :--- |
 | **Common App** | `common-1.6-BETA-all.jar` | **The Brain.** Standalone app. Must run first. |
