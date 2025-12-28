@@ -37,10 +37,10 @@ jobs:
         with:
           name: all-jars
           path: |
-            paper/build/libs/*-all.jar
-            proxy/build/libs/*-all.jar
-            common/build/libs/*-all.jar
-            Tools/build/libs/*-all.jar
+            paper/build/libs/*.jar
+            proxy/build/libs/*.jar
+            common/build/libs/*.jar
+            Tools/build/libs/*.jar
 
   release:
     needs: build
@@ -61,12 +61,11 @@ jobs:
       - name: Get version from Gradle
         run: echo "VERSION=$(./gradlew -q printVersion)" >> $GITHUB_ENV
 
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ env.VERSION }}
           name: Release ${{ env.VERSION }}
-          files: build/libs/*-all.jar
+          files: build/libs/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

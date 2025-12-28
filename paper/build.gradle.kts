@@ -36,6 +36,7 @@ dependencies {
 
 tasks.named<ShadowJar>("shadowJar") {
     mergeServiceFiles()
+    archiveClassifier.set("")
     exclude("META-INF/**")
 
 
@@ -60,6 +61,10 @@ tasks.build {
 tasks.assemble {
     dependsOn(tasks.named("shadowJar"))
 }
+tasks.named<JavaCompile>("compileJava") {
+    dependsOn(":common:shadowJar")
+}
+
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"

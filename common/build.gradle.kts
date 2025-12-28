@@ -27,6 +27,7 @@ dependencies {
 
 tasks.named<ShadowJar>("shadowJar") {
     mergeServiceFiles()
+    archiveClassifier.set("")
     exclude("META-INF/*.SF")
     exclude("META-INF/*.DSA")
     exclude("META-INF/*.RSA")

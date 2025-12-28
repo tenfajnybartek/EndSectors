@@ -32,7 +32,7 @@ dependencies {
 
 tasks.named<ShadowJar>("shadowJar") {
     mergeServiceFiles()
-
+    archiveClassifier.set("")
     exclude("META-INF/**")
 
     dependencies {
@@ -45,8 +45,13 @@ tasks.named<ShadowJar>("shadowJar") {
 tasks.build {
     dependsOn(tasks.named("shadowJar"))
 }
+
 tasks.assemble {
     dependsOn(tasks.named("shadowJar"))
+}
+
+tasks.named<JavaCompile>("compileJava") {
+    dependsOn(":paper:shadowJar")
 }
 
 tasks.withType<JavaCompile>().configureEach {
