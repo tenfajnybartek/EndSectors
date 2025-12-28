@@ -477,6 +477,7 @@ Handles in-game feedback, GUIs, and command responses.
   }
 }
 
+
 ```
 ---
 ### 🤝 Contributing
