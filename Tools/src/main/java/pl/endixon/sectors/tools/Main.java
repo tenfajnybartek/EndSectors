@@ -30,6 +30,7 @@ import pl.endixon.sectors.paper.SectorsAPI;
 import pl.endixon.sectors.tools.command.HomeCommand;
 import pl.endixon.sectors.tools.command.RandomTPCommand;
 import pl.endixon.sectors.tools.command.SpawnCommand;
+import pl.endixon.sectors.tools.config.ConfigLoader;
 import pl.endixon.sectors.tools.config.MessageLoader;
 import pl.endixon.sectors.tools.manager.CombatManager;
 import pl.endixon.sectors.tools.manager.MongoManager;
@@ -50,6 +51,7 @@ public class Main extends JavaPlugin {
     private SectorsAPI sectorsAPI;
     private MongoManager mongoService;
     private PlayerProfileRepository repository;
+    private ConfigLoader configLoader;
     private MessageLoader messageLoader;
 
     @Override
@@ -78,13 +80,14 @@ public class Main extends JavaPlugin {
         LoggerUtil.info("Loading JSON configuration files...");
         File dataFolder = this.getDataFolder();
         this.messageLoader = MessageLoader.load(dataFolder);
-        LoggerUtil.info("Externalized messages loaded successfully.");
+        this.configLoader = ConfigLoader.load(dataFolder);
+        LoggerUtil.info("Configuration and messages loaded successfully.");
     }
 
     private void initMongo() {
         LoggerUtil.info("Connecting to MongoDB cluster...");
         this.mongoService = new MongoManager();
-        this.mongoService.connect("mongodb://localhost:27017", "endsectors");
+        this.mongoService.connect(configLoader.mongoUri, configLoader.mongoDatabase);
     }
 
     private void initRepositories() {

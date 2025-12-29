@@ -23,11 +23,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+
 import pl.endixon.sectors.common.util.ChatUtil;
 
 public class StackBuilder {
@@ -48,8 +54,12 @@ public class StackBuilder {
         return this;
     }
 
-    public StackBuilder durability(short dur) {
-        stack.setDurability(dur);
+    public StackBuilder durability(int dur) {
+        ItemMeta meta = stack.getItemMeta();
+        if (meta instanceof Damageable dmg) {
+            dmg.setDamage(dur);
+            stack.setItemMeta(meta);
+        }
         return this;
     }
 
@@ -65,8 +75,10 @@ public class StackBuilder {
 
     public StackBuilder addEnchant(Enchantment enchant, int level) {
         ItemMeta meta = stack.getItemMeta();
-        meta.addEnchant(enchant, level, true);
-        stack.setItemMeta(meta);
+        if (meta != null) {
+            meta.addEnchant(enchant, level, true);
+            stack.setItemMeta(meta);
+        }
         return this;
     }
 
@@ -77,15 +89,24 @@ public class StackBuilder {
 
     public StackBuilder name(String name) {
         ItemMeta meta = stack.getItemMeta();
-        meta.setDisplayName(ChatUtil.fixColors(name));
-        stack.setItemMeta(meta);
+        if (meta != null) {
+            Component display = Component.text(ChatUtil.fixColors(name));
+            meta.displayName(display);
+            stack.setItemMeta(meta);
+        }
         return this;
     }
 
     public String getName() {
         ItemMeta meta = stack.getItemMeta();
-        return meta != null ? meta.getDisplayName() : "";
+        if (meta == null) return "";
+
+        Component display = meta.displayName();
+        if (display == null) return "";
+
+        return LegacyComponentSerializer.legacyAmpersand().serialize(display);
     }
+
 
     public StackBuilder lore(String line) {
         return lore(line, -1);
@@ -93,36 +114,46 @@ public class StackBuilder {
 
     public StackBuilder lore(String line, int index) {
         ItemMeta meta = stack.getItemMeta();
-        if (meta == null)
-            return this;
+        if (meta == null) return this;
 
-        List<String> lore = meta.getLore() != null ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
-        String coloredLine = ChatUtil.fixColors(line);
+        List<Component> currentLore = meta.lore();
+        List<Component> lore;
+        if (currentLore != null) {
+            lore = new ArrayList<>(currentLore);
+        } else {
+            lore = new ArrayList<>();
+        }
 
-        if (index >= 0 && index < lore.size())
+        Component coloredLine = Component.text(ChatUtil.fixColors(line));
+
+        if (index >= 0 && index < lore.size()) {
             lore.set(index, coloredLine);
-        else
+        } else {
             lore.add(coloredLine);
+        }
 
-        meta.setLore(lore);
+        meta.lore(lore);
         stack.setItemMeta(meta);
         return this;
     }
+
 
     public StackBuilder lores(List<String> lines) {
         ItemMeta meta = stack.getItemMeta();
-        if (meta == null)
-            return this;
+        if (meta == null) return this;
 
-        List<String> colored = lines.stream().map(ChatUtil::fixColors).collect(Collectors.toList());
-        meta.setLore(colored);
+        List<Component> loreComponents = lines.stream()
+                .map(line -> Component.text(ChatUtil.fixColors(line)))
+                .collect(Collectors.toList());
+
+        meta.lore(loreComponents);
         stack.setItemMeta(meta);
         return this;
     }
 
+
     public StackBuilder glow(boolean enable) {
-        if (!enable)
-            return this;
+        if (!enable) return this;
 
         ItemMeta meta = stack.getItemMeta();
         if (meta != null) {

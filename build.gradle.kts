@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
     group = "pl.endixon.sectors"
-    version = "1.7.1-SNAPSHOT"
+    version = "1.7.2-SNAPSHOT"
 
 
 
@@ -47,6 +47,19 @@ tasks.register("printVersion") {
         println(project.version.toString())
     }
 }
+
+subprojects {
+    tasks.withType<JavaCompile> {
+        options.compilerArgs.addAll(listOf("-Xlint:unchecked", "-Xlint:deprecation"))
+    }
+
+    tasks.withType<Javadoc> {
+        (options as StandardJavadocDocletOptions).apply {
+            addStringOption("Xdoclint:none", "-quiet")
+        }
+    }
+}
+
 
 
     tasks.jar {

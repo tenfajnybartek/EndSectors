@@ -23,6 +23,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import java.util.List;
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -96,7 +97,7 @@ public class PaperSector extends JavaPlugin {
         Common.getInstance().getNatsManager().publish(PacketChannel.PACKET_SECTOR_DISCONNECTED.getSubject(), packet);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.kickPlayer("§cSektor " + sectorManager.getCurrentSectorName() + " §czostał zamknięty i jest niedostępny!");
+            player.kick(Component.text("§cSektor " + sectorManager.getCurrentSectorName() + " §czostał zamknięty i jest niedostępny!"));
         }
         if (this.heartbeatHook != null) {
             this.heartbeatHook.shutdown();

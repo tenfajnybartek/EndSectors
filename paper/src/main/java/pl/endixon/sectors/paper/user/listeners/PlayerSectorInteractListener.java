@@ -31,6 +31,7 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -185,9 +186,12 @@ public class PlayerSectorInteractListener implements Listener {
     }
 
     @EventHandler
-    public void onPickupItem(PlayerPickupItemEvent event) {
+    public void onPickupItem(EntityPickupItemEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+
         Sector current = PaperSector.getSectorManager().getCurrentSector();
-        Player player = event.getPlayer();
         Location loc = player.getLocation();
 
         if (current.getType() == SectorType.QUEUE) {
@@ -195,13 +199,14 @@ public class PlayerSectorInteractListener implements Listener {
             return;
         }
 
-        if (sectorManager.getCurrentSector().getBorderDistance(loc) <= this.PaperSector.getConfiguration().dropItemBorderDistance) {
+        if (sectorManager.getCurrentSector().getBorderDistance(loc) <= PaperSector.getConfiguration().dropItemBorderDistance) {
             event.setCancelled(true);
             return;
         }
 
         cancelIfRedirecting(player, event);
     }
+
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
@@ -262,11 +267,10 @@ public class PlayerSectorInteractListener implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent event) {
 
-        if (!(event.getWhoClicked() instanceof Player)) {
+        if (!(event.getWhoClicked() instanceof Player player)) {
             return;
         }
 
-        Player player = (Player) event.getWhoClicked();
         Sector current = PaperSector.getSectorManager().getCurrentSector();
 
         if (current.getType() == SectorType.QUEUE) {
@@ -279,11 +283,10 @@ public class PlayerSectorInteractListener implements Listener {
 
     @EventHandler
     public void onDrag(InventoryDragEvent event) {
-        if (!(event.getWhoClicked() instanceof Player)) {
+        if (!(event.getWhoClicked() instanceof Player player)) {
             return;
         }
 
-        Player player = (Player) event.getWhoClicked();
         Sector current = PaperSector.getSectorManager().getCurrentSector();
 
         if (current.getType() == SectorType.QUEUE) {
@@ -296,11 +299,10 @@ public class PlayerSectorInteractListener implements Listener {
     @EventHandler
     public void onInteract(InventoryInteractEvent event) {
 
-        if (!(event.getWhoClicked() instanceof Player)) {
+        if (!(event.getWhoClicked() instanceof Player player)) {
             return;
         }
 
-        Player player = (Player) event.getWhoClicked();
         Sector current = PaperSector.getSectorManager().getCurrentSector();
 
         if (current.getType() == SectorType.QUEUE) {

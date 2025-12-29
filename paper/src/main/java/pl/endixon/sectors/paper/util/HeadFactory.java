@@ -31,6 +31,7 @@ import org.bukkit.profile.PlayerProfile;
 
 public class HeadFactory {
 
+    @SuppressWarnings("deprecation")
     public static ItemStack generateHead(String base64Texture) {
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) skull.getItemMeta();

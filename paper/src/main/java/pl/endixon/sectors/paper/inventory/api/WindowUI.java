@@ -24,19 +24,23 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.inventory.ItemStack;
 import pl.endixon.sectors.common.util.ChatUtil;
 import pl.endixon.sectors.paper.inventory.api.builder.WindowHolder;
 
 public class WindowUI {
 
+    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
     private final WindowHolder holder;
 
     public WindowUI(String title, int rows) {
         this.holder = new WindowHolder();
-        this.holder.setInventory(Bukkit.createInventory(holder, Math.min(rows * 9, 54), ChatUtil.fixColors(title)));
+        this.holder.setInventory(Bukkit.createInventory(holder, Math.min(rows * 9, 54), MINI_MESSAGE.deserialize(title)));
+
     }
 
-    public void setSlot(int slot, org.bukkit.inventory.ItemStack item, Consumer<InventoryClickEvent> onClick) {
+    public void setSlot(int slot, ItemStack item, Consumer<InventoryClickEvent> onClick) {
         holder.assignAction(slot, onClick);
         holder.getInventory().setItem(slot, item);
     }

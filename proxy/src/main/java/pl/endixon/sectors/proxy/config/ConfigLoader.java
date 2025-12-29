@@ -26,6 +26,7 @@ public class ConfigLoader {
 
     private ConfigLoader() { }
 
+    @SuppressWarnings("unchecked")
     public static ConfigLoader load(VelocitySectorPlugin plugin) {
         Path dataFolder = plugin.getDataDirectory();
         Path configPath = dataFolder.resolve("config.json");

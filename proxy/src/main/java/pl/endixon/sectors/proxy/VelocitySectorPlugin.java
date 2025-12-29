@@ -72,8 +72,6 @@ public class VelocitySectorPlugin {
         this.dataDirectory = dataDirectory;
     }
 
-
-
     @Subscribe
     public void onProxyInitialize(ProxyInitializeEvent event) {
         instance = this;
