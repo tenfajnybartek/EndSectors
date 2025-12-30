@@ -67,7 +67,6 @@ public class MessageLoader {
         Map<String, String> m = config.messages;
         Map<String, List<String>> l = config.messagesLore;
 
-        // ===== BASIC MESSAGES =====
         m.put("SECTOR_CONNECTED_MESSAGE", "<#ff5555>Połączono się na sektor <#f5c542>{SECTOR}");
         m.put("SECTOR_ERROR_TITLE", "<#ff5555>Błąd");
         m.put("SECTOR_FULL_SUBTITLE", "<#ef4444>Sektor jest pełen graczy!");

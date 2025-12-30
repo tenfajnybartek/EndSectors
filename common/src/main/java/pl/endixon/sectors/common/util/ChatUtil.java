@@ -50,7 +50,7 @@ public class ChatUtil {
             return "";
 
         Matcher matcher = HEX_PATTERN.matcher(message);
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         while (matcher.find()) {
             String hex = matcher.group(1);

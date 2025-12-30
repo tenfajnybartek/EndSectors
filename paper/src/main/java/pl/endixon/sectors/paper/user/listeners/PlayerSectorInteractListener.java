@@ -33,10 +33,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryInteractEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.paper.PaperSector;
@@ -232,13 +229,11 @@ public class PlayerSectorInteractListener implements Listener {
 
     @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent event) {
-        Player player = (Player) event.getEntity().getShooter();
-        Sector current = PaperSector.getSectorManager().getCurrentSector();
-
-        if (!(event.getEntity().getShooter() instanceof Player)) {
+        if (!(event.getEntity().getShooter() instanceof Player player)) {
             return;
         }
 
+        Sector current = PaperSector.getSectorManager().getCurrentSector();
         if (current.getType() == SectorType.QUEUE) {
             event.setCancelled(true);
             return;
@@ -246,6 +241,7 @@ public class PlayerSectorInteractListener implements Listener {
 
         cancelIfRedirecting(player, event);
     }
+
 
     @EventHandler
     public void onOpen(InventoryOpenEvent event) {
@@ -311,6 +307,80 @@ public class PlayerSectorInteractListener implements Listener {
         }
         cancelIfRedirecting(player, event);
     }
+
+
+
+    @EventHandler
+    public void onInventoryOpen(InventoryOpenEvent event) {
+        if (!(event.getPlayer() instanceof Player player)) return;
+
+        Sector current = PaperSector.getSectorManager().getCurrentSector();
+        if (current == null || current.getType() == SectorType.QUEUE) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (event.getInventory().getType() == InventoryType.SHULKER_BOX) {
+            Location loc = player.getLocation();
+            int borderDistance = sectorManager.getCurrentSector().getBorderDistance(loc);
+            if (borderDistance <= PaperSector.getConfiguration().dropItemBorderDistance) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+
+        cancelIfRedirecting(player, event);
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+
+        Sector current = PaperSector.getSectorManager().getCurrentSector();
+        if (current == null || current.getType() == SectorType.QUEUE) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (event.getClickedInventory() != null &&
+                event.getClickedInventory().getType() == InventoryType.SHULKER_BOX) {
+            Location loc = player.getLocation();
+            int borderDistance = sectorManager.getCurrentSector().getBorderDistance(loc);
+            if (borderDistance <= PaperSector.getConfiguration().dropItemBorderDistance) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+
+        cancelIfRedirecting(player, event);
+    }
+
+
+
+    @EventHandler
+    public void onInventoryDrag(InventoryDragEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+
+        Sector current = PaperSector.getSectorManager().getCurrentSector();
+        if (current == null || current.getType() == SectorType.QUEUE) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (event.getInventory().getType() == InventoryType.SHULKER_BOX) {
+            Location loc = player.getLocation();
+            int borderDistance = sectorManager.getCurrentSector().getBorderDistance(loc);
+            if (borderDistance <= PaperSector.getConfiguration().dropItemBorderDistance) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+
+        cancelIfRedirecting(player, event);
+    }
+
+
+
 
     private void cancelIfRedirecting(Player player, Cancellable event) {
         UserProfile user = UserProfileRepository.getUser(player).orElse(null);

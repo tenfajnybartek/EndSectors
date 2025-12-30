@@ -49,13 +49,14 @@ public class HeadFactory {
             }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LoggerUtil.warn("Failed to generate player head from base64 texture", ex);
         }
 
         meta.setOwnerProfile(profile);
         skull.setItemMeta(meta);
         return skull;
     }
+
 
     public static ItemStack pickOnlineOfflineHead(boolean online) {
         String onlineBase64 = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGEyZjljNzYxZmMxMzFkYmViZDA3M2IwYjFkZDdkMWJhZWExOTFjZTlkMzNjNDljM2FjYTk0NDhiMWI2YjY4NCJ9fX0=";

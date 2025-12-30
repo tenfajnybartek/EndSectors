@@ -23,31 +23,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-
-import pl.endixon.sectors.common.util.ChatUtil;
+import pl.endixon.sectors.paper.util.ChatAdventureUtil;
 
 public class StackBuilder {
 
-    private final ItemStack stack;
+    private static final ChatAdventureUtil CHAT_UTIL = new ChatAdventureUtil();
+
+    private ItemStack stack;
 
     public StackBuilder(ItemStack stack) {
         this.stack = stack;
     }
 
     public StackBuilder type(Material material) {
-        stack.setType(material);
+        ItemStack newStack = new ItemStack(material, stack.getAmount());
+        newStack.setItemMeta(stack.getItemMeta());
+        stack = newStack;
         return this;
     }
+
 
     public StackBuilder amount(int amount) {
         stack.setAmount(amount);
@@ -90,8 +91,7 @@ public class StackBuilder {
     public StackBuilder name(String name) {
         ItemMeta meta = stack.getItemMeta();
         if (meta != null) {
-            Component display = Component.text(ChatUtil.fixColors(name));
-            meta.displayName(display);
+            meta.displayName(CHAT_UTIL.toComponent(name));
             stack.setItemMeta(meta);
         }
         return this;
@@ -100,31 +100,28 @@ public class StackBuilder {
     public String getName() {
         ItemMeta meta = stack.getItemMeta();
         if (meta == null) return "";
-
         Component display = meta.displayName();
         if (display == null) return "";
-
-        return LegacyComponentSerializer.legacyAmpersand().serialize(display);
+        return CHAT_UTIL.toLegacyString(display.toString());
     }
-
 
     public StackBuilder lore(String line) {
         return lore(line, -1);
     }
 
+
     public StackBuilder lore(String line, int index) {
         ItemMeta meta = stack.getItemMeta();
         if (meta == null) return this;
 
-        List<Component> currentLore = meta.lore();
-        List<Component> lore;
-        if (currentLore != null) {
-            lore = new ArrayList<>(currentLore);
-        } else {
+        List<Component> lore = meta.lore();
+        if (lore == null) {
             lore = new ArrayList<>();
+        } else {
+            lore = new ArrayList<>(lore);
         }
 
-        Component coloredLine = Component.text(ChatUtil.fixColors(line));
+        Component coloredLine = CHAT_UTIL.toComponent(line);
 
         if (index >= 0 && index < lore.size()) {
             lore.set(index, coloredLine);
@@ -141,11 +138,9 @@ public class StackBuilder {
     public StackBuilder lores(List<String> lines) {
         ItemMeta meta = stack.getItemMeta();
         if (meta == null) return this;
-
         List<Component> loreComponents = lines.stream()
-                .map(line -> Component.text(ChatUtil.fixColors(line)))
+                .map(CHAT_UTIL::toComponent)
                 .collect(Collectors.toList());
-
         meta.lore(loreComponents);
         stack.setItemMeta(meta);
         return this;

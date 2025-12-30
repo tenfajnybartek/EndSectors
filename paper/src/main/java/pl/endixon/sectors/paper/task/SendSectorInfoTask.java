@@ -38,7 +38,7 @@ public class SendSectorInfoTask implements Runnable {
 
     @Override
     public void run() {
-        Sector sector = PaperSector.getInstance().getSectorManager().getCurrentSector();
+        Sector sector = paperSector.getSectorManager().getCurrentSector();
 
         if (sector.getType() == SectorType.QUEUE) {
             return;

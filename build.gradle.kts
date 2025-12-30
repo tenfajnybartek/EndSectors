@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
     group = "pl.endixon.sectors"
-    version = "1.7.2-SNAPSHOT"
+    version = "1.7.3-SNAPSHOT"
 
 
 

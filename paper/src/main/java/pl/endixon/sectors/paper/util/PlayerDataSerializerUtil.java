@@ -24,11 +24,15 @@ import com.google.gson.reflect.TypeToken;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import lombok.NonNull;
+import lombok.SneakyThrows;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -38,9 +42,6 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
 
 public class PlayerDataSerializerUtil {
 
-    public static boolean isItem(final @NonNull ItemStack is) {
-        return is.hasItemMeta() && is.getItemMeta() != null && is.getItemMeta().hasDisplayName();
-    }
 
     public static String serializeItemStacksToBase64(final ItemStack[] items) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream)) {
@@ -58,7 +59,7 @@ public class PlayerDataSerializerUtil {
         }
     }
 
-    @lombok.SneakyThrows
+    @SneakyThrows
     public static ItemStack[] deserializeItemStacksFromBase64(final String data) {
         if (data == null || data.isEmpty())
             return new ItemStack[0];
@@ -78,49 +79,67 @@ public class PlayerDataSerializerUtil {
     }
 
     public static String serializeEffects(@NonNull Player player) {
-        List<PotionEffect> effects = new ArrayList<>(player.getActivePotionEffects());
         List<Map<String, Object>> effectList = new ArrayList<>();
 
-        for (PotionEffect effect : effects) {
-            Map<String, Object> effectMap = Map.of("type", effect.getType().getName(), "amplifier", effect.getAmplifier(), "duration", effect.getDuration());
+        for (PotionEffect effect : player.getActivePotionEffects()) {
+            Map<String, Object> effectMap = Map.of(
+                    "type", effect.getType().getKey().toString(),
+                    "amplifier", effect.getAmplifier(),
+                    "duration", effect.getDuration()
+            );
             effectList.add(effectMap);
         }
 
         Gson gson = new Gson();
         String json = gson.toJson(effectList);
-        return Base64.getEncoder().encodeToString(json.getBytes());
+        return Base64.getEncoder().encodeToString(json.getBytes(StandardCharsets.UTF_8));
     }
 
+
     public static List<PotionEffect> deserializeEffects(String base64Data) {
-        if (base64Data == null || base64Data.isEmpty())
+        if (base64Data == null || base64Data.isBlank()) {
             return List.of();
+        }
 
         try {
-            String jsonData = new String(Base64.getDecoder().decode(base64Data));
+            String jsonData = new String(
+                    Base64.getDecoder().decode(base64Data),
+                    StandardCharsets.UTF_8
+            );
+
             Gson gson = new Gson();
             Type listType = new TypeToken<List<Map<String, Object>>>() {
             }.getType();
             List<Map<String, Object>> effectList = gson.fromJson(jsonData, listType);
 
-            if (effectList == null)
+            if (effectList == null || effectList.isEmpty()) {
                 return List.of();
-
-            List<PotionEffect> effects = new ArrayList<>(effectList.size());
-            for (Map<String, Object> map : effectList) {
-                String typeName = (String) map.get("type");
-                int amplifier = ((Double) map.get("amplifier")).intValue();
-                int duration = ((Double) map.get("duration")).intValue();
-
-                PotionEffectType type = PotionEffectType.getByName(typeName);
-                if (type != null) {
-                    effects.add(new PotionEffect(type, duration, amplifier));
-                }
             }
 
+            List<PotionEffect> effects = new ArrayList<>(effectList.size());
+
+            for (Map<String, Object> map : effectList) {
+                String keyString = (String) map.get("type");
+                int amplifier = ((Number) map.get("amplifier")).intValue();
+                int duration = ((Number) map.get("duration")).intValue();
+
+                NamespacedKey key = NamespacedKey.fromString(keyString);
+                if (key == null) {
+                    LoggerUtil.warn("Invalid potion effect key: " + keyString);
+                    continue;
+                }
+
+                PotionEffectType type = Registry.POTION_EFFECT_TYPE.get(key);
+                if (type == null) {
+                    LoggerUtil.warn("Unknown potion effect type: " + keyString);
+                    continue;
+                }
+                effects.add(new PotionEffect(type, duration, amplifier));
+            }
             return effects;
 
-        } catch (Exception e) {
-            LoggerUtil.info("Failed to deserialize potion effects: " + e.getMessage());
+        } catch (Exception exception) {
+            LoggerUtil.warn("Failed to deserialize potion effects", exception);
             return List.of();
         }
     }

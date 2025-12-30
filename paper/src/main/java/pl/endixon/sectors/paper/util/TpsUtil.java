@@ -30,8 +30,8 @@ public class TpsUtil {
             double[] recentTps = (double[]) recentTpsField.get(minecraftServer);
 
             return recentTps[0];
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception exception) {
+            LoggerUtil.warn("Failed to fetch TPS via reflection, returning fallback value", exception);
             return 20.0;
         }
     }

@@ -20,24 +20,23 @@
 package pl.endixon.sectors.tools.inventory.api;
 
 import java.util.function.Consumer;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.inventory.ItemStack;
-import pl.endixon.sectors.common.util.ChatUtil;
 import pl.endixon.sectors.paper.inventory.api.builder.WindowHolder;
+import pl.endixon.sectors.tools.utils.ChatAdventureUtil;
 
 public class WindowUI {
 
-    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+    private static final ChatAdventureUtil CHAT_UTIL = new ChatAdventureUtil();
     private final WindowHolder holder;
 
     public WindowUI(String title, int rows) {
         this.holder = new WindowHolder();
-        this.holder.setInventory(Bukkit.createInventory(holder, Math.min(rows * 9, 54), MINI_MESSAGE.deserialize(title)));
-
+        this.holder.setInventory(Bukkit.createInventory(holder, Math.min(rows * 9, 54), CHAT_UTIL.toComponent(title)));
     }
 
     public void setSlot(int slot, ItemStack item, Consumer<InventoryClickEvent> onClick) {

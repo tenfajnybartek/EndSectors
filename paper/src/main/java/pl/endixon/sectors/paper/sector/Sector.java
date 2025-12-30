@@ -135,12 +135,10 @@ public class Sector {
 
         int x = loc.getBlockX();
         int z = loc.getBlockZ();
-
         int minX = Math.min(this.getFirstCorner().getPosX(), this.getSecondCorner().getPosX());
         int maxX = Math.max(this.getFirstCorner().getPosX(), this.getSecondCorner().getPosX());
         int minZ = Math.min(this.getFirstCorner().getPosZ(), this.getSecondCorner().getPosZ());
         int maxZ = Math.max(this.getFirstCorner().getPosZ(), this.getSecondCorner().getPosZ());
-
         return loc.getWorld().getName().equals(this.getWorldName()) && x >= minX && x <= maxX && z >= minZ && z <= maxZ;
     }
 
@@ -173,7 +171,6 @@ public class Sector {
         Corner c1 = getFirstCorner();
         Corner c2 = getSecondCorner();
 
-
         double minX = Math.min(c1.getPosX(), c2.getPosX());
         double maxX = Math.max(c1.getPosX(), c2.getPosX());
         double minZ = Math.min(c1.getPosZ(), c2.getPosZ());
@@ -182,17 +179,16 @@ public class Sector {
         double distMaxX = maxX - loc.getX();
         double distMinZ = loc.getZ() - minZ;
         double distMaxZ = maxZ - loc.getZ();
-
-
         double minDist = Math.min(Math.min(distMinX, distMaxX), Math.min(distMinZ, distMaxZ));
+
         Vector direction = new Vector(0, 0, 0);
 
         if (minDist == distMinX) direction.setX(1);
+
         else if (minDist == distMaxX) direction.setX(-1);
         else if (minDist == distMinZ) direction.setZ(1);
         else if (minDist == distMaxZ) direction.setZ(-1);
+
         player.setVelocity(direction.normalize().multiply(power));
     }
-
-
 }

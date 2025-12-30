@@ -32,6 +32,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import pl.endixon.sectors.paper.manager.SectorManager;
 import pl.endixon.sectors.paper.sector.Sector;
+import pl.endixon.sectors.paper.util.LoggerUtil;
 
 public class ProtocolLibWorldBorderTask extends BukkitRunnable {
 
@@ -80,7 +81,8 @@ public class ProtocolLibWorldBorderTask extends BukkitRunnable {
                 manager.sendServerPacket(player, sizePacket);
 
             } catch (Exception e) {
-                e.printStackTrace();
+                LoggerUtil.warn("Failed to send world border packets to player: " + player.getName(), e);
+
             }
         }
     }

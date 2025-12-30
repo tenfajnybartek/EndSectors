@@ -43,6 +43,10 @@ public final class LoggerUtil {
         LOGGER.warn(message);
     }
 
+    public static void warn(String message, Throwable throwable) {
+        LOGGER.warn( message, throwable);
+    }
+
     public static void error(String message) {
         LOGGER.error(message);
     }
