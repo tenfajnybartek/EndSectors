@@ -28,7 +28,6 @@ dependencies {
     implementation("io.netty:netty-all:4.2.9.Final")
     implementation("com.google.code.gson:gson:2.13.2")
     compileOnly("net.kyori:adventure-text-minimessage:4.26.1")
-    compileOnly("com.mojang:authlib:1.5.21")
     implementation("io.nats:jnats:2.24.1")
 }
 
