@@ -62,10 +62,10 @@ The project consists of 4 artifacts. You must install and configure them in the 
 
 | Module | Filename | Role |
 | :--- | :--- | :--- |
-| **Common App** | `common-1.6-BETA-all.jar` | **The Brain.** Standalone app. Must run first. |
-| **Proxy Plugin** | `proxy-1.6-BETA-all.jar` | **The Bridge.** Goes into Velocity `/plugins`. Generates sector map config. |
-| **Paper Plugin** | `paper-1.6-BETA-all.jar` | **The Core.** Goes into Spigot `/plugins`. Handles logic. |
-| **Tools Plugin** | `Tools-1.6-BETA-all.jar` | **API Example.** Goes into Spigot `/plugins`. Adds `/spawn`, `/rtp`, `/home`. |
+| **Common App** | `EndSectors-application.jar` | **The Brain.** Standalone app. Must run first. |
+| **Proxy Plugin** | `EndSectors-proxy.jar` | **The Bridge.** Goes into Velocity `/plugins`. Generates sector map config. |
+| **Paper Plugin** | `EndSectors-paper.jar` | **The Core.** Goes into Spigot `/plugins`. Handles logic. |
+| **Tools Plugin** | `EndSectors-tools.jar` | **API Example.** Goes into Spigot `/plugins`. Adds `/spawn`, `/rtp`, `/home`. |
 ee
 ### 📂 Configuration Paths (Critical)
 Each module generates its own `config.json`. You **MUST** ensure that **NATS** and **Redis** credentials are **IDENTICAL** in all of them.
@@ -85,7 +85,7 @@ Each module generates its own `config.json`. You **MUST** ensure that **NATS** a
 ### 🚦 Startup Sequence
 The system must be launched in this strict order to establish connections correctly:
 
-1.  🔴 **Start Common App** (`java -jar common-1.6-BETA-all.jar`)
+1.  🔴 **Start Common App** (`java -jar EndSectors-application.jar`)
 2.  🟡 **Start Velocity Proxy** (Wait for it to connect to Common)
 3.  🟢 **Start Spigot Sectors** (They will register themselves to the network)
 
