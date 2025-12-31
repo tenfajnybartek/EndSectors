@@ -3,7 +3,7 @@ name: Renovate Bot
 on:
   push:
     branches:
-      - "**"
+      - main
   schedule:
     - cron: "0 0 * * *"
   workflow_dispatch:
@@ -11,11 +11,20 @@ on:
 jobs:
   renovate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      checks: read
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Renovate Bot GitHub Action
-        uses: renovatebot/github-action@v44.2.2
+        uses: renovatebot/github-action@v40.2.2
         with:
+          configurationFile: .github/renovate.json
           token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          LOG_LEVEL: info
