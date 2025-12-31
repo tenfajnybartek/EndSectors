@@ -29,7 +29,6 @@ dependencies {
     implementation("io.netty:netty-all:4.2.9.Final")
     implementation("com.google.code.gson:gson:2.13.2")
     implementation("org.mongodb:mongo-java-driver:3.12.14")
-    compileOnly("com.mojang:authlib:1.5.21")
     compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
     implementation("fr.mrmicky:fastboard:2.1.5")
 }
