@@ -66,7 +66,7 @@ The project consists of 4 artifacts. You must install and configure them in the 
 | **Proxy Plugin** | `EndSectors-proxy.jar` | **The Bridge.** Goes into Velocity `/plugins`. Generates sector map config. |
 | **Paper Plugin** | `EndSectors-paper.jar` | **The Core.** Goes into Spigot `/plugins`. Handles logic. |
 | **Tools Plugin** | `EndSectors-tools.jar` | **API Example.** Goes into Spigot `/plugins`. Adds `/spawn`, `/rtp`, `/home`. |
-ee
+
 ### 📂 Configuration Paths (Critical)
 Each module generates its own `config.json`. You **MUST** ensure that **NATS** and **Redis** credentials are **IDENTICAL** in all of them.
 
