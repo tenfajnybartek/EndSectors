@@ -1,7 +1,7 @@
 {
   "id": "endsectors-proxy",
   "name": "EndSectorsProxy",
-  "version": "1.0",
+  "version": "1.7.4",
   "main": "pl.endixon.sectors.proxy.VelocitySectorPlugin",
   "authors": ["Endixon"],
   "description": "EndSectors Proxy plugin",

@@ -1,5 +1,5 @@
 name: EndSectors-Tools
-version: 1.0
+version: 1.7.4
 main: pl.endixon.sectors.tools.Main
 api-version: 1.20
 depend: [EndSectors, Vault]
@@ -13,13 +13,14 @@ commands:
     description: Teleportuje gracza na spawn sektora.
   home:
     description: Zarzadzanie domami gracza.
-
   market:
-    description: Glowna komenda rynku.
+    description: Glowna komenda rynku (przeglądanie).
     aliases: [ah, rynek, aukcje]
-    usage: /market [otworz|wystaw]
-
-
+    usage: /market
+  wystaw:
+    description: Wystawianie przedmiotu na rynek.
+    aliases: [sell, sprzedaj, wystawprzedmiot]
+    usage: /wystaw <cena>
   balance:
     description: Sprawdz stan konta lub zarzadzaj finansami.
     aliases: [bal, money, eco, portfel]

@@ -202,14 +202,21 @@ public class Main extends JavaPlugin {
         pm.registerEvents(new InventoryInternactListener(), this);
         LoggerUtil.info("System event listeners registered.");
     }
-
     private void registerCommands() {
         this.setupCommand("randomtp", new RandomTPCommand(this.sectorsAPI));
         this.setupCommand("spawn", new SpawnCommand(this.sectorsAPI));
         this.setupCommand("home", new HomeCommand(this.sectorsAPI));
+
+
         MarketCommand marketCommand = new MarketCommand();
         this.setupCommand("market", marketCommand);
         this.setupCommand("ah", marketCommand);
+        this.setupCommand("rynek", marketCommand);
+
+
+        MarketSellCommand marketSellCommand = new MarketSellCommand();
+        this.setupCommand("wystaw", marketSellCommand);
+        this.setupCommand("sell", marketSellCommand);
 
         EconomyCommand balanceCommand = new EconomyCommand();
         this.setupCommand("balance", balanceCommand);
@@ -217,7 +224,7 @@ public class Main extends JavaPlugin {
         this.setupCommand("money", balanceCommand);
         this.setupCommand("eco", balanceCommand);
 
-        LoggerUtil.info("Command executors synchronized.");
+        LoggerUtil.info("Command executors synchronized with Market & Economy.");
     }
 
 
