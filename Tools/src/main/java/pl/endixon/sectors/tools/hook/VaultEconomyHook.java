@@ -4,7 +4,7 @@ import net.milkbowl.vault.economy.AbstractEconomy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import pl.endixon.sectors.tools.Main;
+import pl.endixon.sectors.tools.EndSectorsToolsPlugin;
 import pl.endixon.sectors.tools.user.profile.PlayerProfile;
 import pl.endixon.sectors.tools.user.profile.ProfileCache;
 
@@ -15,7 +15,7 @@ import java.util.List;
 
 public class VaultEconomyHook extends AbstractEconomy {
 
-    private final Main plugin = Main.getInstance();
+    private final EndSectorsToolsPlugin plugin = EndSectorsToolsPlugin.getInstance();
 
     @Override
     public boolean isEnabled() {

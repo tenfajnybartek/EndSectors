@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.bukkit.entity.Player;
-import pl.endixon.sectors.tools.Main;
+import pl.endixon.sectors.tools.EndSectorsToolsPlugin;
 import pl.endixon.sectors.tools.task.CombatTask;
 import pl.endixon.sectors.tools.user.validators.combat.CombatValidator;
 import pl.endixon.sectors.tools.user.validators.combat.SelfHitValidator;
@@ -33,11 +33,11 @@ import pl.endixon.sectors.tools.user.validators.player.PlayerTypeValidator;
 
 public class CombatManager {
 
-    private final Main plugin;
+    private final EndSectorsToolsPlugin plugin;
     private final Map<Player, Player> inCombat = new HashMap<>();
     private final List<CombatValidator> validators = new ArrayList<>();
 
-    public CombatManager(Main plugin) {
+    public CombatManager(EndSectorsToolsPlugin plugin) {
         this.plugin = plugin;
         validators.add(new PlayerTypeValidator());
         validators.add(new GameModeValidator());

@@ -1,6 +1,6 @@
 name: EndSectors-Tools
 version: 1.7.4
-main: pl.endixon.sectors.tools.Main
+main: pl.endixon.sectors.tools.EndSectorsToolsPlugin
 api-version: 1.20
 depend: [EndSectors, Vault]
 author: Endixon

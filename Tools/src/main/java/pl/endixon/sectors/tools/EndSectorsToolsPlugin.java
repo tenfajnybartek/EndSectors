@@ -39,26 +39,28 @@ import pl.endixon.sectors.tools.config.MessageLoader;
 import pl.endixon.sectors.tools.hook.VaultEconomyHook;
 import pl.endixon.sectors.tools.manager.CombatManager;
 import pl.endixon.sectors.tools.manager.MongoManager;
+import pl.endixon.sectors.tools.market.MarketService;
+import pl.endixon.sectors.tools.market.repository.MarketRepository;
 import pl.endixon.sectors.tools.nats.listener.PacketMarketNotifyListener;
 import pl.endixon.sectors.tools.nats.listener.PacketMarketUpdateListener;
 import pl.endixon.sectors.tools.nats.packet.PacketMarketNotify;
 import pl.endixon.sectors.tools.nats.packet.PacketMarketUpdate;
-import pl.endixon.sectors.tools.user.Repository.MarketRepository;
+import pl.endixon.sectors.tools.user.Repository.PlayerRepository;
 import pl.endixon.sectors.tools.user.listeners.CombatListener;
 import pl.endixon.sectors.tools.user.listeners.InventoryInternactListener;
 import pl.endixon.sectors.tools.user.listeners.ProfileListener;
-import pl.endixon.sectors.tools.user.profile.PlayerProfile;
-import pl.endixon.sectors.tools.user.Repository.PlayerRepository;
 import pl.endixon.sectors.tools.user.profile.PlayerMarketProfile;
+import pl.endixon.sectors.tools.user.profile.PlayerProfile;
 import pl.endixon.sectors.tools.utils.LoggerUtil;
 
 import java.io.File;
+import java.util.logging.Level;
 
 @Getter
-public class Main extends JavaPlugin {
+public class EndSectorsToolsPlugin extends JavaPlugin {
 
     @Getter
-    private static Main instance;
+    private static EndSectorsToolsPlugin instance;
     private MongoManager mongoService;
     private SectorsAPI sectorsAPI;
     private CommonHeartbeatHook heartbeatHook;
@@ -66,172 +68,136 @@ public class Main extends JavaPlugin {
     private MessageLoader messageLoader;
     private PlayerRepository repository;
     private MarketRepository marketRepository;
+    private MarketService marketService;
     private CombatManager combatManager;
     private Economy economy;
 
     @Override
     public void onEnable() {
         instance = this;
+        long start = System.currentTimeMillis();
         Common.initInstance();
         this.loadConfigs();
 
         if (!this.initSectorsAPI()) {
-            this.shutdown("EndSectors API dependency not found or disabled! Shutting down.");
+            this.shutdown("EndSectors API dependency missing! Aborting start.");
             return;
         }
 
-
-        Common.getInstance().initializeRedis(
-                configLoader.redisHost,
-                configLoader.redisPort,
-                configLoader.redisPassword
-        );
-
-        Common.getInstance().initializeNats(
-                configLoader.natsUrl,
-                configLoader.natsConnectionName
-        );
-
-
+        this.initNetworkServices();
+        this.initMongo();
+        this.initDataLayer();
         this.heartbeatHook = new CommonHeartbeatHook(this);
         this.heartbeatHook.checkConnection();
-        this.initNatsSubscriptions();
-
-        this.initMongo();
-        this.initRepositories();
         this.combatManager = new CombatManager(this);
         this.registerVault();
         this.registerCommands();
         this.registerListeners();
-        LoggerUtil.info("EndSectors-Tools successfully enabled and synchronized.");
+        this.initNatsSubscriptions();
+
+        LoggerUtil.info("EndSectors-Tools initialized in " + (System.currentTimeMillis() - start) + "ms.");
     }
 
     @Override
     public void onDisable() {
         this.shutdownMongo();
-        LoggerUtil.info("EndSectors-Tools disabled. Resources released.");
+        LoggerUtil.info("EndSectors-Tools disabled. Good night.");
     }
 
-
     private void loadConfigs() {
-        LoggerUtil.info("Loading JSON configuration files...");
+        LoggerUtil.info("Loading configuration context...");
         File dataFolder = this.getDataFolder();
         this.messageLoader = MessageLoader.load(dataFolder);
         this.configLoader = ConfigLoader.load(dataFolder);
-        LoggerUtil.info("Configuration and messages loaded successfully.");
+    }
+
+    private void initNetworkServices() {
+        Common.getInstance().initializeRedis(
+                configLoader.redisHost,
+                configLoader.redisPort,
+                configLoader.redisPassword
+        );
+        Common.getInstance().initializeNats(
+                configLoader.natsUrl,
+                configLoader.natsConnectionName
+        );
     }
 
     private void initNatsSubscriptions() {
         var nats = Common.getInstance().getNatsManager();
-
-        nats.subscribe(
-                PacketChannel.MARKET_UPDATE.getSubject(),
-                new PacketMarketUpdateListener(),
-                PacketMarketUpdate.class
-        );
-
-        nats.subscribe(
-                PacketChannel.MARKET_NOTIFY.getSubject(),
-                new PacketMarketNotifyListener(),
-                PacketMarketNotify.class
-        );
+        nats.subscribe(PacketChannel.MARKET_UPDATE.getSubject(), new PacketMarketUpdateListener(), PacketMarketUpdate.class);
+        nats.subscribe(PacketChannel.MARKET_NOTIFY.getSubject(), new PacketMarketNotifyListener(), PacketMarketNotify.class);
     }
 
     private void initMongo() {
-        LoggerUtil.info("Connecting to MongoDB cluster...");
+        LoggerUtil.info("Mounting MongoDB connection...");
         this.mongoService = new MongoManager();
         this.mongoService.connect(configLoader.mongoUri, configLoader.mongoDatabase);
     }
 
-    private void initRepositories() {
-        LoggerUtil.info("Initializing MongoDB repositories...");
-        try {
 
+    private void initDataLayer() {
+        LoggerUtil.info("Bootstrapping Data & Service Layer...");
+        try {
             MongoCollection<PlayerProfile> playerCollection = this.mongoService.getDatabase().getCollection("players", PlayerProfile.class);
             this.repository = new PlayerRepository(playerCollection);
             MongoCollection<PlayerMarketProfile> marketCollection = this.mongoService.getDatabase().getCollection("market", PlayerMarketProfile.class);
             this.marketRepository = new MarketRepository(marketCollection);
             this.marketRepository.warmup();
-            LoggerUtil.info("Repositories initialized successfully (Cached in RAM).");
-
+            this.marketService = new MarketService(this.marketRepository);
+            LoggerUtil.info("Services active. Market cache warmed up.");
         } catch (Exception e) {
-            LoggerUtil.error("Critical error: Failed to initialize MongoDB repositories!");
-            LoggerUtil.error("Context: " + e.getMessage());
-            this.getLogger().log(java.util.logging.Level.SEVERE, "Detailed repository trace:", e);
-            this.shutdown("Database repository failure – check MongoDB connection.");
+            LoggerUtil.error("Critical dependency injection failure!");
+            this.getLogger().log(Level.SEVERE, "Stacktrace:", e);
+            this.shutdown("Persistence layer failure.");
         }
     }
 
-
     private boolean initSectorsAPI() {
         var plugin = Bukkit.getPluginManager().getPlugin("EndSectors");
-        if (plugin == null || !plugin.isEnabled()) {
-            LoggerUtil.info("EndSectors API is missing or disabled!");
-            return false;
-        }
+        if (plugin == null || !plugin.isEnabled()) return false;
         try {
             this.sectorsAPI = SectorsAPI.getInstance();
             return this.sectorsAPI != null;
         } catch (Exception e) {
-            LoggerUtil.info("Critical error during SectorsAPI initialization: " + e.getMessage());
             return false;
         }
     }
 
     private void registerVault() {
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
-            LoggerUtil.info("Vault not found! Economy features will be limited.");
+            LoggerUtil.warn("Vault missing. Economy hook skipped.");
             return;
         }
         this.economy = new VaultEconomyHook();
-
-        getServer().getServicesManager().register(
-                Economy.class,
-                this.economy,
-                this,
-                ServicePriority.Highest
-        );
-        LoggerUtil.info("VaultEconomyHook has been registered.");
+        getServer().getServicesManager().register(Economy.class, this.economy, this, ServicePriority.Highest);
+        LoggerUtil.info("Vault hooked.");
     }
-
 
     private void registerListeners() {
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new ProfileListener(this.repository), this);
         pm.registerEvents(new CombatListener(this.combatManager, this.sectorsAPI), this);
         pm.registerEvents(new InventoryInternactListener(), this);
-        LoggerUtil.info("System event listeners registered.");
     }
+
     private void registerCommands() {
         this.setupCommand("randomtp", new RandomTPCommand(this.sectorsAPI));
         this.setupCommand("spawn", new SpawnCommand(this.sectorsAPI));
         this.setupCommand("home", new HomeCommand(this.sectorsAPI));
-
-
         MarketCommand marketCommand = new MarketCommand();
         this.setupCommand("market", marketCommand);
-        this.setupCommand("ah", marketCommand);
-        this.setupCommand("rynek", marketCommand);
-
-
         MarketSellCommand marketSellCommand = new MarketSellCommand();
         this.setupCommand("wystaw", marketSellCommand);
-        this.setupCommand("sell", marketSellCommand);
-
         EconomyCommand balanceCommand = new EconomyCommand();
         this.setupCommand("balance", balanceCommand);
-        this.setupCommand("bal", balanceCommand);
-        this.setupCommand("money", balanceCommand);
-        this.setupCommand("eco", balanceCommand);
-
-        LoggerUtil.info("Command executors synchronized with Market & Economy.");
+        LoggerUtil.info("Command Executors registered.");
     }
-
 
     private void setupCommand(String name, Object executor) {
         PluginCommand command = this.getCommand(name);
         if (command == null) {
-            LoggerUtil.info("Command /" + name + " is missing from plugin.yml!");
+            LoggerUtil.warn("Command defined in code but missing in plugin.yml: /" + name);
             return;
         }
         command.setExecutor((CommandExecutor) executor);
@@ -243,12 +209,11 @@ public class Main extends JavaPlugin {
     private void shutdownMongo() {
         if (this.mongoService != null) {
             this.mongoService.disconnect();
-            LoggerUtil.info("MongoDB connection closed.");
         }
     }
 
     private void shutdown(String reason) {
-        LoggerUtil.info("Shutting down due to: " + reason);
+        LoggerUtil.error("SHUTDOWN SEQUENCE INITIATED: " + reason);
         Bukkit.getPluginManager().disablePlugin(this);
     }
 }

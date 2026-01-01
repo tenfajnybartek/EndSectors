@@ -25,7 +25,7 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import pl.endixon.sectors.tools.Main;
+import pl.endixon.sectors.tools.EndSectorsToolsPlugin;
 
 public class TeleportUtil {
 
@@ -72,6 +72,6 @@ public class TeleportUtil {
                 onFinish.run();
                 cancel();
             }
-        }.runTaskTimer(Main.getInstance(), 0L, 20L);
+        }.runTaskTimer(EndSectorsToolsPlugin.getInstance(), 0L, 20L);
     }
 }

@@ -10,7 +10,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import pl.endixon.sectors.tools.Main;
+import pl.endixon.sectors.tools.EndSectorsToolsPlugin;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 public class EconomyCommand implements CommandExecutor, TabCompleter {
 
-    private final Economy economy = Main.getInstance().getEconomy();
+    private final Economy economy = EndSectorsToolsPlugin.getInstance().getEconomy();
     private static final String ECO_PREFIX = "§8[§aEkonomia§8] ";
 
     @Override

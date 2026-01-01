@@ -17,7 +17,7 @@
  *
  */
 
-package pl.endixon.sectors.tools.inventory;
+package pl.endixon.sectors.tools.inventory.home;
 
 import java.util.Map;
 import org.bukkit.Bukkit;
@@ -30,7 +30,7 @@ import pl.endixon.sectors.common.sector.SectorType;
 import pl.endixon.sectors.paper.SectorsAPI;
 import pl.endixon.sectors.paper.sector.Sector;
 import pl.endixon.sectors.paper.user.profile.UserProfile;
-import pl.endixon.sectors.tools.Main;
+import pl.endixon.sectors.tools.EndSectorsToolsPlugin;
 import pl.endixon.sectors.tools.inventory.api.WindowUI;
 import pl.endixon.sectors.tools.inventory.api.builder.StackBuilder;
 import pl.endixon.sectors.tools.user.profile.PlayerProfile;
@@ -40,7 +40,7 @@ import pl.endixon.sectors.tools.utils.MessagesUtil;
 public class HomeWindow {
     private final Player player;
     private final SectorsAPI sectorsAPI;
-    private final Main plugin = Main.getInstance();
+    private final EndSectorsToolsPlugin plugin = EndSectorsToolsPlugin.getInstance();
     private final PlayerProfile profile;
     private final UserProfile user;
     private static final int HOME_SLOTS = 3;

@@ -20,7 +20,7 @@
 package pl.endixon.sectors.tools.utils;
 
 import net.kyori.adventure.text.Component;
-import pl.endixon.sectors.tools.Main;
+import pl.endixon.sectors.tools.EndSectorsToolsPlugin;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -58,7 +58,7 @@ public enum MessagesUtil {
     private static final ChatAdventureUtil CHAT_HELPER = new ChatAdventureUtil();
 
     public String getRaw() {
-        return Main.getInstance().getMessageLoader().getMessages()
+        return EndSectorsToolsPlugin.getInstance().getMessageLoader().getMessages()
                 .getOrDefault(this.name(), "<red>Missing message: " + this.name());
     }
 
@@ -81,7 +81,7 @@ public enum MessagesUtil {
     }
 
     public List<String> asLore(String... replacements) {
-        List<String> rawLore = Main.getInstance().getMessageLoader().getMessagesLore().get(this.name());
+        List<String> rawLore = EndSectorsToolsPlugin.getInstance().getMessageLoader().getMessagesLore().get(this.name());
 
         if (rawLore == null) {
             return Collections.singletonList("§cMissing lore: " + this.name());

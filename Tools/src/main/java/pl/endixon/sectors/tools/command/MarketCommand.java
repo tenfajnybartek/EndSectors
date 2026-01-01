@@ -5,7 +5,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import pl.endixon.sectors.tools.inventory.MarketWindow;
+import pl.endixon.sectors.tools.inventory.market.MarketWindow;
 import pl.endixon.sectors.tools.user.profile.PlayerProfile;
 import pl.endixon.sectors.tools.user.profile.ProfileCache;
 import pl.endixon.sectors.tools.utils.MessagesUtil;
