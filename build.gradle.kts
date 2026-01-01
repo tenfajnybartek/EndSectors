@@ -9,8 +9,6 @@ allprojects {
     group = "pl.endixon.sectors"
     version = "1.7.4-SNAPSHOT"
 
-
-
     repositories {
         mavenCentral()
         maven("https://repo.papermc.io/repository/maven-public/")
