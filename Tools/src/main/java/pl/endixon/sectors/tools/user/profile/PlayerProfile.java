@@ -29,7 +29,7 @@ import org.bson.codecs.pojo.annotations.BsonId;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlayerProfile {
+public class    PlayerProfile {
     @BsonId
     private UUID uuid;
     private String name;
@@ -37,4 +37,5 @@ public class PlayerProfile {
     private int deaths;
     private Map<String, ProfileHome> homes = new HashMap<>();
     private long combatUntil;
+    private double balance;
 }

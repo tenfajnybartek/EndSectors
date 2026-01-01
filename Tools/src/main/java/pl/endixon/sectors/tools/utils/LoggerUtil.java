@@ -19,31 +19,55 @@
 
 package pl.endixon.sectors.tools.utils;
 
-import java.util.Objects;
+import org.slf4j.LoggerFactory;
+
 import java.util.function.Supplier;
-import org.bukkit.Bukkit;
-import org.bukkit.command.ConsoleCommandSender;
-import pl.endixon.sectors.common.util.ChatUtil;
 
 public final class LoggerUtil {
 
-    private static final String PREFIX = "%M[EndSectors-Tools] %C";
-
-    private static final ConsoleCommandSender CONSOLE = Bukkit.getServer().getConsoleSender();
+    private static final org.slf4j.Logger LOGGER =
+            LoggerFactory.getLogger("EndSectors-Tools");
 
     private LoggerUtil() {
-        throw new UnsupportedOperationException("Utility class");
     }
 
-    public static void info(Object message) {
-        Objects.requireNonNull(message, "message");
-
-        CONSOLE.sendMessage(ChatUtil.fixColorsLogger(PREFIX + message));
+    public static void info(String message) {
+        LOGGER.info(message);
     }
 
-    public static void info(Supplier<?> messageSupplier) {
-        Objects.requireNonNull(messageSupplier, "messageSupplier");
+    public static void info(String message, Throwable throwable) {
+        LOGGER.info(message, throwable);
+    }
 
-        info(messageSupplier.get());
+    public static void warn(String message) {
+        LOGGER.warn(message);
+    }
+
+    public static void warn(String message, Throwable throwable) {
+        LOGGER.warn( message, throwable);
+    }
+
+    public static void error(String message) {
+        LOGGER.error(message);
+    }
+
+    public static void error(String message, Throwable throwable) {
+        LOGGER.error(message, throwable);
+    }
+
+    public static void debug(String message) {
+        LOGGER.debug(message);
+    }
+
+    public static void info(Supplier<String> supplier) {
+        LOGGER.info(supplier.get());
+    }
+
+    public static void info(String message, Object... args) {
+        LOGGER.info(message, args);
+    }
+
+    public static void debug(Supplier<String> supplier) {
+        LOGGER.debug(supplier.get());
     }
 }

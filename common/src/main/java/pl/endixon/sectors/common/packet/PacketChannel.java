@@ -39,7 +39,10 @@ public enum PacketChannel {
     PACKET_EXECUTE_COMMAND("packet.execute.command"),
     PACKET_PLAYER_INFO_REQUEST("packet.player.info.request"),
     PACKET_SECTOR_CHAT_BROADCAST("packet.sector.chat.broadcast"),
-    PACKET_SECTOR_INFO("packet.sector.info");
+    PACKET_SECTOR_INFO("packet.sector.info"),
+
+    MARKET_UPDATE("packet.market.update"),
+    MARKET_NOTIFY("packet.market_notify");
 
     private final String subject;
 

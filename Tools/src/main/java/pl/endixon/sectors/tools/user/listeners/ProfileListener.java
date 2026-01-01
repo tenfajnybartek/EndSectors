@@ -28,13 +28,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import pl.endixon.sectors.tools.user.profile.PlayerProfile;
-import pl.endixon.sectors.tools.user.profile.PlayerProfileRepository;
+import pl.endixon.sectors.tools.user.Repository.PlayerRepository;
 import pl.endixon.sectors.tools.user.profile.ProfileCache;
 
 @RequiredArgsConstructor
 public class ProfileListener implements Listener {
 
-    private final PlayerProfileRepository repository;
+    private final PlayerRepository repository;
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {

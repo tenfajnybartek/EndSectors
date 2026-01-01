@@ -28,7 +28,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProfileHome {
+public class    ProfileHome {
 
     private String name;
     private String sector;

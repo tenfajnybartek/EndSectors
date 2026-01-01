@@ -2,15 +2,25 @@ name: EndSectors-Tools
 version: 1.0
 main: pl.endixon.sectors.tools.Main
 api-version: 1.20
-depend: [EndSectors]
+depend: [EndSectors, Vault]
+author: Endixon
 
 commands:
   randomtp:
-    description: Losowy teleport w sektorze
-    usage: /randomtp
+    description: Teleportuje gracza w losowe koordynaty.
+    aliases: [rtp]
   spawn:
-    description: Teleport na spawn
-    usage: /spawn
+    description: Teleportuje gracza na spawn sektora.
   home:
-    description: Teleport na swój home
-    usage: /home
+    description: Zarzadzanie domami gracza.
+
+  market:
+    description: Glowna komenda rynku.
+    aliases: [ah, rynek, aukcje]
+    usage: /market [otworz|wystaw]
+
+
+  balance:
+    description: Sprawdz stan konta lub zarzadzaj finansami.
+    aliases: [bal, money, eco, portfel]
+    usage: /balance [gracz|pay|set|add|take]
