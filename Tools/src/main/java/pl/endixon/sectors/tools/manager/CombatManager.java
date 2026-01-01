@@ -26,10 +26,10 @@ import java.util.Map;
 import org.bukkit.entity.Player;
 import pl.endixon.sectors.tools.EndSectorsToolsPlugin;
 import pl.endixon.sectors.tools.task.CombatTask;
-import pl.endixon.sectors.tools.user.validators.combat.CombatValidator;
-import pl.endixon.sectors.tools.user.validators.combat.SelfHitValidator;
-import pl.endixon.sectors.tools.user.validators.player.GameModeValidator;
-import pl.endixon.sectors.tools.user.validators.player.PlayerTypeValidator;
+import pl.endixon.sectors.tools.validators.combat.CombatValidator;
+import pl.endixon.sectors.tools.validators.combat.SelfHitValidator;
+import pl.endixon.sectors.tools.validators.player.GameModeValidator;
+import pl.endixon.sectors.tools.validators.player.PlayerTypeValidator;
 
 public class CombatManager {
 

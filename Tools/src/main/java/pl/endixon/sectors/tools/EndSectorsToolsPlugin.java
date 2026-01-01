@@ -40,11 +40,17 @@ import pl.endixon.sectors.tools.hook.VaultEconomyHook;
 import pl.endixon.sectors.tools.manager.CombatManager;
 import pl.endixon.sectors.tools.manager.MongoManager;
 import pl.endixon.sectors.tools.market.MarketService;
+import pl.endixon.sectors.tools.market.listener.ProfileMarketJoinListener;
 import pl.endixon.sectors.tools.market.repository.MarketRepository;
+import pl.endixon.sectors.tools.nats.listener.PacketMarketExpirationNotifyListener;
+import pl.endixon.sectors.tools.nats.listener.PacketMarketJanitorListener;
 import pl.endixon.sectors.tools.nats.listener.PacketMarketNotifyListener;
 import pl.endixon.sectors.tools.nats.listener.PacketMarketUpdateListener;
+import pl.endixon.sectors.tools.nats.packet.PacketMarketExpirationNotify;
+import pl.endixon.sectors.tools.nats.packet.PacketMarketJanitor;
 import pl.endixon.sectors.tools.nats.packet.PacketMarketNotify;
 import pl.endixon.sectors.tools.nats.packet.PacketMarketUpdate;
+import pl.endixon.sectors.tools.task.MarketExpirationTask;
 import pl.endixon.sectors.tools.user.Repository.PlayerRepository;
 import pl.endixon.sectors.tools.user.listeners.CombatListener;
 import pl.endixon.sectors.tools.user.listeners.InventoryInternactListener;
@@ -87,6 +93,7 @@ public class EndSectorsToolsPlugin extends JavaPlugin {
         this.initNetworkServices();
         this.initMongo();
         this.initDataLayer();
+        this.initScheduledTasks();
         this.heartbeatHook = new CommonHeartbeatHook(this);
         this.heartbeatHook.checkConnection();
         this.combatManager = new CombatManager(this);
@@ -127,6 +134,8 @@ public class EndSectorsToolsPlugin extends JavaPlugin {
         var nats = Common.getInstance().getNatsManager();
         nats.subscribe(PacketChannel.MARKET_UPDATE.getSubject(), new PacketMarketUpdateListener(), PacketMarketUpdate.class);
         nats.subscribe(PacketChannel.MARKET_NOTIFY.getSubject(), new PacketMarketNotifyListener(), PacketMarketNotify.class);
+        nats.subscribe(PacketChannel.MARKET_JANITOR.getSubject(), new PacketMarketJanitorListener(), PacketMarketJanitor.class);
+        nats.subscribe(PacketChannel.MARKET_EXPIRATION_NOTIFY.getSubject(), new PacketMarketExpirationNotifyListener(), PacketMarketExpirationNotify.class);
     }
 
     private void initMongo() {
@@ -135,6 +144,13 @@ public class EndSectorsToolsPlugin extends JavaPlugin {
         this.mongoService.connect(configLoader.mongoUri, configLoader.mongoDatabase);
     }
 
+
+    private void initScheduledTasks() {
+        LoggerUtil.info("Scheduling background maintenance tasks...");
+     //   new MarketExpirationTask(this.marketService).runTaskTimerAsynchronously(this, 1200L, 12000L);
+        new MarketExpirationTask(this.marketService).runTaskTimerAsynchronously(this, 100L, 200L);
+        LoggerUtil.info("Market Expiration Task registered (Async).");
+    }
 
     private void initDataLayer() {
         LoggerUtil.info("Bootstrapping Data & Service Layer...");
@@ -179,6 +195,8 @@ public class EndSectorsToolsPlugin extends JavaPlugin {
         pm.registerEvents(new ProfileListener(this.repository), this);
         pm.registerEvents(new CombatListener(this.combatManager, this.sectorsAPI), this);
         pm.registerEvents(new InventoryInternactListener(), this);
+        pm.registerEvents(new ProfileMarketJoinListener(this), this);
+
     }
 
     private void registerCommands() {

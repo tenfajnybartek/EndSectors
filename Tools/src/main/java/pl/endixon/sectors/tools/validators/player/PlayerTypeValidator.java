@@ -17,11 +17,11 @@
  *
  */
 
-package pl.endixon.sectors.tools.user.validators.player;
+package pl.endixon.sectors.tools.validators.player;
 
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import pl.endixon.sectors.tools.user.validators.combat.CombatValidator;
+import pl.endixon.sectors.tools.validators.combat.CombatValidator;
 
 public class PlayerTypeValidator implements CombatValidator {
 

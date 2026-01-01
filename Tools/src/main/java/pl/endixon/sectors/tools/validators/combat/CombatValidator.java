@@ -17,14 +17,10 @@
  *
  */
 
-package pl.endixon.sectors.tools.user.validators.combat;
+package pl.endixon.sectors.tools.validators.combat;
 
 import org.bukkit.entity.Player;
 
-public class SelfHitValidator implements CombatValidator {
-
-    @Override
-    public boolean validate(Player attacker, Player victim) {
-        return !attacker.equals(victim);
-    }
+public interface CombatValidator {
+    boolean validate(Player attacker, Player victim);
 }

@@ -2,6 +2,8 @@ package pl.endixon.sectors.tools.user.profile;
 
 import lombok.*;
 import org.bson.codecs.pojo.annotations.BsonId;
+import pl.endixon.sectors.tools.market.type.MarketOfferStatus; // <--- Pamiętaj o imporcie!
+
 import java.util.UUID;
 
 @Getter
@@ -18,4 +20,5 @@ public class PlayerMarketProfile {
     private String category;
     private double price;
     private long createdAt;
+    private MarketOfferStatus status = MarketOfferStatus.ACTIVE;
 }

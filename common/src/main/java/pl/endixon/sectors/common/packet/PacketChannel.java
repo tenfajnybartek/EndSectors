@@ -42,7 +42,9 @@ public enum PacketChannel {
     PACKET_SECTOR_INFO("packet.sector.info"),
 
     MARKET_UPDATE("packet.market.update"),
-    MARKET_NOTIFY("packet.market_notify");
+    MARKET_NOTIFY("packet.market_notify"),
+    MARKET_JANITOR("packet.market.janitor"),
+    MARKET_EXPIRATION_NOTIFY("packet.market.expiration.notify");
 
     private final String subject;
 

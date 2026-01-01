@@ -1,30 +1,32 @@
 package pl.endixon.sectors.tools.nats.listener;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import pl.endixon.sectors.common.packet.PacketListener;
 import pl.endixon.sectors.tools.nats.packet.PacketMarketNotify;
-import pl.endixon.sectors.tools.user.profile.PlayerProfile;
-import pl.endixon.sectors.tools.user.profile.ProfileCache;
 
 public class PacketMarketNotifyListener implements PacketListener<PacketMarketNotify> {
 
+    private static final MiniMessage MM = MiniMessage.miniMessage();
+
     @Override
     public void handle(PacketMarketNotify packet) {
-        Player player = Bukkit.getPlayer(packet.getSellerUuid());
-        PlayerProfile profile = ProfileCache.get(packet.getSellerUuid());
+        Player seller = Bukkit.getPlayer(packet.getSellerUuid());
 
-        if (profile != null) {
-            profile.setBalance(profile.getBalance() + packet.getPrice());
-        }
+        if (seller != null && seller.isOnline()) {
 
-        if (player != null && player.isOnline()) {
-            player.sendMessage(" ");
-            player.sendMessage("§8[§6Rynek§8] §aTwój przedmiot został sprzedany!");
-            player.sendMessage("§8» §7Przedmiot: §f" + packet.getItemName());
-            player.sendMessage("§8» §7Kupujący: §f" + packet.getBuyerName());
-            player.sendMessage("§8» §7Zarobek: §e" + packet.getPrice() + "$");
-            player.sendMessage(" ");
+            String messageFormat =
+                    "<dark_gray>[<gradient:#ffaa00:#ffff55>Market</gradient><dark_gray>] " +
+                            "<gray>Gracz <yellow>" + packet.getBuyerName() +
+                            " <gray>kupił Twój przedmiot <#dddddd>" + packet.getItemName() +
+                            " <gray>za <gradient:#55ff55:#00aa00><bold>" + packet.getPrice() + "$</bold></gradient>";
+
+            Component component = MM.deserialize(messageFormat);
+            seller.sendMessage(component);
+            seller.playSound(seller.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
         }
     }
 }
