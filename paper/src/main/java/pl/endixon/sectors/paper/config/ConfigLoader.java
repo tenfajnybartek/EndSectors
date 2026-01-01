@@ -38,7 +38,7 @@ public class ConfigLoader {
     public int redisPort = 6379;
     public String redisPassword = "";
 
-    public String natsUrl = "nats://127.0.0.1:4222";
+    public String natsUrl = "nats://user:password@127.0.0.1:4222";
     public String natsConnectionName = "spawn_1";
 
     public int borderMessageDistance = 15;

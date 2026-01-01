@@ -19,7 +19,7 @@ public class ConfigLoader {
     public String redisHost = "127.0.0.1";
     public int redisPort = 6379;
     public String redisPassword = "";
-    public String natsUrl = "nats://127.0.0.1:4222";
+    public String natsUrl = "nats://user:password@127.0.0.1:4222";
     public String natsConnectionName = "proxy";
     public Map<String, Map<String, SectorData>> sectors = new LinkedHashMap<>();
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();

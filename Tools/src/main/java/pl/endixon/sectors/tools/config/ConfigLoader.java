@@ -28,8 +28,14 @@ import java.nio.charset.StandardCharsets;
 
 public class ConfigLoader {
 
-    public String mongoUri = "mongodb://localhost:27017";
+
+    public String mongoUri = "mongodb://user:password@127.0.0.1:27017/admin?authSource=admin";
     public String mongoDatabase = "endsectors";
+    public String redisHost = "127.0.0.1";
+    public int redisPort = 6379;
+    public String redisPassword = "";
+    public String natsUrl = "nats://user:password@127.0.0.1:4222";
+    public String natsConnectionName = "tools_spawn_1";
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
