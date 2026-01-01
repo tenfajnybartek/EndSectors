@@ -8,3 +8,6 @@ Commercial use is strictly forbidden.
 
 Personal, educational, or non-commercial open-source projects are allowed.
 All other rights are reserved by the author.
+
+
+------
