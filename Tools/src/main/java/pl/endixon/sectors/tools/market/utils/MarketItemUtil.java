@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
+import pl.endixon.sectors.tools.utils.PlayerDataSerializerUtil;
+
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
@@ -52,6 +54,13 @@ public final class MarketItemUtil {
             }
         }
         return false;
+    }
+
+    public static void giveItemToPlayer(@NotNull Player player, @NotNull String itemData) {
+        ItemStack[] items = PlayerDataSerializerUtil.deserializeItemStacksFromBase64(itemData);
+        if (items.length > 0) {
+            player.getInventory().addItem(items[0]);
+        }
     }
 
 

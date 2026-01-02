@@ -83,7 +83,7 @@ public class MarketWindow {
                     case ALREADY_SOLD -> {
                         player.sendMessage("§cPrzedmiot został już sprzedany!");
                         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_LAND, 1f, 1f);
-                        open(); // Refresh
+                        open();
                     }
                     case NOT_FOUND -> {
                         player.sendMessage("§cOferta nie istnieje.");

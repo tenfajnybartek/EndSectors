@@ -62,11 +62,7 @@ public class MarketClaimableWindow {
                 boolean success = plugin.getMarketService().claimStorageItem(offer.getId(), player.getUniqueId());
 
                 if (success) {
-                    ItemStack[] itemsToReturn = PlayerDataSerializerUtil.deserializeItemStacksFromBase64(offer.getItemData());
-                    if (itemsToReturn.length > 0) {
-                        player.getInventory().addItem(itemsToReturn[0]);
-
-                    }
+                    MarketItemUtil.giveItemToPlayer(player, offer.getItemData());
                     event.getClickedInventory().setItem(event.getSlot(), new ItemStack(Material.AIR));
                     player.sendMessage("§bPomyślnie odebrano przedmiot ze skrzynki!");
                     player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.5f);
