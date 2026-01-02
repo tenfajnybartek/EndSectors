@@ -1,5 +1,7 @@
 package pl.endixon.sectors.tools.inventory.market;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -26,6 +28,8 @@ public class MarketWindow {
     private final EndSectorsToolsPlugin plugin = EndSectorsToolsPlugin.getInstance();
     private final String category;
     private final int page;
+    private static final MiniMessage MM = MiniMessage.miniMessage();
+    private static final LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.legacySection();
 
     public MarketWindow(Player player, PlayerProfile profile, String category, int page) {
         this.player = player;
@@ -35,13 +39,16 @@ public class MarketWindow {
         open();
     }
 
+    private String hex(String text) {
+        return SERIALIZER.serialize(MM.deserialize(text));
+    }
+
     public void open() {
         WindowUI window = new WindowUI("Market: " + category + " (" + (page + 1) + ")", 6);
 
         int expiredCount = plugin.getMarketRepository().findExpiredBySeller(player.getUniqueId()).size();
         int claimableCount = plugin.getMarketRepository().findClaimableBySeller(player.getUniqueId()).size();
         int myOffersCount = plugin.getMarketRepository().findBySeller(player.getUniqueId()).size();
-
 
         List<PlayerMarketProfile> offers;
         if (category.equalsIgnoreCase("ALL")) {
@@ -60,7 +67,6 @@ public class MarketWindow {
 
             ItemStack[] deserialized = PlayerDataSerializerUtil.deserializeItemStacksFromBase64(offer.getItemData());
             ItemStack originalItem = (deserialized.length > 0) ? deserialized[0] : new ItemStack(Material.BARRIER);
-
             StackBuilder builder = MarketItemRenderer.prepareBuyItem(offer, originalItem);
 
             window.setSlot(slot, builder.build(), event -> {
@@ -73,25 +79,25 @@ public class MarketWindow {
                 switch (result) {
                     case SUCCESS -> {
                         this.givePurchasedItem(offer);
-                        player.sendMessage("§aZakupiono pomyślnie: §f" + offer.getItemName());
+                        player.sendMessage(hex("<#55ff55>Zakupiono pomyślnie: <white>" + offer.getItemName()));
                         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.5f);
                         player.closeInventory();
                     }
                     case NOT_ENOUGH_MONEY -> {
-                        player.sendMessage("§cNie masz wystarczających środków!");
+                        player.sendMessage(hex("<#ff5555>Nie masz wystarczających środków!"));
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
                     }
                     case ALREADY_SOLD -> {
-                        player.sendMessage("§cPrzedmiot został już sprzedany!");
+                        player.sendMessage(hex("<#ff5555>Przedmiot został już sprzedany!"));
                         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_LAND, 1f, 1f);
                         open();
                     }
                     case NOT_FOUND -> {
-                        player.sendMessage("§cPrzedmiot nie istnieje.");
+                        player.sendMessage(hex("<#ff5555>Przedmiot nie istnieje."));
                         open();
                     }
                     case SELF_PURCHASE -> {
-                        player.sendMessage("§cNie możesz kupić własnego przedmiotu!");
+                        player.sendMessage(hex("<#ff5555>Nie możesz kupić własnego przedmiotu!"));
                         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 0.5f);
                     }
                 }
@@ -100,24 +106,24 @@ public class MarketWindow {
 
 
         if (page > 0) {
-            window.setSlot(45, new StackBuilder(new ItemStack(Material.ARROW)).name("§c« Poprzednia strona").build(),
+            window.setSlot(45, new StackBuilder(new ItemStack(Material.ARROW)).name(hex("<gradient:#ffcc00:#ffaa00>« Poprzednia strona</gradient>")).build(),
                     event -> new MarketWindow(player, profile, category, page - 1));
         }
 
-        window.setSlot(46, new StackBuilder(new ItemStack(Material.GRASS_BLOCK)).name("§aKategoria: Bloki").build(),
+        window.setSlot(46, new StackBuilder(new ItemStack(Material.GRASS_BLOCK)).name(hex("<gradient:#55ff55:#00aa00>Kategoria: Bloki</gradient>")).build(),
                 event -> new MarketWindow(player, profile, "BLOCKS", 0));
 
-        window.setSlot(47, new StackBuilder(new ItemStack(Material.DIAMOND_SWORD)).name("§bKategoria: Ekwipunek").build(),
+        window.setSlot(47, new StackBuilder(new ItemStack(Material.DIAMOND_SWORD)).name(hex("<gradient:#55ffff:#00aaaa>Kategoria: Ekwipunek</gradient>")).build(),
                 event -> new MarketWindow(player, profile, "WEAPONS", 0));
 
-        window.setSlot(48, new StackBuilder(new ItemStack(Material.HEAVY_CORE)).name("§6Kategoria: Inne").build(),
+        window.setSlot(48, new StackBuilder(new ItemStack(Material.HEAVY_CORE)).name(hex("<gradient:#ffaa00:#ffff55>Kategoria: Inne</gradient>")).build(),
                 event -> new MarketWindow(player, profile, "OTHER", 0));
 
         if (category.equals("ALL")) {
-            window.setSlot(49, new StackBuilder(new ItemStack(Material.BARRIER)).name("§cZamknij").build(),
+            window.setSlot(49, new StackBuilder(new ItemStack(Material.BARRIER)).name(hex("<#ff5555>Zamknij")).build(),
                     event -> player.closeInventory());
         } else {
-            window.setSlot(49, new StackBuilder(new ItemStack(Material.NETHER_STAR)).name("§fWszystko (Reset)").build(),
+            window.setSlot(49, new StackBuilder(new ItemStack(Material.NETHER_STAR)).name(hex("<white>Wszystko (Reset)")).build(),
                     event -> new MarketWindow(player, profile, "ALL", 0));
         }
 
@@ -128,7 +134,7 @@ public class MarketWindow {
             if (claimableCount > 0) {
                 new MarketClaimableWindow(player, profile);
             } else {
-                player.sendMessage("§aDepozyt jest pusty.");
+                player.sendMessage(hex("<#ff5555>Depozyt jest pusty."));
                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
             }
         });
@@ -137,13 +143,13 @@ public class MarketWindow {
             if (expiredCount > 0) {
                 new MarketStorageWindow(player, profile);
             } else {
-                player.sendMessage("§aMagazyn wygasłych przedmiotow jest pusty.");
+                player.sendMessage(hex("<#ff5555>Magazyn wygasłych przedmiotów jest pusty."));
                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
             }
         });
 
         if (offers.size() > end) {
-            window.setSlot(53, new StackBuilder(new ItemStack(Material.ARROW)).name("§aNastępna strona »").build(),
+            window.setSlot(53, new StackBuilder(new ItemStack(Material.ARROW)).name(hex("<gradient:#ffcc00:#ffaa00>Następna strona »</gradient>")).build(),
                     event -> new MarketWindow(player, profile, category, page + 1));
         }
 
@@ -163,7 +169,7 @@ public class MarketWindow {
                 );
             });
 
-            this.player.sendMessage("§cEkwipunek pełny! §ePrzedmiot trafił do depozytu");
+            this.player.sendMessage(hex("<#ff5555>Ekwipunek pełny! <#ffff55>Przedmiot trafił do Depozytu."));
             this.player.playSound(this.player.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 1f, 1f);
         }
     }

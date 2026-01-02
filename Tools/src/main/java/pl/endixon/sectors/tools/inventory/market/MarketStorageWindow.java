@@ -1,5 +1,7 @@
 package pl.endixon.sectors.tools.inventory.market;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -16,7 +18,6 @@ import pl.endixon.sectors.tools.utils.PlayerDataSerializerUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class MarketStorageWindow {
 
@@ -24,21 +25,31 @@ public class MarketStorageWindow {
     private final PlayerProfile profile;
     private final EndSectorsToolsPlugin plugin = EndSectorsToolsPlugin.getInstance();
 
+    // Narzędzia do kolorowania - standard w tym module
+    private static final MiniMessage MM = MiniMessage.miniMessage();
+    private static final LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.legacySection();
+
     public MarketStorageWindow(Player player, PlayerProfile profile) {
         this.player = player;
         this.profile = profile;
         open();
     }
 
+    private String hex(String text) {
+        return SERIALIZER.serialize(MM.deserialize(text));
+    }
+
     public void open() {
         WindowUI window = new WindowUI("Market", 3);
+
         List<PlayerMarketProfile> expiredOffers = new ArrayList<>(plugin.getMarketRepository().findExpiredBySeller(player.getUniqueId()));
         expiredOffers.sort((a, b) -> Long.compare(b.getCreatedAt(), a.getCreatedAt()));
 
         if (expiredOffers.isEmpty()) {
             window.setSlot(13, new StackBuilder(new ItemStack(Material.BARRIER))
-                    .name("§cPusto")
-                    .lore("§7Nie masz żadnych przedmiotów do odebrania.")
+                    .name(hex("<#ff5555><bold>Magazyn jest pusty</bold>"))
+                    .lore(hex("<#aaaaaa>Nie masz żadnych wygasłych"))
+                    .lore(hex("<#aaaaaa>przedmiotów do odebrania."))
                     .build(), null);
         }
 
@@ -48,14 +59,14 @@ public class MarketStorageWindow {
 
             ItemStack[] deserialized = PlayerDataSerializerUtil.deserializeItemStacksFromBase64(offer.getItemData());
             ItemStack originalItem = (deserialized.length > 0) ? deserialized[0] : new ItemStack(Material.BARRIER);
+
             StackBuilder builder = MarketItemRenderer.prepareStorageItem(offer, originalItem);
 
             window.setSlot(slot, builder.build(), event -> {
 
-
                 if (!MarketItemUtil.hasSpace(player, originalItem)) {
-                    player.sendMessage("§cMasz pełny ekwipunek!");
-                    player.sendMessage("§7Zrób miejsce, aby odebrać ten przedmiot.");
+                    player.sendMessage(hex("<#ff5555>Masz pełny ekwipunek!"));
+                    player.sendMessage(hex("<#aaaaaa>Zrób miejsce, aby odebrać ten przedmiot."));
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
                     player.closeInventory();
                     return;
@@ -66,13 +77,12 @@ public class MarketStorageWindow {
                 if (success) {
                     MarketItemUtil.giveItemToPlayer(player, offer.getItemData());
                     event.getClickedInventory().setItem(event.getSlot(), new ItemStack(Material.AIR));
-                    player.sendMessage("§aOdebrano przedmiot z magazynu!");
+                    player.sendMessage(hex("<#55ff55>Pomyślnie odebrano przedmiot z Magazynu!"));
                     player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
-
                     Bukkit.getScheduler().runTask(plugin, this::open);
 
                 } else {
-                    player.sendMessage("§cBłąd! Nie udało się odebrać przedmiotu.");
+                    player.sendMessage(hex("<#ff5555>Błąd! Nie udało się odebrać przedmiotu."));
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
                     player.closeInventory();
                 }
@@ -81,11 +91,12 @@ public class MarketStorageWindow {
         }
 
         window.setSlot(26,
-                new StackBuilder(new ItemStack(Material.ARROW)).name("§e« Wróć na Market").build(),
+                new StackBuilder(new ItemStack(Material.ARROW))
+                        .name(hex("<gradient:#ffcc00:#ffaa00>« Wróć na Market</gradient>"))
+                        .build(),
                 event -> new MarketWindow(player, profile, "ALL", 0)
         );
 
         player.openInventory(window.getInventory());
     }
-
 }

@@ -1,5 +1,7 @@
 package pl.endixon.sectors.tools.inventory.market;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -22,11 +24,17 @@ public class MarketClaimableWindow {
     private final Player player;
     private final PlayerProfile profile;
     private final EndSectorsToolsPlugin plugin = EndSectorsToolsPlugin.getInstance();
+    private static final MiniMessage MM = MiniMessage.miniMessage();
+    private static final LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.legacySection();
 
     public MarketClaimableWindow(Player player, PlayerProfile profile) {
         this.player = player;
         this.profile = profile;
         open();
+    }
+
+    private String hex(String text) {
+        return SERIALIZER.serialize(MM.deserialize(text));
     }
 
     public void open() {
@@ -36,8 +44,9 @@ public class MarketClaimableWindow {
 
         if (items.isEmpty()) {
             window.setSlot(13, new StackBuilder(new ItemStack(Material.BARRIER))
-                    .name("§bPusto")
-                    .lore("§7Brak przedmiotów w depozycie.")
+                    .name(hex("<#ff5555><bold>Depozyt jest pusty</bold>"))
+                    .lore(hex("<#aaaaaa>Nie masz żadnych przedmiotów"))
+                    .lore(hex("<#aaaaaa>do odebrania."))
                     .build(), null);
         }
 
@@ -51,9 +60,9 @@ public class MarketClaimableWindow {
 
             window.setSlot(slot, builder.build(), event -> {
 
-                    if (!MarketItemUtil.hasSpace(player, originalItem)) {
-                    player.sendMessage("§cMasz pełny ekwipunek!");
-                    player.sendMessage("§7Zrób miejsce, aby odebrać ten przedmiot.");
+                if (!MarketItemUtil.hasSpace(player, originalItem)) {
+                    player.sendMessage(hex("<#ff5555>Masz pełny ekwipunek!"));
+                    player.sendMessage(hex("<#aaaaaa>Zrób miejsce, aby odebrać ten przedmiot."));
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
                     player.closeInventory();
                     return;
@@ -64,20 +73,24 @@ public class MarketClaimableWindow {
                 if (success) {
                     MarketItemUtil.giveItemToPlayer(player, offer.getItemData());
                     event.getClickedInventory().setItem(event.getSlot(), new ItemStack(Material.AIR));
-                    player.sendMessage("§bPomyślnie odebrano przedmiot ze depozytu!");
+
+                    player.sendMessage(hex("<#55ff55>Pomyślnie odebrano przedmiot z depozytu!"));
                     player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.5f);
+
                     Bukkit.getScheduler().runTask(plugin, this::open);
                 } else {
-                    player.sendMessage("§cBłąd odbioru. Przedmiot mógł zniknąć.");
+                    player.sendMessage(hex("<#ff5555>Błąd odbioru! Przedmiot mógł zniknąć."));
                     player.closeInventory();
                 }
             });
             slot++;
         }
 
-        window.setSlot(26, new StackBuilder(new ItemStack(Material.ARROW)).name("§e« Wróć na Market").build(), event -> new MarketWindow(player, profile, "ALL", 0));
+        window.setSlot(26, new StackBuilder(new ItemStack(Material.ARROW))
+                        .name(hex("<gradient:#ffcc00:#ffaa00>« Wróć na Market</gradient>"))
+                        .build(),
+                event -> new MarketWindow(player, profile, "ALL", 0));
+
         player.openInventory(window.getInventory());
     }
-
-
 }
