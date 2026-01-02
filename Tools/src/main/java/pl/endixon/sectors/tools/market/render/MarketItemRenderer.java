@@ -115,4 +115,29 @@ public final class MarketItemRenderer {
                 .lore(" ")
                 .lore(hex("<#ff5555>Kliknij, aby odebrać!"));
     }
+
+
+    public static StackBuilder prepareProfileIcon(String playerName, int active, int claimable, int expired) {
+        String activeColor = active > 0 ? "<#55ff55>" : "<#aaaaaa>";
+        String claimableColor = claimable > 0 ? "<#55ffff>" : "<#aaaaaa>";
+        String expiredColor = expired > 0 ? "<#ff5555>" : "<#aaaaaa>";
+        boolean attentionNeeded = claimable > 0 || expired > 0;
+
+        String iconName = attentionNeeded
+                ? "<gradient:#ffaa00:#ffff55><bold>TWÓJ PROFIL</bold></gradient> <#ff5555>(akcja wymagana)"
+                : "<gradient:#aaaaaa:#ffffff><bold>TWÓJ PROFIL</bold></gradient>";
+
+        return new StackBuilder(new ItemStack(Material.PLAYER_HEAD))
+                .name(hex(iconName))
+                .lore(hex("<#aaaaaa>Centrum zarządzania twoimi"))
+                .lore(hex("<#aaaaaa>wygasłymi przedmiotami oraz"))
+                .lore(hex("<#aaaaaa>przedmiotami do odebrania."))
+                .lore(" ")
+                .lore(hex("<#555555>• <#aaaaaa>Aktywne przedmioty: " + activeColor + active))
+                .lore(hex("<#555555>• <#aaaaaa>Depozyt: " + claimableColor + claimable))
+                .lore(hex("<#555555>• <#aaaaaa>Magazyn: " + expiredColor + expired))
+                .lore(" ")
+                .lore(hex("<#ffff55>Kliknij, aby otworzyć!"));
+    }
+
 }

@@ -30,6 +30,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import net.kyori.adventure.text.Component;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.NotNull;
 import pl.endixon.sectors.tools.utils.ChatAdventureUtil;
 
 public class StackBuilder {
@@ -171,4 +173,18 @@ public class StackBuilder {
     public ItemStack build() {
         return stack;
     }
+
+    public StackBuilder skullOwner(@NotNull String playerName) {
+        if (this.stack.getType() != Material.PLAYER_HEAD) {
+            return this;
+        }
+
+        ItemMeta meta = this.stack.getItemMeta();
+        if (meta instanceof SkullMeta skullMeta) {
+            skullMeta.setOwningPlayer(org.bukkit.Bukkit.getOfflinePlayer(playerName));
+            this.stack.setItemMeta(skullMeta);
+        }
+        return this;
+    }
+
 }

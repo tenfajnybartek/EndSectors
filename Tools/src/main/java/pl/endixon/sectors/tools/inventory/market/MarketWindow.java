@@ -119,34 +119,18 @@ public class MarketWindow {
         window.setSlot(48, new StackBuilder(new ItemStack(Material.HEAVY_CORE)).name(hex("<gradient:#ffaa00:#ffff55>Kategoria: Inne</gradient>")).build(),
                 event -> new MarketWindow(player, profile, "OTHER", 0));
 
-        if (category.equals("ALL")) {
-            window.setSlot(49, new StackBuilder(new ItemStack(Material.BARRIER)).name(hex("<#ff5555>Zamknij")).build(),
-                    event -> player.closeInventory());
-        } else {
-            window.setSlot(49, new StackBuilder(new ItemStack(Material.NETHER_STAR)).name(hex("<white>Wszystko (Reset)")).build(),
+        window.setSlot(49, new StackBuilder(new ItemStack(Material.BARRIER)).name(hex("<#ff5555>Zamknij")).build(),
+                event -> player.closeInventory());
+
+         window.setSlot(50, new StackBuilder(new ItemStack(Material.NETHER_STAR)).name(hex("<white>Wszystko (Reset)")).build(),
                     event -> new MarketWindow(player, profile, "ALL", 0));
-        }
 
-        window.setSlot(50, MarketItemRenderer.prepareMyOffersIcon(myOffersCount).build(),
-                event -> new MarketMyOffersWindow(player, profile));
-
-        window.setSlot(51, MarketItemRenderer.prepareClaimableIcon(claimableCount).build(), event -> {
-            if (claimableCount > 0) {
-                new MarketClaimableWindow(player, profile);
-            } else {
-                player.sendMessage(hex("<#ff5555>Depozyt jest pusty."));
-                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
-            }
-        });
-
-        window.setSlot(52, MarketItemRenderer.prepareStorageIcon(expiredCount).build(), event -> {
-            if (expiredCount > 0) {
-                new MarketStorageWindow(player, profile);
-            } else {
-                player.sendMessage(hex("<#ff5555>Magazyn wygasłych przedmiotów jest pusty."));
-                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
-            }
-        });
+        window.setSlot(51,
+                MarketItemRenderer.prepareProfileIcon(player.getName(), myOffersCount, claimableCount, expiredCount)
+                        .skullOwner(player.getName())
+                        .build(),
+                event -> new MarketProfileWindow(player, profile)
+        );
 
         if (offers.size() > end) {
             window.setSlot(53, new StackBuilder(new ItemStack(Material.ARROW)).name(hex("<gradient:#ffcc00:#ffaa00>Następna strona »</gradient>")).build(),
