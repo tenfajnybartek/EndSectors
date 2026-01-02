@@ -11,18 +11,14 @@ import org.bukkit.inventory.ItemStack;
 
 public final class MarketItemRenderer {
 
-    // Singletony dla wydajności - nie twórz tego w metodach!
+
     private static final MiniMessage MM = MiniMessage.miniMessage();
     private static final LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer.legacySection();
 
     private MarketItemRenderer() {}
 
-    /**
-     * Helper, który zamienia nowoczesny MiniMessage na Stringa z kolorami (dla ItemMeta).
-     * Dzięki temu StackBuilder nie dostanie zawału.
-     */
+
     private static String hex(String text) {
-        // Deserialize (Tagi -> Component) -> Serialize (Component -> Legacy String z Hexami)
         return SERIALIZER.serialize(MM.deserialize(text));
     }
 
@@ -68,6 +64,7 @@ public final class MarketItemRenderer {
         return builder;
     }
 
+
     public static StackBuilder prepareMyOffersIcon(int activeOffersCount) {
         return new StackBuilder(new ItemStack(Material.BOOK))
                 .name(hex("<gold>Twoje aukcje"))
@@ -75,6 +72,29 @@ public final class MarketItemRenderer {
                 .lore(" ")
                 .lore(hex("<yellow>Kliknij, aby zarządzać!"));
     }
+
+
+    public static StackBuilder prepareClaimableItem(@NotNull PlayerMarketProfile offer, @NotNull ItemStack originalItem) {
+        StackBuilder builder = new StackBuilder(originalItem);
+        builder.lore("  ");
+        builder.lore("§7Status: §bDo odebrania");
+        builder.lore("§7Powód: §fZakup / Brak miejsca");
+        builder.lore(" ");
+        builder.lore("§aKliknij, aby odebrać przedmiot!");
+        builder.lore("  ");
+        return builder;
+    }
+
+    public static StackBuilder prepareClaimableIcon(int claimableCount) {
+        String countColor = claimableCount > 0 ? "§b" : "§7";
+
+        return new StackBuilder(new ItemStack(Material.ENDER_CHEST))
+                .name("§bSkrzynka Odbiorcza")
+                .lore("§7Do odebrania: " + countColor + claimableCount)
+                .lore(" ")
+                .lore("§eKliknij, aby odebrać!");
+    }
+
 
     public static StackBuilder prepareStorageIcon(int expiredCount) {
         String countColor = expiredCount > 0 ? "<#ff3333>" : "<white>";

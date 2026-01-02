@@ -15,42 +15,40 @@ import pl.endixon.sectors.tools.utils.PlayerDataSerializerUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class MarketStorageWindow {
+public class MarketClaimableWindow {
 
     private final Player player;
     private final PlayerProfile profile;
     private final EndSectorsToolsPlugin plugin = EndSectorsToolsPlugin.getInstance();
 
-    public MarketStorageWindow(Player player, PlayerProfile profile) {
+    public MarketClaimableWindow(Player player, PlayerProfile profile) {
         this.player = player;
         this.profile = profile;
         open();
     }
 
     public void open() {
-        WindowUI window = new WindowUI("Magazyn (Wygasłe)", 3);
-        List<PlayerMarketProfile> expiredOffers = new ArrayList<>(plugin.getMarketRepository().findExpiredBySeller(player.getUniqueId()));
-        expiredOffers.sort((a, b) -> Long.compare(b.getCreatedAt(), a.getCreatedAt()));
+        WindowUI window = new WindowUI("Skrzynka Odbiorcza", 3);
+        List<PlayerMarketProfile> items = new ArrayList<>(plugin.getMarketRepository().findClaimableBySeller(player.getUniqueId()));
+        items.sort((a, b) -> Long.compare(b.getCreatedAt(), a.getCreatedAt()));
 
-        if (expiredOffers.isEmpty()) {
+        if (items.isEmpty()) {
             window.setSlot(13, new StackBuilder(new ItemStack(Material.BARRIER))
-                    .name("§cPusto")
-                    .lore("§7Nie masz żadnych przedmiotów do odebrania.")
+                    .name("§bPusto")
+                    .lore("§7Brak przedmiotów w skrzynce.")
                     .build(), null);
         }
 
         int slot = 0;
-        for (PlayerMarketProfile offer : expiredOffers) {
+        for (PlayerMarketProfile offer : items) {
             if (slot >= 26) break;
 
             ItemStack[] deserialized = PlayerDataSerializerUtil.deserializeItemStacksFromBase64(offer.getItemData());
             ItemStack originalItem = (deserialized.length > 0) ? deserialized[0] : new ItemStack(Material.BARRIER);
-            StackBuilder builder = MarketItemRenderer.prepareStorageItem(offer, originalItem);
+            StackBuilder builder = MarketItemRenderer.prepareClaimableItem(offer, originalItem);
 
             window.setSlot(slot, builder.build(), event -> {
-
 
                 if (!this.hasSpace(player, originalItem)) {
                     player.sendMessage("§cMasz pełny ekwipunek!");
@@ -63,67 +61,38 @@ public class MarketStorageWindow {
                 boolean success = plugin.getMarketService().claimStorageItem(offer.getId(), player.getUniqueId());
 
                 if (success) {
-                    this.returnItemToPlayer(offer);
-
+                    player.getInventory().addItem(originalItem);
                     event.getClickedInventory().setItem(event.getSlot(), new ItemStack(Material.AIR));
-                    player.sendMessage("§aOdebrano przedmiot z magazynu!");
-                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
-
+                    player.sendMessage("§bPomyślnie odebrano przedmiot ze skrzynki!");
+                    player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.5f);
                     Bukkit.getScheduler().runTask(plugin, this::open);
-
                 } else {
-                    player.sendMessage("§cBłąd! Nie udało się odebrać przedmiotu.");
-                    player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
+                    player.sendMessage("§cBłąd odbioru. Przedmiot mógł zniknąć.");
                     player.closeInventory();
                 }
             });
             slot++;
         }
 
-        window.setSlot(26,
-                new StackBuilder(new ItemStack(Material.ARROW)).name("§e« Wróć na Market").build(),
-                event -> new MarketWindow(player, profile, "ALL", 0)
-        );
-
+        window.setSlot(26, new StackBuilder(new ItemStack(Material.ARROW)).name("§e« Wróć na Market").build(), event -> new MarketWindow(player, profile, "ALL", 0));
         player.openInventory(window.getInventory());
     }
 
-    private void returnItemToPlayer(PlayerMarketProfile offer) {
-        ItemStack[] itemsToReturn = PlayerDataSerializerUtil.deserializeItemStacksFromBase64(offer.getItemData());
-
-        if (itemsToReturn.length > 0) {
-            Map<Integer, ItemStack> leftOver = player.getInventory().addItem(itemsToReturn[0]);
-
-            if (!leftOver.isEmpty()) {
-                leftOver.values().forEach(item -> {
-                    plugin.getMarketRepository().sendToStorage(
-                            player.getUniqueId(),
-                            player.getName(),
-                            item,
-                            offer.getCategory()
-                    );
-                });
-
-                player.sendMessage("§cEkwipunek pełny! §ePrzedmiot trafił do Skrzynki Odbiorczej.");
-                player.playSound(player.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 1f, 1f);
-            }
-        }
-    }
-
-
     private boolean hasSpace(Player player, ItemStack itemToCheck) {
         int amountNeeded = itemToCheck.getAmount();
-
         for (ItemStack storageItem : player.getInventory().getStorageContents()) {
+
             if (storageItem == null || storageItem.getType() == Material.AIR) {
                 return true;
             }
+
             if (storageItem.isSimilar(itemToCheck)) {
                 int spaceInStack = storageItem.getMaxStackSize() - storageItem.getAmount();
                 if (spaceInStack > 0) {
                     amountNeeded -= spaceInStack;
                 }
             }
+
             if (amountNeeded <= 0) {
                 return true;
             }

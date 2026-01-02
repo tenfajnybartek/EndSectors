@@ -2,14 +2,18 @@ package pl.endixon.sectors.tools.market.repository;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Projections; // <--- Ważny import do optymalizacji
+import com.mongodb.client.model.Projections;
 import com.mongodb.client.model.ReplaceOptions;
 import com.mongodb.client.model.Updates;
 import lombok.RequiredArgsConstructor;
 import org.bson.conversions.Bson;
+import org.bukkit.inventory.ItemStack;
 import pl.endixon.sectors.tools.market.type.MarketOfferStatus;
+import pl.endixon.sectors.tools.market.utils.MarketItemUtil;
 import pl.endixon.sectors.tools.user.profile.PlayerMarketProfile;
 import pl.endixon.sectors.tools.user.profile.ProfileMarketCache;
+import pl.endixon.sectors.tools.utils.PlayerDataSerializerUtil;
+
 import java.util.*;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -19,8 +23,11 @@ public class MarketRepository {
 
     private final MongoCollection<PlayerMarketProfile> collection;
 
+
     public void warmup() {
-        List<PlayerMarketProfile> activeOffers = collection.find(eq("status", "ACTIVE")).into(new ArrayList<>());
+        List<PlayerMarketProfile> activeOffers =
+                collection.find(eq("status", MarketOfferStatus.ACTIVE.name()))
+                .into(new ArrayList<>());
         activeOffers.forEach(ProfileMarketCache::put);
     }
 
@@ -32,7 +39,6 @@ public class MarketRepository {
 
     public void save(PlayerMarketProfile offer) {
         collection.replaceOne(eq("_id", offer.getId()), offer, new ReplaceOptions().upsert(true));
-
         if (offer.getStatus() == MarketOfferStatus.ACTIVE) {
             ProfileMarketCache.put(offer);
         } else {
@@ -48,6 +54,26 @@ public class MarketRepository {
         return false;
     }
 
+    public void sendToStorage(UUID newOwnerUuid, String newOwnerName, ItemStack itemStack, String category) {
+        String itemData = PlayerDataSerializerUtil.serializeItemStacksToBase64(new ItemStack[]{itemStack});
+        String itemName = MarketItemUtil.resolveItemName(itemStack);
+
+        PlayerMarketProfile storageEntry = new PlayerMarketProfile(
+                UUID.randomUUID(),
+                newOwnerUuid,
+                newOwnerName,
+                itemData,
+                itemName,
+                category,
+                0.0,
+                System.currentTimeMillis(),
+                MarketOfferStatus.CLAIMABLE
+        );
+
+        this.save(storageEntry);
+    }
+
+
     public List<PlayerMarketProfile> findByCategory(String category) {
         return ProfileMarketCache.getValues().stream()
                 .filter(offer -> offer.getStatus() == MarketOfferStatus.ACTIVE)
@@ -62,20 +88,27 @@ public class MarketRepository {
                 .toList();
     }
 
-
-
     public List<PlayerMarketProfile> findExpiredBySeller(UUID sellerUuid) {
         Bson filter = Filters.and(
                 eq("sellerUuid", sellerUuid),
-                eq("status", "EXPIRED")
+                eq("status", MarketOfferStatus.EXPIRED.name())
+        );
+        return collection.find(filter).into(new ArrayList<>());
+    }
+
+    public List<PlayerMarketProfile> findClaimableBySeller(UUID sellerUuid) {
+        Bson filter = Filters.and(
+                eq("sellerUuid", sellerUuid),
+                eq("status", MarketOfferStatus.CLAIMABLE.name())
         );
         return collection.find(filter).into(new ArrayList<>());
     }
 
 
+
     public Map<UUID, Integer> expireAndGetOwners(long expirationThreshold) {
         Bson filter = Filters.and(
-                eq("status", "ACTIVE"),
+                eq("status", MarketOfferStatus.ACTIVE.name()),
                 Filters.lt("createdAt", expirationThreshold)
         );
 
@@ -94,15 +127,15 @@ public class MarketRepository {
             }
         }
 
-        Bson update = Updates.set("status", "EXPIRED");
+        Bson update = Updates.set("status", MarketOfferStatus.EXPIRED.name());
         long modifiedCount = collection.updateMany(filter, update).getModifiedCount();
-
         if (modifiedCount > 0) {
             this.cleanupLocalCache(expirationThreshold);
         }
 
         return affectedPlayers;
     }
+
 
     public void cleanupLocalCache(long expirationThreshold) {
         List<UUID> toRemove = ProfileMarketCache.getValues().stream()

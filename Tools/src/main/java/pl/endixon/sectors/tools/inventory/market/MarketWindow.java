@@ -38,7 +38,9 @@ public class MarketWindow {
         WindowUI window = new WindowUI("Rynek: " + category + " (" + (page + 1) + ")", 6);
 
         int expiredCount = plugin.getMarketRepository().findExpiredBySeller(player.getUniqueId()).size();
-        int myOffers = plugin.getMarketRepository().findBySeller(player.getUniqueId()).size();
+        int claimableCount = plugin.getMarketRepository().findClaimableBySeller(player.getUniqueId()).size();
+        int myOffersCount = plugin.getMarketRepository().findBySeller(player.getUniqueId()).size();
+
 
         List<PlayerMarketProfile> offers;
         if (category.equalsIgnoreCase("ALL")) {
@@ -46,8 +48,8 @@ public class MarketWindow {
         } else {
             offers = new ArrayList<>(plugin.getMarketRepository().findByCategory(category));
         }
-        offers.sort((a, b) -> Long.compare(b.getCreatedAt(), a.getCreatedAt()));
 
+        offers.sort((a, b) -> Long.compare(b.getCreatedAt(), a.getCreatedAt()));
         int start = page * 45;
         int end = Math.min(start + 45, offers.size());
 
@@ -57,6 +59,7 @@ public class MarketWindow {
 
             ItemStack[] deserialized = PlayerDataSerializerUtil.deserializeItemStacksFromBase64(offer.getItemData());
             ItemStack originalItem = (deserialized.length > 0) ? deserialized[0] : new ItemStack(Material.BARRIER);
+
             StackBuilder builder = MarketItemRenderer.prepareBuyItem(offer, originalItem);
 
             window.setSlot(slot, builder.build(), event -> {
@@ -68,14 +71,7 @@ public class MarketWindow {
 
                 switch (result) {
                     case SUCCESS -> {
-                        ItemStack[] boughtItems = PlayerDataSerializerUtil.deserializeItemStacksFromBase64(offer.getItemData());
-                        if (boughtItems.length > 0) {
-                            Map<Integer, ItemStack> leftOver = player.getInventory().addItem(boughtItems[0]);
-                            if (!leftOver.isEmpty()) {
-                                leftOver.values().forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
-                                player.sendMessage("§7Ekwipunek pełny! Przedmiot wyrzucono pod nogi.");
-                            }
-                        }
+                        this.givePurchasedItem(offer);
                         player.sendMessage("§aZakupiono pomyślnie: §f" + offer.getItemName());
                         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1.5f);
                         player.closeInventory();
@@ -87,7 +83,7 @@ public class MarketWindow {
                     case ALREADY_SOLD -> {
                         player.sendMessage("§cPrzedmiot został już sprzedany!");
                         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_LAND, 1f, 1f);
-                        open();
+                        open(); // Refresh
                     }
                     case NOT_FOUND -> {
                         player.sendMessage("§cOferta nie istnieje.");
@@ -101,30 +97,83 @@ public class MarketWindow {
             });
         }
 
+
         if (page > 0) {
-            window.setSlot(45, new StackBuilder(new ItemStack(Material.ARROW)).name("§c« Poprzednia strona").build(), event -> new MarketWindow(player, profile, category, page - 1));
+            window.setSlot(45, new StackBuilder(new ItemStack(Material.ARROW)).name("§c« Poprzednia strona").build(),
+                    event -> new MarketWindow(player, profile, category, page - 1));
         }
 
-        window.setSlot(46, new StackBuilder(new ItemStack(Material.GRASS_BLOCK)).name("§aBloki").build(), event -> new MarketWindow(player, profile, "BLOCKS", 0));
-        window.setSlot(47, new StackBuilder(new ItemStack(Material.DIAMOND_SWORD)).name("§bEkwipunek").build(), event -> new MarketWindow(player, profile, "WEAPONS", 0));
-        window.setSlot(48, new StackBuilder(new ItemStack(Material.NETHER_STAR)).name("§fWszystko").build(), event -> new MarketWindow(player, profile, "ALL", 0));
-        window.setSlot(49, MarketItemRenderer.prepareMyOffersIcon(myOffers).build(), event -> new MarketMyOffersWindow(player, profile));
-        window.setSlot(50, new StackBuilder(new ItemStack(Material.HEAVY_CORE)).name("§6Inne").build(), event -> new MarketWindow(player, profile, "OTHER", 0));
-        window.setSlot(51, new StackBuilder(new ItemStack(Material.BARRIER)).name("§cZamknij").build(), event -> player.closeInventory());
+        window.setSlot(46, new StackBuilder(new ItemStack(Material.GRASS_BLOCK)).name("§aKategoria: Bloki").build(),
+                event -> new MarketWindow(player, profile, "BLOCKS", 0));
+
+        window.setSlot(47, new StackBuilder(new ItemStack(Material.DIAMOND_SWORD)).name("§bKategoria: Ekwipunek").build(),
+                event -> new MarketWindow(player, profile, "WEAPONS", 0));
+
+        window.setSlot(48, new StackBuilder(new ItemStack(Material.HEAVY_CORE)).name("§6Kategoria: Inne").build(),
+                event -> new MarketWindow(player, profile, "OTHER", 0));
+
+        if (category.equals("ALL")) {
+            window.setSlot(49, new StackBuilder(new ItemStack(Material.BARRIER)).name("§cZamknij").build(),
+                    event -> player.closeInventory());
+        } else {
+            window.setSlot(49, new StackBuilder(new ItemStack(Material.NETHER_STAR)).name("§fWszystkie oferty (Reset)").build(),
+                    event -> new MarketWindow(player, profile, "ALL", 0));
+        }
+
+        window.setSlot(50, MarketItemRenderer.prepareMyOffersIcon(myOffersCount).build(),
+                event -> new MarketMyOffersWindow(player, profile));
+
+        window.setSlot(51, MarketItemRenderer.prepareClaimableIcon(claimableCount).build(), event -> {
+            if (claimableCount > 0) {
+                new MarketClaimableWindow(player, profile);
+            } else {
+                player.sendMessage("§aSkrzynka odbiorcza jest pusta.");
+                player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
+            }
+        });
 
         window.setSlot(52, MarketItemRenderer.prepareStorageIcon(expiredCount).build(), event -> {
             if (expiredCount > 0) {
                 new MarketStorageWindow(player, profile);
             } else {
-                player.sendMessage("§aNie masz żadnych przedmiotów do odebrania.");
+                player.sendMessage("§aMagazyn wygasłych ofert jest pusty.");
                 player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
             }
         });
 
         if (offers.size() > end) {
-            window.setSlot(53, new StackBuilder(new ItemStack(Material.ARROW)).name("§aNastępna strona »").build(), event -> new MarketWindow(player, profile, category, page + 1));
+            window.setSlot(53, new StackBuilder(new ItemStack(Material.ARROW)).name("§aNastępna strona »").build(),
+                    event -> new MarketWindow(player, profile, category, page + 1));
         }
 
         player.openInventory(window.getInventory());
+    }
+
+
+    private void givePurchasedItem(PlayerMarketProfile offer) {
+        ItemStack[] boughtItems = PlayerDataSerializerUtil.deserializeItemStacksFromBase64(offer.getItemData());
+
+        if (boughtItems.length == 0) {
+            this.plugin.getLogger().warning("Market offer " + offer.getId() + " has no items deserialized! Check DB integrity.");
+            return;
+        }
+
+        ItemStack itemToGive = boughtItems[0];
+        Map<Integer, ItemStack> leftOver = this.player.getInventory().addItem(itemToGive);
+
+        if (!leftOver.isEmpty()) {
+            leftOver.values().forEach(item -> {
+                this.plugin.getMarketRepository().sendToStorage(
+                        this.player.getUniqueId(),
+                        this.player.getName(),
+                        item,
+                        offer.getCategory()
+                );
+            });
+
+            this.player.sendMessage("§cEkwipunek pełny! §ePrzedmiot trafił do Skrzynki Odbiorczej.");
+            this.player.playSound(this.player.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 1f, 1f);
+        }
+
     }
 }

@@ -50,6 +50,7 @@ import pl.endixon.sectors.tools.nats.packet.PacketMarketExpirationNotify;
 import pl.endixon.sectors.tools.nats.packet.PacketMarketJanitor;
 import pl.endixon.sectors.tools.nats.packet.PacketMarketNotify;
 import pl.endixon.sectors.tools.nats.packet.PacketMarketUpdate;
+import pl.endixon.sectors.tools.task.MarketBossBarTask;
 import pl.endixon.sectors.tools.task.MarketExpirationTask;
 import pl.endixon.sectors.tools.user.Repository.PlayerRepository;
 import pl.endixon.sectors.tools.user.listeners.CombatListener;
@@ -149,6 +150,7 @@ public class EndSectorsToolsPlugin extends JavaPlugin {
         LoggerUtil.info("Scheduling background maintenance tasks...");
      //   new MarketExpirationTask(this.marketService).runTaskTimerAsynchronously(this, 1200L, 12000L);
         new MarketExpirationTask(this.marketService).runTaskTimerAsynchronously(this, 100L, 200L);
+        new MarketBossBarTask(this).runTaskTimer(this, 100L, 40L);
         LoggerUtil.info("Market Expiration Task registered (Async).");
     }
 

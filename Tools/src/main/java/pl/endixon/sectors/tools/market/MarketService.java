@@ -81,6 +81,21 @@ public class MarketService {
                 .orElse(false);
     }
 
+
+    public boolean claimStorageItem(UUID offerId, UUID ownerUuid) {
+        return marketRepository.find(offerId)
+                .filter(offer -> offer.getSellerUuid().equals(ownerUuid))
+                .filter(offer ->
+                        offer.getStatus() == MarketOfferStatus.EXPIRED ||
+                                offer.getStatus() == MarketOfferStatus.CLAIMABLE
+                )
+                .map(offer -> {
+                    return marketRepository.delete(offerId);
+                })
+                .orElse(false);
+    }
+
+
     public PurchaseResult processPurchase(UUID offerId, PlayerProfile buyer, PlayerRepository playerRepository) {
         return marketRepository.find(offerId).map(offer -> {
 
