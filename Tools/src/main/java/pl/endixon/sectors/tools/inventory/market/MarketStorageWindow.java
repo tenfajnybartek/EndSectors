@@ -64,6 +64,7 @@ public class MarketStorageWindow {
                 boolean success = plugin.getMarketService().claimStorageItem(offer.getId(), player.getUniqueId());
 
                 if (success) {
+                    player.getInventory().addItem(originalItem);
                     event.getClickedInventory().setItem(event.getSlot(), new ItemStack(Material.AIR));
                     player.sendMessage("§aOdebrano przedmiot z magazynu!");
                     player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);

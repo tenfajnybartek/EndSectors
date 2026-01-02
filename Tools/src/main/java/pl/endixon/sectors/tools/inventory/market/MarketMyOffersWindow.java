@@ -56,6 +56,7 @@ public class MarketMyOffersWindow {
                 boolean success = plugin.getMarketService().cancelOffer(offer.getId(), player.getUniqueId());
 
                 if (success) {
+                    player.getInventory().addItem(originalItem);
                     event.getClickedInventory().setItem(event.getSlot(), new ItemStack(Material.AIR));
                     player.sendMessage("§aOferta została pomyślnie wycofana.");
                     player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.5f);

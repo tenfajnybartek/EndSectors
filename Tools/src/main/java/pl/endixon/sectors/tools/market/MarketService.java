@@ -68,18 +68,6 @@ public class MarketService {
                 .orElse(false);
     }
 
-    public boolean claimExpired(UUID offerId, UUID sellerUuid) {
-        return marketRepository.find(offerId)
-                .filter(offer -> offer.getSellerUuid().equals(sellerUuid))
-                .filter(offer -> offer.getStatus() == MarketOfferStatus.EXPIRED)
-                .map(offer -> {
-                    if (marketRepository.delete(offerId)) {
-                        return true;
-                    }
-                    return false;
-                })
-                .orElse(false);
-    }
 
 
     public boolean claimStorageItem(UUID offerId, UUID ownerUuid) {
@@ -89,9 +77,7 @@ public class MarketService {
                         offer.getStatus() == MarketOfferStatus.EXPIRED ||
                                 offer.getStatus() == MarketOfferStatus.CLAIMABLE
                 )
-                .map(offer -> {
-                    return marketRepository.delete(offerId);
-                })
+                .map(offer -> marketRepository.delete(offerId))
                 .orElse(false);
     }
 
