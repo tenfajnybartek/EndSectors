@@ -3,6 +3,7 @@ package pl.endixon.sectors.tools.market.utils;
 import lombok.RequiredArgsConstructor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +30,30 @@ public final class MarketItemUtil {
         }
         return name.toString().trim();
     }
+
+
+    public static boolean hasSpace(Player player, ItemStack itemToCheck) {
+        int amountNeeded = itemToCheck.getAmount();
+        for (ItemStack storageItem : player.getInventory().getStorageContents()) {
+
+            if (storageItem == null || storageItem.getType() == Material.AIR) {
+                return true;
+            }
+
+            if (storageItem.isSimilar(itemToCheck)) {
+                int spaceInStack = storageItem.getMaxStackSize() - storageItem.getAmount();
+                if (spaceInStack > 0) {
+                    amountNeeded -= spaceInStack;
+                }
+            }
+
+            if (amountNeeded <= 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public static String determineCategory(@NotNull Material m) {
         final String name = m.name();

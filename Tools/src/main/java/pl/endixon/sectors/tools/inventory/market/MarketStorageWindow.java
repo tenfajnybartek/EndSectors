@@ -9,6 +9,7 @@ import pl.endixon.sectors.tools.EndSectorsToolsPlugin;
 import pl.endixon.sectors.tools.inventory.api.WindowUI;
 import pl.endixon.sectors.tools.inventory.api.builder.StackBuilder;
 import pl.endixon.sectors.tools.market.render.MarketItemRenderer;
+import pl.endixon.sectors.tools.market.utils.MarketItemUtil;
 import pl.endixon.sectors.tools.user.profile.PlayerMarketProfile;
 import pl.endixon.sectors.tools.user.profile.PlayerProfile;
 import pl.endixon.sectors.tools.utils.PlayerDataSerializerUtil;
@@ -52,7 +53,7 @@ public class MarketStorageWindow {
             window.setSlot(slot, builder.build(), event -> {
 
 
-                if (!this.hasSpace(player, originalItem)) {
+                if (!MarketItemUtil.hasSpace(player, originalItem)) {
                     player.sendMessage("§cMasz pełny ekwipunek!");
                     player.sendMessage("§7Zrób miejsce, aby odebrać ten przedmiot.");
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
@@ -63,8 +64,6 @@ public class MarketStorageWindow {
                 boolean success = plugin.getMarketService().claimStorageItem(offer.getId(), player.getUniqueId());
 
                 if (success) {
-                    this.returnItemToPlayer(offer);
-
                     event.getClickedInventory().setItem(event.getSlot(), new ItemStack(Material.AIR));
                     player.sendMessage("§aOdebrano przedmiot z magazynu!");
                     player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
@@ -88,46 +87,4 @@ public class MarketStorageWindow {
         player.openInventory(window.getInventory());
     }
 
-    private void returnItemToPlayer(PlayerMarketProfile offer) {
-        ItemStack[] itemsToReturn = PlayerDataSerializerUtil.deserializeItemStacksFromBase64(offer.getItemData());
-
-        if (itemsToReturn.length > 0) {
-            Map<Integer, ItemStack> leftOver = player.getInventory().addItem(itemsToReturn[0]);
-
-            if (!leftOver.isEmpty()) {
-                leftOver.values().forEach(item -> {
-                    plugin.getMarketRepository().sendToStorage(
-                            player.getUniqueId(),
-                            player.getName(),
-                            item,
-                            offer.getCategory()
-                    );
-                });
-
-                player.sendMessage("§cEkwipunek pełny! §ePrzedmiot trafił do Skrzynki Odbiorczej.");
-                player.playSound(player.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 1f, 1f);
-            }
-        }
-    }
-
-
-    private boolean hasSpace(Player player, ItemStack itemToCheck) {
-        int amountNeeded = itemToCheck.getAmount();
-
-        for (ItemStack storageItem : player.getInventory().getStorageContents()) {
-            if (storageItem == null || storageItem.getType() == Material.AIR) {
-                return true;
-            }
-            if (storageItem.isSimilar(itemToCheck)) {
-                int spaceInStack = storageItem.getMaxStackSize() - storageItem.getAmount();
-                if (spaceInStack > 0) {
-                    amountNeeded -= spaceInStack;
-                }
-            }
-            if (amountNeeded <= 0) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

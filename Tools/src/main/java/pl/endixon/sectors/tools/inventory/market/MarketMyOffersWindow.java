@@ -9,6 +9,7 @@ import pl.endixon.sectors.tools.EndSectorsToolsPlugin;
 import pl.endixon.sectors.tools.inventory.api.WindowUI;
 import pl.endixon.sectors.tools.inventory.api.builder.StackBuilder;
 import pl.endixon.sectors.tools.market.render.MarketItemRenderer;
+import pl.endixon.sectors.tools.market.utils.MarketItemUtil;
 import pl.endixon.sectors.tools.user.profile.PlayerMarketProfile;
 import pl.endixon.sectors.tools.user.profile.PlayerProfile;
 import pl.endixon.sectors.tools.utils.PlayerDataSerializerUtil;
@@ -44,7 +45,7 @@ public class MarketMyOffersWindow {
 
             window.setSlot(slot, builder.build(), event -> {
 
-                if (!this.hasSpace(player, originalItem)) {
+                if (!MarketItemUtil.hasSpace(player, originalItem)) {
                     player.sendMessage("§cMasz pełny ekwipunek!");
                     player.sendMessage("§7Zrób miejsce, aby wycofać tę ofertę.");
                     player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1f, 1f);
@@ -55,8 +56,6 @@ public class MarketMyOffersWindow {
                 boolean success = plugin.getMarketService().cancelOffer(offer.getId(), player.getUniqueId());
 
                 if (success) {
-                    this.returnItemToPlayer(offer);
-
                     event.getClickedInventory().setItem(event.getSlot(), new ItemStack(Material.AIR));
                     player.sendMessage("§aOferta została pomyślnie wycofana.");
                     player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1f, 1.5f);
@@ -79,45 +78,4 @@ public class MarketMyOffersWindow {
         player.openInventory(window.getInventory());
     }
 
-    private void returnItemToPlayer(PlayerMarketProfile offer) {
-        ItemStack[] itemsToReturn = PlayerDataSerializerUtil.deserializeItemStacksFromBase64(offer.getItemData());
-
-        if (itemsToReturn.length > 0) {
-            Map<Integer, ItemStack> leftOver = player.getInventory().addItem(itemsToReturn[0]);
-            if (!leftOver.isEmpty()) {
-                leftOver.values().forEach(item -> {
-                    plugin.getMarketRepository().sendToStorage(
-                            player.getUniqueId(),
-                            player.getName(),
-                            item,
-                            offer.getCategory()
-                    );
-                });
-
-                player.sendMessage("§cCoś poszło nie tak z miejscem! §ePrzedmiot trafił do Skrzynki Odbiorczej.");
-                player.playSound(player.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 1f, 1f);
-            }
-        }
-    }
-
-
-    private boolean hasSpace(Player player, ItemStack itemToCheck) {
-        int amountNeeded = itemToCheck.getAmount();
-
-        for (ItemStack storageItem : player.getInventory().getStorageContents()) {
-            if (storageItem == null || storageItem.getType() == Material.AIR) {
-                return true;
-            }
-            if (storageItem.isSimilar(itemToCheck)) {
-                int spaceInStack = storageItem.getMaxStackSize() - storageItem.getAmount();
-                if (spaceInStack > 0) {
-                    amountNeeded -= spaceInStack;
-                }
-            }
-            if (amountNeeded <= 0) {
-                return true;
-            }
-        }
-        return false;
-    }
 }
