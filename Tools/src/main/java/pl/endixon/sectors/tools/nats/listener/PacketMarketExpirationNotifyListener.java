@@ -10,7 +10,7 @@ import pl.endixon.sectors.tools.nats.packet.PacketMarketExpirationNotify;
 
 public class PacketMarketExpirationNotifyListener implements PacketListener<PacketMarketExpirationNotify> {
 
-    // Parser trzymamy statycznie. Tworzenie go przy każdym pakiecie to marnotrawstwo CPU.
+
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
     @Override
