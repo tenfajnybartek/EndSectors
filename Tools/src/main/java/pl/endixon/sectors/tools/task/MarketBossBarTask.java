@@ -20,9 +20,8 @@ public class MarketBossBarTask extends BukkitRunnable {
     private final EndSectorsToolsPlugin plugin;
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
-    private static final String DEPOSIT_TEMPLATE = "<gradient:#00c6ff:#0072ff><bold>DEPOZYT:</bold></gradient> <#aaaaaa>Odbierz przedmioty: <#00c6ff><amount> <#eebb00>/market";
-    private static final String WAREHOUSE_TEMPLATE = "<gradient:#ff512f:#dd2476><bold>MAGAZYN:</bold></gradient> <#aaaaaa>Wygasłe przedmioty: <#ff512f><amount> <#eebb00>/market";
-
+    private static final String DEPOSIT_TEMPLATE = "<gradient:#00c6ff:#0072ff><bold>DEPOZYT:</bold></gradient> <#aaaaaa>Posiadasz zakupione przedmioty do odebrania: <#00c6ff><amount> <#eebb00>/market";
+    private static final String WAREHOUSE_TEMPLATE = "<gradient:#ff512f:#dd2476><bold>MAGAZYN:</bold></gradient> <#aaaaaa>Posiadasz wygasłe przedmioty do odebrania: <#ff512f><amount> <#eebb00>/market";
     private final Map<UUID, BossBar> activeBars = new HashMap<>();
 
     @Override
