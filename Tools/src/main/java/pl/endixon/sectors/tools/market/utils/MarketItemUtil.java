@@ -9,6 +9,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import pl.endixon.sectors.tools.utils.PlayerDataSerializerUtil;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
@@ -56,11 +57,13 @@ public final class MarketItemUtil {
         return false;
     }
 
-    public static void giveItemToPlayer(@NotNull Player player, @NotNull String itemData) {
+    public static Map<Integer, ItemStack> giveItemToPlayer(@NotNull Player player, @NotNull String itemData) {
         ItemStack[] items = PlayerDataSerializerUtil.deserializeItemStacksFromBase64(itemData);
+
         if (items.length > 0) {
-            player.getInventory().addItem(items[0]);
+            return player.getInventory().addItem(items[0]);
         }
+        return Map.of();
     }
 
 

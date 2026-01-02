@@ -9,6 +9,7 @@ import pl.endixon.sectors.tools.inventory.api.WindowUI;
 import pl.endixon.sectors.tools.inventory.api.builder.StackBuilder;
 import pl.endixon.sectors.tools.market.render.MarketItemRenderer;
 import pl.endixon.sectors.tools.market.type.PurchaseResult;
+import pl.endixon.sectors.tools.market.utils.MarketItemUtil;
 import pl.endixon.sectors.tools.user.profile.PlayerProfile;
 import pl.endixon.sectors.tools.user.profile.PlayerMarketProfile;
 import pl.endixon.sectors.tools.user.profile.ProfileMarketCache;
@@ -151,16 +152,7 @@ public class MarketWindow {
 
 
     private void givePurchasedItem(PlayerMarketProfile offer) {
-        ItemStack[] boughtItems = PlayerDataSerializerUtil.deserializeItemStacksFromBase64(offer.getItemData());
-
-        if (boughtItems.length == 0) {
-            this.plugin.getLogger().warning("Market offer " + offer.getId() + " has no items deserialized! Check DB integrity.");
-            return;
-        }
-
-        ItemStack itemToGive = boughtItems[0];
-        Map<Integer, ItemStack> leftOver = this.player.getInventory().addItem(itemToGive);
-
+        Map<Integer, ItemStack> leftOver = MarketItemUtil.giveItemToPlayer(this.player, offer.getItemData());
         if (!leftOver.isEmpty()) {
             leftOver.values().forEach(item -> {
                 this.plugin.getMarketRepository().sendToStorage(
@@ -174,6 +166,5 @@ public class MarketWindow {
             this.player.sendMessage("§cEkwipunek pełny! §ePrzedmiot trafił do Skrzynki Odbiorczej.");
             this.player.playSound(this.player.getLocation(), Sound.ENTITY_IRON_GOLEM_REPAIR, 1f, 1f);
         }
-
     }
 }
