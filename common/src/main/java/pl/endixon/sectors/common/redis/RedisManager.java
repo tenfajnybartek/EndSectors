@@ -198,24 +198,24 @@ public class RedisManager {
 
     public void shutdown() {
         try {
-            if (this.pubSubConnection != null) {
-                this.pubSubConnection.close();
-            }
-
-            if (this.connection != null) {
-                this.connection.close();
-            }
-
-            if (this.redisClient != null) {
-                this.redisClient.shutdown();
-                this.redisClient.getResources().shutdown();
-            }
-
-            LoggerUtil.info("Redis shutdown complete.");
+            if (pubSubConnection != null) pubSubConnection.close();
         } catch (Exception e) {
-            LoggerUtil.error("[RedisManager] Shutdown failed: " + e.getMessage());
+            LoggerUtil.error("[RedisManager] Failed to close pubSubConnection: " + e.getMessage());
+        }
+
+        try {
+            if (connection != null) connection.close();
+        } catch (Exception e) {
+            LoggerUtil.error("[RedisManager] Failed to close connection: " + e.getMessage());
+        }
+
+        try {
+            if (redisClient != null) redisClient.shutdown();
+        } catch (Exception e) {
+            LoggerUtil.error("[RedisManager] Failed to shutdown redisClient: " + e.getMessage());
         }
     }
+
 
 
 }

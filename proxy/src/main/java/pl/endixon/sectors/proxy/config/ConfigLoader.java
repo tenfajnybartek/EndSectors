@@ -52,9 +52,9 @@ public class ConfigLoader {
 
             ConfigLoader config = new ConfigLoader();
             config.proxyName = (String) root.getOrDefault("proxyName", "proxy-1");
-            config.redisHost = (String) root.getOrDefault("redisHost", "127.0.0.1");
+            config.redisHost = ((String) root.getOrDefault("redisHost", "127.0.0.1")).trim();
             config.redisPort = ((Number) root.getOrDefault("redisPort", 6379)).intValue();
-            config.redisPassword = (String) root.getOrDefault("redisPassword", "password");
+            config.redisPassword = ((String) root.getOrDefault("redisPassword", "password")).trim();
             config.natsUrl = (String) root.getOrDefault("natsUrl", "nats://user:password@127.0.0.1:4222");
             config.natsConnectionName = (String) root.getOrDefault("natsConnectionName", "proxy");
 

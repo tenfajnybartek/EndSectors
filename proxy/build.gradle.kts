@@ -50,6 +50,10 @@ tasks.named<ShadowJar>("shadowJar") {
     archiveClassifier.set("")
     archiveFileName.set("EndSectors-proxy.jar")
     exclude("META-INF/**")
+    relocate("io.netty", "pl.endixon.sectors.shadow.netty") {
+        include("io.netty.**")
+    }
+
     dependencies {
         exclude(dependency("net.bytebuddy:.*"))
     }
