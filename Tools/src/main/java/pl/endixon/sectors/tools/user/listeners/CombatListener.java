@@ -75,19 +75,14 @@ public class CombatListener implements Listener {
 
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent event) {
+        if (!(event instanceof EntityDamageByEntityEvent entityEvent)) return;
 
-        if (!(event instanceof EntityDamageByEntityEvent entityEvent)) {
-            return;
-        }
+        if (!(entityEvent.getEntity() instanceof Player victim)) return;
+        if (!(entityEvent.getDamager() instanceof Player attacker)) return;
 
-        if (event.getEntity().getType() != EntityType.PLAYER || entityEvent.getDamager().getType() != EntityType.PLAYER) {
-            return;
-        }
-
-        Player victim = (Player) entityEvent.getEntity();
-        Player attacker = (Player) entityEvent.getDamager();
         processCombat(attacker, victim);
     }
+
 
     private void processCombat(Player attacker, Player victim) {
         if (!combatManager.canStartCombat(attacker, victim)) {
@@ -172,10 +167,14 @@ public class CombatListener implements Listener {
     @EventHandler
     public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
         Player player = event.getPlayer();
+        if (player.hasPermission("endsectors.combat.bypass")) {
+            return;
+        }
 
         if (combatManager.isInCombat(player)) {
-            player.sendMessage((MessagesUtil.COMBAT_NO_COMMAND.get()));
+            player.sendMessage(MessagesUtil.COMBAT_NO_COMMAND.get());
             event.setCancelled(true);
         }
     }
+
 }

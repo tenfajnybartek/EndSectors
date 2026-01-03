@@ -23,7 +23,28 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import pl.endixon.sectors.tools.validators.combat.CombatValidator;
 
+/*
+ *
+ *  EndSectors  Non-Commercial License
+ *  (c) 2025 Endixon
+ *
+ *  Permission is granted to use, copy, and
+ *  modify this software **only** for personal
+ *  or educational purposes.
+ *
+ *   Commercial use, redistribution, claiming
+ *  this work as your own, or copying code
+ *  without explicit permission is strictly
+ *  prohibited.
+ *
+ *  Visit https://github.com/Endixon/EndSectors
+ *  for more info.
+ *
+ */
+
 public class GameModeValidator implements CombatValidator {
+
+    private static final String BYPASS_PERMISSION = "endsectors.combat.gamemode.bypass";
 
     @Override
     public boolean validate(Player attacker, Player victim) {
@@ -31,6 +52,11 @@ public class GameModeValidator implements CombatValidator {
     }
 
     private boolean isValid(Player player) {
-        return player.getGameMode() == GameMode.SURVIVAL || player.getGameMode() == GameMode.ADVENTURE;
+        if (player.hasPermission(BYPASS_PERMISSION)) {
+            return true;
+        }
+
+        return player.getGameMode() == GameMode.SURVIVAL
+                || player.getGameMode() == GameMode.ADVENTURE;
     }
 }
