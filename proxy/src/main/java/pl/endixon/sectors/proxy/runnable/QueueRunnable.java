@@ -4,6 +4,7 @@ import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
 import pl.endixon.sectors.common.sector.SectorData;
 import pl.endixon.sectors.proxy.VelocitySectorPlugin;
@@ -100,7 +101,10 @@ public class QueueRunnable implements Runnable {
                     player.resetTitle();
                     LoggerUtil.info("[Queue] Player " + player.getUsername() + " successfully moved to " + sectorName);
                 } else {
-                    LoggerUtil.info("[Queue] Connection failed for " + player.getUsername() + " to " + sectorName + " | Reason: " + result.getStatus());
+                    String reason = result.getReasonComponent()
+                            .map(component -> PlainTextComponentSerializer.plainText().serialize(component))
+                            .orElse("Unknown reason");
+                    LoggerUtil.info("[Queue] Connection failed for " + player.getUsername() + " to " + sectorName + " | Reason: " + reason);
                 }
             });
         });
