@@ -25,6 +25,7 @@ import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -74,17 +75,24 @@ public class CombatListener implements Listener {
 
     @EventHandler
     public void onPlayerDamage(EntityDamageEvent event) {
+        if (!(event instanceof EntityDamageByEntityEvent entityEvent)) return;
+        if (!(event.getEntity() instanceof Player victim)) return;
 
-        if (!(event instanceof EntityDamageByEntityEvent entityEvent)) {
-            return;
+        Player attacker = null;
+
+
+        if (entityEvent.getDamager() instanceof Player) {
+            attacker = (Player) entityEvent.getDamager();
         }
 
-        if (event.getEntity().getType() != EntityType.PLAYER || entityEvent.getDamager().getType() != EntityType.PLAYER) {
-            return;
+        else if (entityEvent.getDamager() instanceof Projectile projectile) {
+            if (projectile.getShooter() instanceof Player) {
+                attacker = (Player) projectile.getShooter();
+            }
         }
 
-        Player victim = (Player) entityEvent.getEntity();
-        Player attacker = (Player) entityEvent.getDamager();
+        if (attacker == null) return;
+
         processCombat(attacker, victim);
     }
 
