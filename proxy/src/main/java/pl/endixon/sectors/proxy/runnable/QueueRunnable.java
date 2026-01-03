@@ -6,25 +6,19 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.title.Title;
 import pl.endixon.sectors.common.sector.SectorData;
-import pl.endixon.sectors.common.util.LoggerUtil;
 import pl.endixon.sectors.proxy.VelocitySectorPlugin;
 import pl.endixon.sectors.proxy.sector.SectorQueue;
 import pl.endixon.sectors.proxy.manager.QueueManager;
 import pl.endixon.sectors.proxy.manager.SectorManager;
+import pl.endixon.sectors.proxy.util.LoggerUtil;
 import pl.endixon.sectors.proxy.util.ProxyMessages;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class QueueRunnable implements Runnable {
 
     private static final String QUEUE_SERVER_NAME = "queue";
-    private static final MiniMessage MM = MiniMessage.miniMessage();
-    private static final Component TITLE_CACHE = MM.deserialize("<gradient:#00d2ff:#3a7bd5><bold>KOLEJKA</bold></gradient>");
-    private static final Map<String, Component> SUBTITLE_CACHE = new ConcurrentHashMap<>();
-
     private final ProxyServer proxyServer = VelocitySectorPlugin.getInstance().getServer();
     private final QueueManager queueManager = VelocitySectorPlugin.getInstance().getQueueManager();
     private final SectorManager sectorManager = VelocitySectorPlugin.getInstance().getSectorManager();
@@ -93,7 +87,6 @@ public class QueueRunnable implements Runnable {
                 currentCount++;
                 sectorData.setPlayerCount(currentCount);
 
-                continue;
             }
 
             this.dispatchTitle(player, sectorName, true, positionInQueue, totalInQueue, isFull);
@@ -105,6 +98,9 @@ public class QueueRunnable implements Runnable {
             player.createConnectionRequest(server).connect().thenAccept(result -> {
                 if (result.isSuccessful()) {
                     player.resetTitle();
+                    LoggerUtil.info("[Queue] Player " + player.getUsername() + " successfully moved to " + sectorName);
+                } else {
+                    LoggerUtil.info("[Queue] Connection failed for " + player.getUsername() + " to " + sectorName + " | Reason: " + result.getStatus());
                 }
             });
         });
@@ -137,13 +133,12 @@ public class QueueRunnable implements Runnable {
     }
 
     private void dispatchTitle(final Player player, final String sector, final boolean online, final int pos, final int total, final boolean full) {
-        final String cacheKey = String.format("q_sys_%s_%b_%b_%d_%d", sector, online, full, pos, total);
-        final Component subtitle = SUBTITLE_CACHE.computeIfAbsent(cacheKey, k -> this.buildSubtitle(sector, online, pos, total, full));
-        player.showTitle(Title.title(ProxyMessages.QUEUE_TITLE.get(), subtitle));
+        final Component subtitle = this.buildSubtitle(sector, online, pos, total, full);
+        final Component mainTitle = ProxyMessages.QUEUE_TITLE.get();
+        player.showTitle(Title.title(mainTitle, subtitle));
     }
 
     private Component buildSubtitle(final String sector, final boolean online, final int pos, final int total, final boolean full) {
-
         if (!online) {
             return ProxyMessages.QUEUE_OFFLINE.get(
                     "{SECTOR}", sector,
@@ -165,6 +160,4 @@ public class QueueRunnable implements Runnable {
                 "{TOTAL}", String.valueOf(total)
         );
     }
-
-
 }
