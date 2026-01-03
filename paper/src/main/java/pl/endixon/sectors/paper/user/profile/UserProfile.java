@@ -283,7 +283,6 @@ public class UserProfile {
             Vector direction = targetLoc.getDirection().setY(0).normalize();
             targetLoc = targetLoc.clone().add(direction.multiply(6.0));
         }
-
         player.teleport(targetLoc);
         startProtectionTask(player);
     }
@@ -293,23 +292,24 @@ public class UserProfile {
         player.setInvulnerable(true);
 
         new BukkitRunnable() {
-            int remainingSeconds = protectionSeconds;
+            int remainingTicks = protectionSeconds * 20;
 
             @Override
             public void run() {
-                if (!player.isOnline() || remainingSeconds <= 0) {
-                    if (player.isOnline()) {
-                        player.setInvulnerable(false);
-                        player.sendActionBar(Component.text(""));
-                    }
+                if (!player.isOnline() || remainingTicks <= 0) {
+                    player.setInvulnerable(false);
                     this.cancel();
                     return;
                 }
+                if (remainingTicks % 20 == 0) {
+                    int seconds = remainingTicks / 20;
+                    player.sendActionBar(MessagesUtil.PROTECTION_ACTIONBAR.get("{SECONDS}", String.valueOf(seconds)
+                    ));
+                }
 
-                player.sendActionBar(MessagesUtil.PROTECTION_ACTIONBAR.get("{SECONDS}", String.valueOf(remainingSeconds)));
-                remainingSeconds--;
+                remainingTicks--;
             }
-        }.runTaskTimer(PaperSector.getInstance(), 0, 20);
+        }.runTaskTimer(PaperSector.getInstance(), 0, 1);
     }
 }
 
