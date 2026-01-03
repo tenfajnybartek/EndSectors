@@ -113,7 +113,11 @@ public class EndSectorsToolsPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (this.heartbeatHook != null) {
+            this.heartbeatHook.shutdown();
+        }
         this.shutdownMongo();
+        Common.getInstance().shutdown();
         LoggerUtil.info("EndSectors-Tools disabled. Good night.");
     }
 
