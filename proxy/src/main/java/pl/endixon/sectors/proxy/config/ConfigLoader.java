@@ -16,11 +16,13 @@ import java.util.*;
 
 public class ConfigLoader {
 
+    public String proxyName = "proxy-1";
     public String redisHost = "127.0.0.1";
     public int redisPort = 6379;
     public String redisPassword = "password";
     public String natsUrl = "nats://user:password@127.0.0.1:4222";
     public String natsConnectionName = "proxy";
+
     public Map<String, Map<String, SectorData>> sectors = new LinkedHashMap<>();
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -49,6 +51,7 @@ public class ConfigLoader {
             }
 
             ConfigLoader config = new ConfigLoader();
+            config.proxyName = (String) root.getOrDefault("proxyName", "proxy-1");
             config.redisHost = (String) root.getOrDefault("redisHost", "127.0.0.1");
             config.redisPort = ((Number) root.getOrDefault("redisPort", 6379)).intValue();
             config.redisPassword = (String) root.getOrDefault("redisPassword", "password");
@@ -120,6 +123,7 @@ public class ConfigLoader {
 
     private static Map<String, Object> createDefaultData() {
         Map<String, Object> root = new LinkedHashMap<>();
+        root.put("proxyName", "proxy-1");
         root.put("redisHost", "127.0.0.1");
         root.put("redisPort", 6379);
         root.put("redisPassword", "password");
@@ -174,6 +178,7 @@ public class ConfigLoader {
 
     private static ConfigLoader defaultConfig() {
         ConfigLoader config = new ConfigLoader();
+        config.proxyName = "proxy-1";
         config.redisHost = "127.0.0.1";
         config.redisPort = 6379;
         config.redisPassword = "password";

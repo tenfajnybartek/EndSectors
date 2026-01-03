@@ -40,6 +40,7 @@ import pl.endixon.sectors.proxy.config.ConfigLoader;
 import pl.endixon.sectors.proxy.config.MessageLoader;
 import pl.endixon.sectors.proxy.hook.CommonHeartbeatHook;
 import pl.endixon.sectors.proxy.nats.listener.*;
+import pl.endixon.sectors.proxy.task.ProxyCounterTask;
 import pl.endixon.sectors.proxy.user.listener.InfrastructureIntegrityListener;
 import pl.endixon.sectors.proxy.user.listener.LastSectorConnectListener;
 import pl.endixon.sectors.proxy.manager.SectorManager;
@@ -97,6 +98,7 @@ public class VelocitySectorPlugin {
         this.initNatsSubscriptions();
         this.initListeners();
         this.initCommands();
+        this.loadTask();
         this.getServer().getScheduler().buildTask(this, new QueueRunnable()).repeat(2, TimeUnit.SECONDS).schedule();
         LoggerUtil.info("EndSectors-Proxy enabled successfully.");
     }
@@ -107,6 +109,8 @@ public class VelocitySectorPlugin {
         if (this.heartbeatHook != null) {
             this.heartbeatHook.shutdown();
         }
+        String proxyId = this.configLoader.proxyName;
+        Common.getInstance().getRedisManager().hdel("proxy_online", proxyId);
         Common.getInstance().shutdown();
         LoggerUtil.info("EndSectors-Proxy has been successfully shut down.");
     }
@@ -183,8 +187,11 @@ public class VelocitySectorPlugin {
         server.getEventManager().register(this, new PlayerConnectionListener());
     }
 
-    public ProxyServer getServerInstance() {
-        return server;
+    public void loadTask() {
+        this.server.getScheduler()
+                .buildTask(this, new ProxyCounterTask())
+                .repeat(5, TimeUnit.SECONDS)
+                .schedule();
     }
 
 }

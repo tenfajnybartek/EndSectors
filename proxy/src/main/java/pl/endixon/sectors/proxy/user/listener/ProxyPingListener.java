@@ -24,9 +24,11 @@ import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.ServerPing;
 import net.kyori.adventure.text.Component;
+import pl.endixon.sectors.common.Common;
 import pl.endixon.sectors.common.sector.SectorData;
 import pl.endixon.sectors.proxy.VelocitySectorPlugin;
 import pl.endixon.sectors.proxy.manager.SectorManager;
+import pl.endixon.sectors.proxy.task.ProxyCounterTask;
 import pl.endixon.sectors.proxy.util.CpuUtil;
 import pl.endixon.sectors.proxy.util.ProxyMessages;
 
@@ -46,7 +48,7 @@ public final class ProxyPingListener {
             return;
         }
 
-        int proxyOnline = this.proxyServer.getPlayerCount();
+        int globalOnline = ProxyCounterTask.getGlobalOnline();
         int totalMax = 0;
         int activeSectors = 0;
 
@@ -63,13 +65,13 @@ public final class ProxyPingListener {
 
         Component motd = ProxyMessages.PROXY_MOTD.getMotd(
                 "{ACTIVE_SECTORS}", String.valueOf(activeSectors),
-                "{ONLINE_PLAYERS}", String.valueOf(proxyOnline),
+                "{ONLINE_PLAYERS}", String.valueOf(globalOnline),
                 "{CPU}", cpuColor + formattedCpu
         );
 
         List<String> hoverLines = ProxyMessages.PROXY_HOVER.getRawLines(
                 "{ACTIVE_SECTORS}", String.valueOf(activeSectors),
-                "{ONLINE_PLAYERS}", String.valueOf(proxyOnline),
+                "{ONLINE_PLAYERS}", String.valueOf(globalOnline),
                 "{CPU}", cpuColor + formattedCpu
         );
 
@@ -79,7 +81,7 @@ public final class ProxyPingListener {
 
         ServerPing.Builder builder = event.getPing().asBuilder()
                 .description(motd)
-                .onlinePlayers(proxyOnline)
+                .onlinePlayers(globalOnline)
                 .maximumPlayers(totalMax)
                 .samplePlayers(hover);
 
