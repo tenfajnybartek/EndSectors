@@ -65,12 +65,17 @@ public class MarketSellCommand implements CommandExecutor {
         double price;
         try {
             price = Double.parseDouble(priceRaw);
+            if (!Double.isFinite(price)) {
+                sendMarketMessage(player, ERROR_COLOR + "Podana cena jest nieprawidłowa!");
+                return;
+            }
+
             if (price <= 0) {
                 sendMarketMessage(player, ERROR_COLOR + "Cena musi być większa niż 0!");
                 return;
             }
             if (price > 1_000_000_000) {
-                sendMarketMessage(player, ERROR_COLOR + "Cena jest zbyt wysoka! Zejdź na ziemię, to nie Dubaj.");
+                sendMarketMessage(player, ERROR_COLOR + "Cena jest zbyt wysoka!");
                 return;
             }
         } catch (NumberFormatException e) {

@@ -31,6 +31,7 @@ public class PacketPlayerInfoRequest implements Packet {
     private final boolean firstJoin;
     private final long lastSectorTransfer;
     private final long lastTransferTimestamp;
+    private final double health;
     private final int foodLevel;
     private final int experience;
     private final int experienceLevel;
@@ -43,10 +44,10 @@ public class PacketPlayerInfoRequest implements Packet {
     private final String playerEffectsData;
 
     public PacketPlayerInfoRequest(UserProfile user) {
-        this(user.getName(), user.getSectorName(), user.isFirstJoin(), user.getLastSectorTransfer(), user.getLastTransferTimestamp(), user.getFoodLevel(), user.getExperience(), user.getExperienceLevel(), user.getFireTicks(), user.isAllowFlight(), user.isFlying(), user.getPlayerGameMode(), user.getPlayerInventoryData(), user.getPlayerEnderChestData(), user.getPlayerEffectsData());
+        this(user.getName(), user.getSectorName(), user.isFirstJoin(), user.getLastSectorTransfer(), user.getLastTransferTimestamp(), user.getHealth(), user.getFoodLevel(), user.getExperience(), user.getExperienceLevel(), user.getFireTicks(), user.isAllowFlight(), user.isFlying(), user.getPlayerGameMode(), user.getPlayerInventoryData(), user.getPlayerEnderChestData(), user.getPlayerEffectsData());
     }
 
-    public PacketPlayerInfoRequest(String name, String sectorName, boolean firstJoin, long lastSectorTransfer, long lastTransferTimestamp, int foodLevel, int experience, int experienceLevel, int fireTicks, boolean allowFlight, boolean flying, String playerGameMode, String playerInventoryData, String playerEnderChestData, String playerEffectsData) {
+    public PacketPlayerInfoRequest(String name, String sectorName, boolean firstJoin, long lastSectorTransfer, long lastTransferTimestamp, double health, int foodLevel, int experience, int experienceLevel, int fireTicks, boolean allowFlight, boolean flying, String playerGameMode, String playerInventoryData, String playerEnderChestData, String playerEffectsData) {
         this.name = name;
         this.sectorName = sectorName;
         this.firstJoin = firstJoin;
@@ -57,6 +58,7 @@ public class PacketPlayerInfoRequest implements Packet {
         this.experienceLevel = experienceLevel;
         this.fireTicks = fireTicks;
         this.allowFlight = allowFlight;
+        this.health = health;
         this.flying = flying;
         this.playerGameMode = playerGameMode;
         this.playerInventoryData = playerInventoryData;

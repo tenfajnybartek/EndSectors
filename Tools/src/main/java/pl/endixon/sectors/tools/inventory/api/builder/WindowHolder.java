@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
@@ -14,6 +15,7 @@ import org.bukkit.inventory.InventoryHolder;
 public class WindowHolder implements InventoryHolder {
 
     private final Map<Integer, Consumer<InventoryClickEvent>> slotActions = new ConcurrentHashMap<>();
+    private Consumer<InventoryCloseEvent> closeAction;
     private Inventory inventory;
     private boolean interactionAllowed = false;
 
@@ -21,6 +23,8 @@ public class WindowHolder implements InventoryHolder {
     public Inventory getInventory() {
         return inventory;
     }
+
+
 
     public void assignAction(int slot, Consumer<InventoryClickEvent> action) {
         if (action == null) {

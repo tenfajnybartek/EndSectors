@@ -64,20 +64,41 @@ public final class BackpackItemRenderer {
         return builder;
     }
 
-    public static StackBuilder prepareActionSaveExit(boolean isActive) {
-        if (isActive) {
-            return new StackBuilder(new ItemStack(Material.LIME_DYE))
-                    .name(hex("<#00ff87><bold>ZARZĄDZANIE ZMIANAMI"))
-                    .lore(hex("<#00ff87>LPM » <#ffffff>Zapisz i wyjdź"))
-                    .lore(hex("<#ff5f6d>PPM » <#ffffff>Anuluj i wyjdź"))
-                    .glow(true);
-        } else {
+
+
+    public static StackBuilder prepareEditModeButton(boolean isEditing) {
+        if (!isEditing) {
             return new StackBuilder(new ItemStack(Material.RED_DYE))
-                    .name(hex("<#ff4b2b><bold>ZAMKNIJ PLECAK"))
-                    .lore(hex(TEXT + "Strona jest zablokowana."))
-                    .lore(hex("<#ff5f6d>Kliknij » <#ffffff>Wyjdź"));
+                    .name(hex("<#ff4b2b><bold>TRYB PODGLĄDU"))
+                    .lore(hex(SEPARATOR + " "))
+                    .lore(hex(TEXT + "Status: <#ff4b2b>Zablokowany (Tylko odczyt)"))
+                    .lore(hex(" "))
+                    .lore(hex(TEXT + "W tym trybie " + ADMIN_ACCENT + "nie możesz " + TEXT + "przesuwać przedmiotów."))
+                    .lore(hex(TEXT + "Zabezpiecza to Twój plecak przed przypadkowym"))
+                    .lore(hex(TEXT + "wyrzuceniem cennych przedmiotów."))
+                    .lore(hex(" "))
+                    .lore(hex(ACCENT + "KLIKNIJ » <#ffffff>Odblokuj edycję plecaka"))
+                    .lore(hex(SEPARATOR + " "));
+        } else {
+            return new StackBuilder(new ItemStack(Material.LIME_DYE))
+                    .name(hex("<#00ff87><bold>TRYB EDYCJI"))
+                    .lore(hex(SEPARATOR + " "))
+                    .lore(hex(TEXT + "Status: <#00ff87>Odblokowany (Pełny dostęp)"))
+                    .lore(hex(" "))
+                    .lore(hex(TEXT + "Możesz teraz swobodnie zarządzać zawartością."))
+                    .lore(hex(TEXT + "Wkładaj, wyjmuj i układaj przedmioty."))
+                    .lore(hex(" "))
+                    .lore(hex("<#fbff00><bold>CO SIĘ STANIE PO KLIKNIĘCIU?"))
+                    .lore(hex(TEXT + "» Twoje zmiany zostaną " + ACCENT + "zsynchronizowane"))
+                    .lore(hex(TEXT + "» Zawartość zostanie zapisana"))
+                    .lore(hex(TEXT + "» plecak zostanie zamknięty"))
+                    .lore(hex(" "))
+                    .lore(hex("<#00ff87>KLIKNIJ » <#ffffff>Zapisz zmiany i wyjdź"))
+                    .lore(hex(SEPARATOR + " "))
+                    .glow(true);
         }
     }
+
 
     public static StackBuilder prepareBreachWarning(boolean needsRenew, double cost, double balance, int expiredCount) {
         final StackBuilder builder = new StackBuilder(new ItemStack(needsRenew ? Material.BARRIER : Material.WITHER_SKELETON_SKULL))

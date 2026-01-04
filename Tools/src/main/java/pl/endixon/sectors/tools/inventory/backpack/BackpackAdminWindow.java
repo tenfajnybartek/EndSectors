@@ -35,12 +35,16 @@ public class BackpackAdminWindow {
         this.page = page;
         this.service = service;
         this.open();
+
+
     }
 
     public void open() {
         final int totalPages = this.targetBackpack.getUnlockedPages();
         final String title = "<gradient:#ed213a:#93291e><bold>ADMIN:</bold></gradient> <#aaaaaa>" + this.targetProfile.getName() + " <#ff5f6d>[" + this.page + "]";
         final WindowUI window = new WindowUI(title, 6);
+
+
 
         final String base64 = this.targetBackpack.getPages().getOrDefault(String.valueOf(this.page), "");
         final ItemStack[] items = PlayerDataSerializerUtil.deserializeItemStacksFromBase64(base64);

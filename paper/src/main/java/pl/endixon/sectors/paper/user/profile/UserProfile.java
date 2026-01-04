@@ -51,6 +51,7 @@ public class UserProfile {
     private long lastSectorTransfer;
     private long lastTransferTimestamp;
     private long transferOffsetUntil;
+    private double health;
     private int foodLevel;
     private int experience;
     private int experienceLevel;
@@ -71,6 +72,7 @@ public class UserProfile {
         this.lastSectorTransfer = 0L;
         this.lastTransferTimestamp = 0L;
         this.transferOffsetUntil = 0L;
+        this.health = 20;
         this.foodLevel = 20;
         this.experience = 0;
         this.experienceLevel = 0;
@@ -120,6 +122,7 @@ public class UserProfile {
         this.playerInventoryData = redisData.getOrDefault("playerInventoryData", playerInventoryData);
         this.playerEnderChestData = redisData.getOrDefault("playerEnderChestData", playerEnderChestData);
         this.playerEffectsData = redisData.getOrDefault("playerEffectsData", playerEffectsData);
+        this.health = Double.parseDouble(redisData.getOrDefault("health", String.valueOf(health)));
         this.foodLevel = Integer.parseInt(redisData.getOrDefault("foodLevel", String.valueOf(foodLevel)));
         this.experience = Integer.parseInt(redisData.getOrDefault("experience", String.valueOf(experience)));
         this.experienceLevel = Integer.parseInt(redisData.getOrDefault("experienceLevel", String.valueOf(experienceLevel)));
@@ -144,6 +147,7 @@ public class UserProfile {
             this.pitch = loc.getPitch();
         }
         this.playerGameMode = player.getGameMode().name();
+        this.health = player.getHealth();
         this.foodLevel = player.getFoodLevel();
         this.experience = player.getTotalExperience();
         this.experienceLevel = player.getLevel();
@@ -176,6 +180,7 @@ public class UserProfile {
         map.put("playerInventoryData", playerInventoryData);
         map.put("playerEnderChestData", playerEnderChestData);
         map.put("playerEffectsData", playerEffectsData);
+        map.put("health", String.valueOf(health));
         map.put("foodLevel", String.valueOf(foodLevel));
         map.put("experience", String.valueOf(experience));
         map.put("experienceLevel", String.valueOf(experienceLevel));
@@ -273,6 +278,7 @@ public class UserProfile {
 
     private void loadPlayerData(@NonNull Player player) {
         player.setGameMode(GameMode.valueOf(playerGameMode));
+        player.setHealth(health);
         player.setFoodLevel(foodLevel);
         player.setTotalExperience(experience);
         player.setLevel(experienceLevel);

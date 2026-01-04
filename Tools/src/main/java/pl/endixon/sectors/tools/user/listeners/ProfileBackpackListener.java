@@ -5,10 +5,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import pl.endixon.sectors.tools.backpack.BackpackService;
 import pl.endixon.sectors.tools.backpack.repository.BackpackRepository;
+import pl.endixon.sectors.tools.inventory.api.builder.WindowHolder;
 import pl.endixon.sectors.tools.user.profile.cache.ProfileBackpackCache;
 import pl.endixon.sectors.tools.user.profile.player.PlayerBackpackProfile;
 
@@ -28,11 +30,22 @@ public class ProfileBackpackListener implements Listener {
     }
 
     @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (event.getInventory().getHolder() instanceof WindowHolder holder) {
+            if (holder.getCloseAction() != null) {
+                holder.getCloseAction().accept(event);
+            }
+        }
+    }
+
+    @EventHandler
     public void onDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
 
         this.backpackService.handleDeathBreach(victim);
     }
+
+
 
 
     @EventHandler

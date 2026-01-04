@@ -36,6 +36,7 @@ import pl.endixon.sectors.tools.inventory.api.builder.StackBuilder;
 import pl.endixon.sectors.tools.user.profile.player.PlayerProfile;
 import pl.endixon.sectors.tools.user.profile.cache.ProfileHome;
 import pl.endixon.sectors.tools.utils.MessagesUtil;
+import pl.endixon.sectors.tools.utils.TeleportUtil;
 
 public class HomeWindow {
     private final Player player;
@@ -44,6 +45,9 @@ public class HomeWindow {
     private final PlayerProfile profile;
     private final UserProfile user;
     private static final int HOME_SLOTS = 3;
+    private static final int COUNTDOWN_TIME = 10;
+
+
 
     public HomeWindow(Player player, PlayerProfile profile, SectorsAPI sectorsAPI) {
         this.player = player;
@@ -127,11 +131,23 @@ public class HomeWindow {
         user.setX(home.getX()); user.setY(home.getY()); user.setZ(home.getZ());
         user.setYaw(home.getYaw()); user.setPitch(home.getPitch());
 
+        boolean isAdmin = player.hasPermission("endsectors.admin");
+        int countdown = isAdmin ? 0 : COUNTDOWN_TIME;
+
+
         if (home.getSector().equals(sectorsAPI.getSectorManager().getCurrentSectorName())) {
+
+            TeleportUtil.startTeleportCountdown(player, countdown, () -> {
+                player.closeInventory();
             player.teleport(new Location(world, home.getX(), home.getY(), home.getZ(), home.getYaw(), home.getPitch()));
             user.updateAndSave(player, homeSector, false);
+
+            });
         } else {
+            TeleportUtil.startTeleportCountdown(player, countdown, () -> {
+                player.closeInventory();
             sectorsAPI.getPaperSector().getSectorTeleport().teleportToSector(player, user, homeSector, false, true);
+            });
         }
         player.sendMessage(MessagesUtil.HOME_TELEPORT_SUCCESS.get());
     }
