@@ -56,6 +56,7 @@ public class SectorManager {
         final List<SectorData> allowedSectors = this.sectorsData.stream()
                 .filter(sector -> sector.getType() != SectorType.QUEUE
                         && sector.getType() != SectorType.NETHER
+                        && sector.getType() != SectorType.AFK
                         && sector.getType() != SectorType.END)
                 .toList();
 
